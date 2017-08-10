@@ -36,7 +36,7 @@ button {
         transition-duration: 0.4s;
     cursor: pointer;
 }
-.buttonStart {
+#buttonStart {
     border: 1px solid transparent;
     border-radius: 4px;
     color: white !important;
@@ -54,7 +54,7 @@ button {
     background-color: #4CAF50; /* Green */
     border-color: #3e8e42; /* Dark Green */
 }
-.buttonStart:hover {
+#buttonStart:hover {
     background-color: white;
     color: black !important;
 }

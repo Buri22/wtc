@@ -12,7 +12,7 @@ require_once 'Db.php';
 Db::connect('127.0.0.1', 'work_time_counter', 'root', 'Bluegrass');
 
 $create_result = ' ';
-$selected_work = $_POST['work_setlist'];
+$selected_work = !$_POST ? 0 : $_POST['work_setlist'];
 $works = Db::queryAll('
                         SELECT *
                         FROM work
@@ -50,8 +50,11 @@ $works = Db::queryAll('
         <div class="row"> <!-- Select Work Name-->
             <h2 class="text-center">Current work name: </h2>
             <div class="col-xs-12 col-sm-12 col-md-4 col-md-offset-4 col-lg-4 col-lg-offset-4">
-                <select name="work_setlist" id="work_setlist_id" class="form-control"
-                        onchange="showTime(this.value)">
+                <select
+                    name="work_setlist"
+                    id="work_setlist_id"
+                    class="form-control"
+                    onchange="getTime(this.value)">
                     <?php
                     // Start/Stop working
                     foreach ($works as $work) {
@@ -143,10 +146,10 @@ $works = Db::queryAll('
             </div>
             <div class="row"> <!-- Start, Stop Buttons-->
                 <div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                    <button type="submit" name="start" value="Start" class="buttonStart">Start</button>
+                    <button type="submit" name="start" value="Start" id="buttonStart" onclick="showTime(<?= $selected_work ?>)">Start</button>
                 </div>
                 <div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                    <input type="submit" name="stop" value="Stop" class="buttonStop">
+                    <input type="submit" name="stop" value="Stop" class="buttonStop" onclick="deleteLocalStorage()">
                 </div>
             </div>
         </section>

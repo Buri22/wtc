@@ -12,7 +12,7 @@ function startCounting($current_work_id) {
                   FROM work
                   WHERE work_started = 1
               ');
-    if (!$works) {
+    if (!$works) {  // No work started
 
         $current_start_time = time();
 
@@ -79,25 +79,32 @@ function checkWork($id, $param) {
     if ($work) {
         if ($param == "whole") {
             return $work;
-        } else if ($param == "name") {
-            
-        } else if ($param == "last_start") {
-            
-        } else if ($param == "spent_time") {
+        }
+//        else if ($param == "name") {
+//
+//        }
+//        else if ($param == "last_start") {
+//
+//        }
+        else if ($param == "spent_time") {
             if (!$work) {
                 return $work = 'I can`t find current spent time.';
             } else {
                 //var_dump($work["spent_time"]);
                 return $work["spent_time"];
             }
-        } else if ($param == "work_started") {
+        }
+        else if ($param == "work_started") {
             if ($work['work_started'] == 1) {
                 return true;
             } else {
                 return false;
             }
         }
-    } else {
-        echo "There`s not such a work in our database ;)";
     }
+    else {
+        echo "There`s not such a work in our database ;)";
+        return false;
+    }
+    return false;
 }
