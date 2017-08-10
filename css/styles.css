@@ -1,0 +1,108 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 10.8.2017, 18:59:00
+    Author     : Buri22
+*/
+body {
+   background: #fff;
+   width: 100%;
+   height: auto;
+   font-size: 1.5em;
+   font-family: 'Open Sans', sans-serif;
+   font-weight: normal;
+   color: #798097;
+   line-height: 2.3rem;
+   font-smoothing: antialiased;
+   -webkit-font-smoothing: antialiased;
+   -moz-font-smoothing: antialiased;
+   -o-font-smoothing: antialiased;
+}
+button {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: white !important;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px !important;
+    margin: 4px 2px !important;
+    /* To determine the speed of the "hover" effect*/
+        -webkit-transition-duration: 0.4s !important; /* Safari */
+        transition-duration: 0.4s;
+    cursor: pointer;
+}
+.buttonStart {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: white !important;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px !important;
+    margin: 4px 2px !important;
+    /* To determine the speed of the "hover" effect*/
+        -webkit-transition-duration: 0.4s !important; /* Safari */
+        transition-duration: 0.4s;
+    cursor: pointer;
+    
+    background-color: #4CAF50; /* Green */
+    border-color: #3e8e42; /* Dark Green */
+}
+.buttonStart:hover {
+    background-color: white;
+    color: black !important;
+}
+.buttonStop {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: white !important;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px !important;
+    margin: 4px 2px !important;
+    /* To determine the speed of the "hover" effect*/
+        -webkit-transition-duration: 0.4s !important; /* Safari */
+        transition-duration: 0.4s;
+    cursor: pointer;
+    
+    background-color: #ff751a; /* Blue */
+    border-color:  #e65c00; /* Dark Blue */
+}
+.buttonStop:hover {
+    background-color: white;
+    color: black !important;
+}
+
+.vlevo {
+    float: left;
+}
+.vpravo {
+    float: right;
+}
+.cistic {
+    clear: both;
+}
+.text_size {
+    font-size: 22px;
+    text-align: right;
+}
+
+#output_section {
+    height: 500px;
+}
+#btn_start_stop {
+    position: relative;
+    padding-top: 100px;
+}
+
+.red {
+    color: red;
+}
