@@ -30,7 +30,7 @@ button {
     text-decoration: none;
     display: inline-block;
     font-size: 16px !important;
-    margin: 4px 2px !important;
+    /*margin: 4px 2px !important;*/
     /* To determine the speed of the "hover" effect*/
         -webkit-transition-duration: 0.4s !important; /* Safari */
         transition-duration: 0.4s;

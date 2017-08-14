@@ -12,6 +12,7 @@ class AJAX_Actions
     const GET_WORK_BY_ID     = "getWorkById";
     const CHECK_WORK_STARTED = "checkWorkStarted";
     const START_WORK         = "startWork";
-    const STOP_WORK         = "stopWork";
+    const STOP_WORK          = "stopWork";
+    const CREATE_TASK        = "createTask";
 
 }

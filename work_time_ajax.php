@@ -28,6 +28,30 @@ if (is_ajax($headers) && $action != null) {
             }
             break;
 
+        // Check if work name exists
+        case (AJAX_Actions::CREATE_TASK):
+            if (isset($_POST['new_work_name']) && !empty($_POST['new_work_name'])) {
+                $result = Db::query('
+                                    SELECT *
+                                    FROM work
+                                    WHERE name = ?
+                                ', $_POST['new_work_name']);
+
+                if (!$result) {
+                    $newWork = Db::query('
+                                    INSERT INTO work (name)
+                                    VALUES (?)
+                                ', $_POST['new_work_name']);
+
+                    echo json_encode($newWork);
+                }
+                else {
+                    $taskNameExists = true;
+                    echo "taskNameExists";
+                }
+            }
+            break;
+
         // Check if some Work started
         case (AJAX_Actions::CHECK_WORK_STARTED):
             $result = Db::queryOne('

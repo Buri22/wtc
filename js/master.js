@@ -2,6 +2,28 @@
 const wtc_ticking_counter = 'wtc_ticking_counter';
 
 //================ Functions ================//
+function createTask() {
+    var new_task_name = getValueById("new_work_name");
+
+    if (new_task_name) {
+        xhr(ajax_actions.createTask, "POST", "work_time_ajax.php", "new_work_name=" + new_task_name, {success: function(response) {
+            if (response) {
+                if (response == "taskNameExists") {
+                    setTextById("createResult", "This task name already exists, try something different.");
+                }
+                else {
+                    setValueById("new_work_name", "");
+                    setTextById("createResult", "New task name was successfully created!");
+                }
+            }
+            else setTextById("createResult", "New task name failed to create!");
+        }});
+    }
+    else {
+        setTextById("createResult", "Please input some creative task name.");
+    }
+
+}
 function showTime(id) {
     document.onreadystatechange = function () {
         if (document.readyState == "complete") {
@@ -17,10 +39,10 @@ function getTime(id) {
 
             // Show current work spent time
             if (response_work.work_started && localStorage.getItem(wtc_ticking_counter)) {
-                showMessage("counter", localStorage.getItem(wtc_ticking_counter));
+                setTextById("counter", localStorage.getItem(wtc_ticking_counter));
             }
             else {
-                showMessage("counter", secondsToHms(response_work.spent_time));
+                setTextById("counter", secondsToHms(response_work.spent_time));
             }
         }});
     }
@@ -42,16 +64,12 @@ function startWorking() {
                         myTimer(response.id);
                     }, 1000);
 
-                    showMessage("startStopResult", 'Started successfully!');
+                    setTextById("startStopResult", 'Started successfully!');
                 }
-                else {
-                    showMessage("startStopResult", 'Failed to start this task.');
-                }
+                else setTextById("startStopResult", 'Failed to start this task.');
             }});
         }
-        else {
-            showMessage("startStopResult", "You are already working on: " + work_started.name);
-        }
+        else setTextById("startStopResult", "You are already working on: " + work_started.name);
     }});
 }
 
@@ -70,21 +88,15 @@ function stopWorking() {
                     if (response) {
                         clearInterval(window.myTime);
                         deleteLocalStorage();   // Clear localStorage
-                        //getTime(id);
-                        showMessage("startStopResult", work_started.name + ' -> stopped successfully!');
+                        setTextById("startStopResult", work_started.name + ' -> stopped successfully!');
                     }
-                    else {
-                        showMessage("startStopResult", 'Stopped successfully!');
-                    }
+                    else setTextById("startStopResult", 'Stopped successfully!');
                 }});
             }
-            else {  // Some other work already started
-                showMessage("startStopResult", "You are already working on: " + work_started.name);
-            }
+            // Some other work already started
+            else setTextById("startStopResult", "You are already working on: " + work_started.name);
         }
-        else {
-            showMessage("startStopResult", "Selected task has no record in database.");
-        }
+        else setTextById("startStopResult", "Selected task has no record in database.");
     }});
 }
 
@@ -97,9 +109,8 @@ function myTimer(started_work_id) {
 
     localStorage.setItem(wtc_ticking_counter, counter_time);
 
-    if (started_work_id == getSelectedWorkId()) {
-        // Read from localStorage
-        document.getElementById("counter").innerHTML = localStorage.getItem(wtc_ticking_counter);
+    if (started_work_id == getSelectedWorkId()) {   // Read from localStorage
+        setTextById("counter", counter_time);
     }
 
 }
@@ -124,8 +135,15 @@ function getSelectedWorkId() {
     return Number(document.getElementById("work_setlist_id").value);
 }
 
-function showMessage(elementId, message) {
+function setTextById(elementId, message) {
     document.getElementById(elementId).innerHTML = message;
+}
+
+function getValueById(elementId) {
+    return document.getElementById(elementId).value;
+}
+function setValueById(elementId, value) {
+    document.getElementById(elementId).value = value;
 }
 
 //================ Execution ================//

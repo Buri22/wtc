@@ -11,7 +11,6 @@ require_once 'Db.php';
 require_once 'AJAX_Actions.php';
 Db::connect('127.0.0.1', 'work_time_counter', 'root', 'Bluegrass');
 
-$create_result = ' ';
 $current_spent_time = 0;
 $selected_work = !$_POST ? 0 : $_POST['work_setlist'];
 $works = Db::queryAll('
@@ -24,7 +23,8 @@ $ajax_actions = [
     "getWorkById"      => AJAX_Actions::GET_WORK_BY_ID,
     "checkWorkStarted" => AJAX_Actions::CHECK_WORK_STARTED,
     "startWork"        => AJAX_Actions::START_WORK,
-    "stopWork"        => AJAX_Actions::STOP_WORK
+    "stopWork"         => AJAX_Actions::STOP_WORK,
+    "createTask"       => AJAX_Actions::CREATE_TASK
 ];
 ?>
 
@@ -59,9 +59,9 @@ $ajax_actions = [
             </div>
         </div>
 
-        <form method="POST">
+<!--        <form method="POST">-->
             <div class="row"> <!-- Select Work Name-->
-                <h2 class="text-center">Current work name: </h2>
+                <h2 class="text-center">Current task name: </h2>
                 <div class="col-xs-12 col-sm-12 col-md-4 col-md-offset-4 col-lg-4 col-lg-offset-4">
                     <select
                         name="work_setlist"
@@ -79,44 +79,38 @@ $ajax_actions = [
                             echo '<option value="' . $work['id'] . '" ' . $selected . '>' . $work['name'] . '</option>';
                         }
 
-//                        if (isset($_POST['start'])) {           // Clicked Start button
-//                            $start_result = startCounting($selected_work);
-//                        } else if (isset($_POST['stop'])) {     // Clicked Start button
-//                            $stop_result = stopCounting($selected_work);
+//                        if ($_POST) {
+//                            //echo "there is POST";
+//                            // Create New Work Name
+//                            if (isset($_POST['create']) && isset($_POST['new_work_name']) && $_POST['new_work_name'] != NULL) {
+//
+//                                $new_work = $_POST['new_work_name'];
+//
+//                                $check_name = Db::query('
+//                                                                    SELECT *
+//                                                                    FROM work
+//                                                                    WHERE name = ?
+//                                                                    ', $new_work);
+//
+//                                if (!$check_name) {
+//                                    $result = Db::query('
+//                                                                INSERT INTO work (name)
+//                                                                VALUES (?)
+//                                                                ', $new_work);
+//                                    if ($result) {
+//                                        $create_result = 'New work name was successfully created!';
+//                                    } else {
+//                                        $create_result = 'New work name failed to create!';
+//                                    }
+//                                } else {
+//                                    $create_result = 'This work name already exists, try something different.';
+//                                }
+//
+//                                $current_spent_time = 0;
+//                            }
+//
+//                            $current_spent_time = checkWork($selected_work, "spent_time"); //currentSpentTime($selected_work);
 //                        }
-
-                        if ($_POST) {
-                            //echo "there is POST";
-                            // Create New Work Name
-                            if (isset($_POST['create']) && isset($_POST['new_work_name']) && $_POST['new_work_name'] != NULL) {
-
-                                $new_work = $_POST['new_work_name'];
-
-                                $check_name = Db::query('
-                                                                    SELECT *
-                                                                    FROM work
-                                                                    WHERE name = ?
-                                                                    ', $new_work);
-
-                                if (!$check_name) {
-                                    $result = Db::query('
-                                                                INSERT INTO work (name)
-                                                                VALUES (?)
-                                                                ', $new_work);
-                                    if ($result) {
-                                        $create_result = 'New work name was successfully created!';
-                                    } else {
-                                        $create_result = 'New work name failed to create!';
-                                    }
-                                } else {
-                                    $create_result = 'This work name already exists, try something different.';
-                                }
-
-                                $current_spent_time = 0;
-                            }
-
-                            $current_spent_time = checkWork($selected_work, "spent_time"); //currentSpentTime($selected_work);
-                        }
 
                         $current_spent_time = gmdate('H:i:s', $current_spent_time);
                         ?>
@@ -138,7 +132,7 @@ $ajax_actions = [
                 </div>
                 <div class="row"> <!-- Start, Stop Buttons-->
                     <div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                        <button type="button" name="start" id="buttonStart" onclick="startWorking(<?= $selected_work ?>)">Start</button>
+                        <button type="button" name="start" id="buttonStart" onclick="startWorking()">Start</button>
                     </div>
                     <div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">
                         <button type="button" name="stop" id="buttonStop" onclick="stopWorking()">Stop</button>
@@ -155,24 +149,22 @@ $ajax_actions = [
 
             <div class="row form-wrapper col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1"> <!-- Create new work name-->
                 <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
-                    <div class="form-group">
-                        <input type="text" name="new_work_name" placeholder="Enter new work name..." class="form-control"/>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-                    <div class="form-group">
-                        <input type="submit" name="create" value="Create new work name..." class="btn btn-primary"/>
-                    </div>
+                    <div id="createResult" class="form-group"></div>
                 </div>
             </div>
             <div class="row form-wrapper col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1"> <!-- Create new work name-->
                 <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
                     <div class="form-group">
-                        <?= $create_result; ?>
+                        <input type="text" id="new_work_name" placeholder="Enter new task name..." class="form-control"/>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <div class="form-group">
+                        <button type="button" name="create" class="btn btn-primary" onclick="createTask()">Create new task</button>
                     </div>
                 </div>
             </div>
-        </form>
+<!--        </form>-->
     </div>
 
     <script type="text/javascript">
