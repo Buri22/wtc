@@ -58,7 +58,7 @@ button {
     background-color: white;
     color: black !important;
 }
-.buttonStop {
+#buttonStop {
     border: 1px solid transparent;
     border-radius: 4px;
     color: white !important;
@@ -76,7 +76,7 @@ button {
     background-color: #ff751a; /* Blue */
     border-color:  #e65c00; /* Dark Blue */
 }
-.buttonStop:hover {
+#buttonStop:hover {
     background-color: white;
     color: black !important;
 }

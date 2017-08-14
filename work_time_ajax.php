@@ -10,26 +10,34 @@ require_once 'work_time_counter_functions.php';
 require_once 'Db.php';
 Db::connect('127.0.0.1', 'work_time_counter', 'root', 'Bluegrass');
 
-
-//if (isset($_GET['work_id'])) {
-//    $work_id = intval($_GET['work_id']);
-//    //var_dump($work_id);
-//    $current_spent_time = checkWork($work_id, "spent_time");
-//
-//    $current_spent_time_converted = gmdate('H:i:s', $current_spent_time);
-//
-//    echo $current_spent_time_converted;
-//}
-
 $headers = getallheaders();
 
 if (is_ajax($headers)) {
-    if (isset($_POST['work_id']) && !empty($_POST['work_id'])) {
+    if (isset($_POST["start_work"])) {          // Start Work
         $work_id = intval($_POST['work_id']);
-        // echo $work_id;
-        // check if current work started
+        $last_start = intval($_POST["last_start"]);
+
+        $result = Db::query('
+                     UPDATE work
+                     SET last_start = ?, work_started = true
+                     WHERE id = ?
+                     ', $last_start, $work_id);
+
+        echo json_encode($result);
+    }
+    else if (isset($_POST["work_started"])) {     // Check if some Work started
+        $works = Db::queryOne('
+                  SELECT *
+                  FROM work
+                  WHERE work_started = 1
+              ');
+
+        echo json_encode($works);
+    }
+    else if (isset($_POST['work_id']) && !empty($_POST['work_id'])) {   // Get Work by Id
+        $work_id = intval($_POST['work_id']);
         $current_work = Db::queryOne('
-                        SELECT work_started, spent_time, id
+                        SELECT *
                         FROM work
                         WHERE id = ?
                         ', $work_id);
@@ -40,7 +48,7 @@ if (is_ajax($headers)) {
     
 }
 
-//Function to check if the request is an AJAX request
+// Check if the request is an AJAX request
 function is_ajax($headers) {
     return isset($headers['HTTP_X_REQUESTED_WITH']) && strtolower($headers['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
 }
