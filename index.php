@@ -7,8 +7,8 @@
  * Version: 1.0.0
  */
 
-require_once 'work_time_counter_functions.php';
 require_once 'Db.php';
+require_once 'AJAX_Actions.php';
 Db::connect('127.0.0.1', 'work_time_counter', 'root', 'Bluegrass');
 
 $create_result = ' ';
@@ -19,6 +19,13 @@ $works = Db::queryAll('
                         FROM work
                         ORDER BY id DESC
                     ');
+
+$ajax_actions = [
+    "getWorkById"      => AJAX_Actions::GET_WORK_BY_ID,
+    "checkWorkStarted" => AJAX_Actions::CHECK_WORK_STARTED,
+    "startWork"        => AJAX_Actions::START_WORK,
+    "stopWork"        => AJAX_Actions::STOP_WORK
+];
 ?>
 
 <html lang="cs-cz">
@@ -40,6 +47,7 @@ $works = Db::queryAll('
     <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&subset=latin,latin-ext' type='text/css'>
 
     <!-- JavaScript files -->
+    <script type="application/javascript">var ajax_actions = <?= json_encode($ajax_actions) ?>;</script>
     <script type="text/javascript" src="js/xhr.js"></script>
     <script type="text/javascript" src="js/master.js"></script>
 </head>
@@ -71,11 +79,11 @@ $works = Db::queryAll('
                             echo '<option value="' . $work['id'] . '" ' . $selected . '>' . $work['name'] . '</option>';
                         }
 
-                        if (isset($_POST['start'])) {           // Clicked Start button
-                            $start_result = startCounting($selected_work);
-                        } else if (isset($_POST['stop'])) {     // Clicked Start button
-                            $stop_result = stopCounting($selected_work);
-                        }
+//                        if (isset($_POST['start'])) {           // Clicked Start button
+//                            $start_result = startCounting($selected_work);
+//                        } else if (isset($_POST['stop'])) {     // Clicked Start button
+//                            $stop_result = stopCounting($selected_work);
+//                        }
 
                         if ($_POST) {
                             //echo "there is POST";
@@ -133,7 +141,7 @@ $works = Db::queryAll('
                         <button type="button" name="start" id="buttonStart" onclick="startWorking(<?= $selected_work ?>)">Start</button>
                     </div>
                     <div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                        <button type="submit" name="stop" id="buttonStop" onclick="deleteLocalStorage()">Stop</button>
+                        <button type="button" name="stop" id="buttonStop" onclick="stopWorking()">Stop</button>
                     </div>
                 </div>
             </section>
@@ -167,7 +175,7 @@ $works = Db::queryAll('
         </form>
     </div>
 
-    <script>
+    <script type="text/javascript">
         execution();
     </script>
 </body>

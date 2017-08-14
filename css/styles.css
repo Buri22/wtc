@@ -37,7 +37,6 @@ button {
     cursor: pointer;
 }
 #buttonStart {
-    border: 1px solid transparent;
     border-radius: 4px;
     color: white !important;
     padding: 15px 32px;
@@ -52,14 +51,13 @@ button {
     cursor: pointer;
     
     background-color: #4CAF50; /* Green */
-    border-color: #3e8e42; /* Dark Green */
+    border: 1px solid #3e8e42; /* Dark Green */
 }
 #buttonStart:hover {
     background-color: white;
     color: black !important;
 }
 #buttonStop {
-    border: 1px solid transparent;
     border-radius: 4px;
     color: white !important;
     padding: 15px 32px;
@@ -74,7 +72,7 @@ button {
     cursor: pointer;
     
     background-color: #ff751a; /* Blue */
-    border-color:  #e65c00; /* Dark Blue */
+    border: 1px solid #e65c00; /* Dark Blue */
 }
 #buttonStop:hover {
     background-color: white;

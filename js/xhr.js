@@ -1,7 +1,7 @@
 /*
  * XML HTTP Request object sends AJAX call
  */
-function xhr (type, url, data, options) {
+function xhr (action, type, url, data, options) {
     options = options || {};
     var request = create_XMLHTTPRequestObject();
 
@@ -12,6 +12,7 @@ function xhr (type, url, data, options) {
         request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     }
     request.setRequestHeader("HTTP_X_REQUESTED_WITH", "xmlhttprequest");
+    request.setRequestHeader("AJAX_Action", action);
 
     request.onreadystatechange = function () {
         if (this.readyState === 4) {
