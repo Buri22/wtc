@@ -2,6 +2,29 @@
 const wtc_ticking_counter = 'wtc_ticking_counter';
 
 //================ Functions ================//
+function getTaskList() {
+    xhr(ajax_actions.getTaskList, "POST", "work_time_ajax.php", undefined, {success: function(taskList) {
+        var select_box = Helper.clearElementById("work_setlist");
+
+        for (var i = 0; i < taskList.length; i++) {
+            //var option = "<option value='" + taskList[i].id + "'>" + taskList[i].name + "\</option>";
+            var option = document.createElement("OPTION");
+            var taskName = document.createTextNode(taskList[i].name);
+
+            option.setAttribute("value", taskList[i].id);
+            option.appendChild(taskName);
+
+            if (i == 0) {
+                option.setAttribute("selected", "");
+            }
+
+            select_box.appendChild(option);
+        }
+
+        getTime(Helper.getSelectedWorkId());
+    }});
+}
+
 function createTask() {
     var new_task_name = Helper.getValueById("new_task_name");
 
@@ -12,6 +35,7 @@ function createTask() {
                     Helper.setTextById("createResult", "This task name already exists, try something different.");
                 }
                 else {
+                    getTaskList();
                     Helper.setValueById("new_task_name", "");
                     Helper.setTextById("createResult", "New task name was successfully created!");
                 }
@@ -78,11 +102,12 @@ function stopWorking() {
 
                 xhr(ajax_actions.stopWork, "POST", "work_time_ajax.php", data, {success: function(response) {
                     if (response) {
-                        clearInterval(window.myTime);
-                        Helper.deleteLocalStorage();   // Clear localStorage
+                        clearInterval(window.myTime);   // Stop ticking
+                        Helper.deleteLocalStorage();    // Clear localStorage
+                        getTime(Helper.getSelectedWorkId());    // Show tasks spent time from db
                         Helper.setTextById("startStopResult", work_started.name + ' -> stopped successfully!');
                     }
-                    else Helper.setTextById("startStopResult", 'Stopped successfully!');
+                    else Helper.setTextById("startStopResult", 'Stopping failed!');
                 }});
             }
             // Some other work already started
@@ -94,5 +119,32 @@ function stopWorking() {
 
 //================ Execution ================//
 function execution() {
-    getTime(Helper.getSelectedWorkId());
+    getTaskList();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

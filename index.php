@@ -7,23 +7,14 @@
  * Version: 1.0.0
  */
 
-require_once 'Db.php';
 require_once 'AJAX_Actions.php';
-Db::connect('127.0.0.1', 'work_time_counter', 'root', 'Bluegrass');
-
-$selected_work = !$_POST ? 0 : $_POST['work_setlist'];
-$works = Db::queryAll('
-                        SELECT *
-                        FROM work
-                        ORDER BY id DESC
-                    ');
-
 $ajax_actions = [
     "getWorkById"      => AJAX_Actions::GET_WORK_BY_ID,
     "checkWorkStarted" => AJAX_Actions::CHECK_WORK_STARTED,
     "startWork"        => AJAX_Actions::START_WORK,
     "stopWork"         => AJAX_Actions::STOP_WORK,
-    "createTask"       => AJAX_Actions::CREATE_TASK
+    "createTask"       => AJAX_Actions::CREATE_TASK,
+    "getTaskList"      => AJAX_Actions::GET_TASK_LIST
 ];
 ?>
 
@@ -63,24 +54,7 @@ $ajax_actions = [
             <div class="row"> <!-- Select Work Name-->
                 <h2 class="text-center">Current task name: </h2>
                 <div class="col-xs-12 col-sm-12 col-md-4 col-md-offset-4 col-lg-4 col-lg-offset-4">
-                    <select
-                        name="work_setlist"
-                        id="work_setlist_id"
-                        class="form-control"
-                        onchange="getTime(this.value)">
-                        <?php
-                        // Start/Stop working
-                        foreach ($works as $work) {
-                            if ($work['id'] == $selected_work) {
-                                $selected = 'selected';
-                            } else {
-                                $selected = '';
-                            }
-                            echo '<option value="' . $work['id'] . '" ' . $selected . '>' . $work['name'] . '</option>';
-                        }
-
-                        ?>
-                    </select>
+                    <select id="work_setlist" class="form-control" onchange="getTime(this.value)"></select>
                 </div>
             </div>
 

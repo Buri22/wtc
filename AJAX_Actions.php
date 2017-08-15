@@ -14,5 +14,6 @@ class AJAX_Actions
     const START_WORK         = "startWork";
     const STOP_WORK          = "stopWork";
     const CREATE_TASK        = "createTask";
+    const GET_TASK_LIST      = "getTaskList";
 
 }

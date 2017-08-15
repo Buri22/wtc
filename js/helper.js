@@ -38,7 +38,7 @@ var Helper = {
     },
 
     getSelectedWorkId: function() {
-        return Number(document.getElementById("work_setlist_id").value);
+        return Number(document.getElementById("work_setlist").value);
     },
 
     setTextById: function(elementId, message) {
@@ -50,6 +50,14 @@ var Helper = {
     },
     setValueById: function(elementId, value) {
         document.getElementById(elementId).value = value;
+    },
+
+    clearElementById: function(id) {
+        var myNode = document.getElementById(id);
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
+        return myNode;
     }
 
 };

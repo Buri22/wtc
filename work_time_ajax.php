@@ -28,6 +28,17 @@ if (is_ajax($headers) && $action != null) {
             }
             break;
 
+        // Get list of tasks
+        case (AJAX_Actions::GET_TASK_LIST):
+            $result = Db::queryAll('
+                            SELECT id, name
+                            FROM work
+                            ORDER BY id DESC
+                        ');
+
+            echo json_encode($result);
+            break;
+
         // Check if task name exists
         case (AJAX_Actions::CREATE_TASK):
             if (isset($_POST['new_task_name']) && !empty($_POST['new_task_name'])) {
