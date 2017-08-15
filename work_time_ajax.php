@@ -7,11 +7,13 @@
  */
 
 require_once 'Db.php';
+require_once 'Db_config.php';
 require_once 'AJAX_Actions.php';
-Db::connect('127.0.0.1', 'work_time_counter', 'root', 'Bluegrass');
+
+Db::connect($host, $database, $userName, $password);
 
 $headers = getallheaders();
-$action = $headers["AJAX_Action"];
+$action = $headers["Ajax-Action"];
 
 if (is_ajax($headers) && $action != null) {
     switch ($action) {
@@ -111,11 +113,11 @@ if (is_ajax($headers) && $action != null) {
         default:
             echo false;
     }
-} else {    // this is not AJAX call or $action in null
-    
+} else {
+    echo json_encode($headers);
 }
 
 // Check if the request is an AJAX request
 function is_ajax($headers) {
-    return isset($headers['HTTP_X_REQUESTED_WITH']) && strtolower($headers['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+    return isset($headers['Http-X-Requested-With']) && strtolower($headers['Http-X-Requested-With']) == 'xmlhttprequest';
 }

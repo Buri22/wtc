@@ -11,8 +11,8 @@ function xhr (action, type, url, data, options) {
     if(type === "POST"){
         request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     }
-    request.setRequestHeader("HTTP_X_REQUESTED_WITH", "xmlhttprequest");
-    request.setRequestHeader("AJAX_Action", action);
+    request.setRequestHeader("Http-X-Requested-With", "xmlhttprequest");
+    request.setRequestHeader("Ajax-Action", action);
 
     request.onreadystatechange = function () {
         if (this.readyState === 4) {
