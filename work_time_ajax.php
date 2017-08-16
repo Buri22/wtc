@@ -1,16 +1,24 @@
 <?php
-
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Name: - Work Time Counter -
+ * Author: Buri22
+ * Date: 2017/8/10 19:08
+ * Version: 1.0.0
  */
 
 require_once 'Db.php';
 require_once 'Db_config.php';
-require_once 'AJAX_Actions.php';
 
 Db::connect($host, $database, $userName, $password);
+
+$ajax_actions = array(
+    "GET_TASK_BY_ID"     => "getTaskById",
+    "CHECK_TASK_STARTED" => "checkTaskStarted",
+    "START_TASK"         => "startTask",
+    "STOP_TASK"          => "stopTask",
+    "CREATE_TASK"        => "createTask",
+    "GET_TASK_LIST"      => "getTaskList"
+);
 
 $headers = getallheaders();
 $action = $headers["Ajax-Action"];
@@ -18,7 +26,7 @@ $action = $headers["Ajax-Action"];
 if (is_ajax($headers) && $action != null) {
     switch ($action) {
         // Get Work by Id
-        case (AJAX_Actions::GET_WORK_BY_ID):
+        case $ajax_actions["GET_TASK_BY_ID"]:
             if (isset($_POST['work_id']) && !empty($_POST['work_id'])) {
                 $result = Db::queryOne('
                                 SELECT *
@@ -31,7 +39,7 @@ if (is_ajax($headers) && $action != null) {
             break;
 
         // Get list of tasks
-        case (AJAX_Actions::GET_TASK_LIST):
+        case ($ajax_actions["GET_TASK_LIST"]):
             $result = Db::queryAll('
                             SELECT id, name
                             FROM work
@@ -42,7 +50,7 @@ if (is_ajax($headers) && $action != null) {
             break;
 
         // Check if task name exists
-        case (AJAX_Actions::CREATE_TASK):
+        case ($ajax_actions["CREATE_TASK"]):
             if (isset($_POST['new_task_name']) && !empty($_POST['new_task_name'])) {
                 $result = Db::query('
                                     SELECT *
@@ -63,7 +71,7 @@ if (is_ajax($headers) && $action != null) {
             break;
 
         // Check if some Work started
-        case (AJAX_Actions::CHECK_WORK_STARTED):
+        case ($ajax_actions["CHECK_TASK_STARTED"]):
             $result = Db::queryOne('
                           SELECT *
                           FROM work
@@ -74,7 +82,7 @@ if (is_ajax($headers) && $action != null) {
             break;
 
         // Start Work and return started work
-        case (AJAX_Actions::START_WORK):
+        case ($ajax_actions["START_TASK"]):
             if (isset($_POST['work_id']) && !empty($_POST['work_id'])
                 && isset($_POST['last_start']) && !empty($_POST['last_start'])) {
                 $result = Db::query('
@@ -97,7 +105,7 @@ if (is_ajax($headers) && $action != null) {
             break;
 
         // Stop Work
-        case (AJAX_Actions::STOP_WORK):
+        case ($ajax_actions["STOP_TASK"]):
             if (isset($_POST['work_id']) && !empty($_POST['work_id'])
                 && isset($_POST['spent_time']) && !empty($_POST['spent_time'])) {
                 $result = Db::query('
@@ -111,7 +119,7 @@ if (is_ajax($headers) && $action != null) {
             break;
 
         default:
-            echo false;
+            echo "Unknown action used.";
     }
 } else {
     echo json_encode($headers);

@@ -3,7 +3,7 @@ const wtc_ticking_counter = 'wtc_ticking_counter';
 
 //================ Functions ================//
 function getTaskList() {
-    xhr(ajax_actions.getTaskList, "POST", "work_time_ajax.php", undefined, {success: function(taskList) {
+    xhr("getTaskList", "POST", "work_time_ajax.php", undefined, {success: function(taskList) {
         var select_box = Helper.clearElementById("work_setlist");
 
         for (var i = 0; i < taskList.length; i++) {
@@ -29,7 +29,7 @@ function createTask() {
     var new_task_name = Helper.getValueById("new_task_name");
 
     if (new_task_name) {
-        xhr(ajax_actions.createTask, "POST", "work_time_ajax.php", "new_task_name=" + new_task_name, {success: function(response) {
+        xhr("createTask", "POST", "work_time_ajax.php", "new_task_name=" + new_task_name, {success: function(response) {
             if (response) {
                 if (response == "taskNameExists") {
                     Helper.setTextById("createResult", "This task name already exists, try something different.");
@@ -51,7 +51,7 @@ function createTask() {
 
 function getTime(id) {
     if (id != null && id != "") {
-        xhr(ajax_actions.getWorkById, "POST", "work_time_ajax.php", "work_id=" + id, {success: function(response_work) {
+        xhr("getTaskById", "POST", "work_time_ajax.php", "work_id=" + id, {success: function(response_work) {
 
             // Show current work spent time
             if (response_work.work_started && localStorage.getItem(wtc_ticking_counter)) {
@@ -67,13 +67,13 @@ function getTime(id) {
 function startWorking() {
     var id = Helper.getSelectedWorkId();
     // Check if some work started
-    xhr(ajax_actions.checkWorkStarted, "POST", "work_time_ajax.php", undefined, {success: function(work_started) {
+    xhr("checkTaskStarted", "POST", "work_time_ajax.php", undefined, {success: function(work_started) {
         if (!work_started && id != null && id != "") {   // No other work started
             // Update work in DB
             var data = "work_id=" + id +
                         "&last_start=" + Helper.getCurrentTime();   // We store time in seconds
 
-            xhr(ajax_actions.startWork, "POST", "work_time_ajax.php", data, {success: function(response) {
+            xhr("startTask", "POST", "work_time_ajax.php", data, {success: function(response) {
                 if (response) {
                     localStorage.setItem(wtc_ticking_counter, Helper.secondsToHms(response.spent_time));
                     window.myTime = setInterval(function () {
@@ -92,7 +92,7 @@ function startWorking() {
 function stopWorking() {
     var id = Helper.getSelectedWorkId();
     // Check if some work started
-    xhr(ajax_actions.checkWorkStarted, "POST", "work_time_ajax.php", undefined, {success: function(work_started) {
+    xhr("checkTaskStarted", "POST", "work_time_ajax.php", undefined, {success: function(work_started) {
         if (id != null && id != "" && work_started) {
             if (work_started.id == id) {   // Current work started
                 // Update work in DB
@@ -100,7 +100,7 @@ function stopWorking() {
                 var data = "work_id=" + id +
                             "&spent_time=" + spent_time;   // We store time in seconds
 
-                xhr(ajax_actions.stopWork, "POST", "work_time_ajax.php", data, {success: function(response) {
+                xhr("stopTask", "POST", "work_time_ajax.php", data, {success: function(response) {
                     if (response) {
                         clearInterval(window.myTime);   // Stop ticking
                         Helper.deleteLocalStorage();    // Clear localStorage
@@ -118,7 +118,7 @@ function stopWorking() {
 }
 
 //================ Execution ================//
-function execution() {
+function run() {
     getTaskList();
 }
 
