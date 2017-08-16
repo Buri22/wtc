@@ -38,7 +38,7 @@ var Helper = {
     },
 
     getSelectedWorkId: function() {
-        return Number(document.getElementById("work_setlist").value);
+        return Number(document.getElementById("taskList").value);
     },
 
     setTextById: function(elementId, message) {

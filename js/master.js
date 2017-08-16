@@ -4,7 +4,7 @@ const wtc_ticking_counter = 'wtc_ticking_counter';
 //================ Functions ================//
 function getTaskList() {
     xhr("getTaskList", "POST", "work_time_ajax.php", undefined, {success: function(taskList) {
-        var select_box = Helper.clearElementById("work_setlist");
+        var select_box = Helper.clearElementById("taskList");
 
         for (var i = 0; i < taskList.length; i++) {
             //var option = "<option value='" + taskList[i].id + "'>" + taskList[i].name + "\</option>";
