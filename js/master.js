@@ -2,6 +2,32 @@
 const wtc_ticking_counter = 'wtc_ticking_counter';
 
 //================ Functions ================//
+function getTask(param, id) {
+    if (id != null && id != "") {
+        Helper.ajaxCall("getTaskById", "POST", "work_time_ajax.php", "task_id=" + id, function(response_work) {
+
+            switch(param) {
+                // Show current work spent time
+                case 'time':
+                    if (response_work.work_started && localStorage.getItem(wtc_ticking_counter)) {
+                        Helper.setTextById("counter", localStorage.getItem(wtc_ticking_counter));
+                    }
+                    else {
+                        Helper.setTextById("counter", Helper.secondsToHms(response_work.spent_time));
+                    }
+                    break;
+                // Return name of current task
+                case 'name':
+                    return response_work.name;
+
+                default:
+                    break;
+            }
+
+        });
+    }
+}
+
 function getTaskList(id) {
     id = id || 0;
     Helper.ajaxCall("getTaskList", "POST", "work_time_ajax.php", undefined, function(taskList) {
@@ -69,7 +95,7 @@ function editTask(id) {
                     }
                     else {
                         getTaskList(id);
-                        Helper.setTextById("result_msg", "New task name was successfully created!");
+                        Helper.setTextById("result_msg", "New task name was successfully saved!");
                         $('#edit_task').modal('hide');
                     }
                 }
@@ -85,39 +111,13 @@ function editTask(id) {
     }
 }
 
-function getTask(param, id) {
-    if (id != null && id != "") {
-        Helper.ajaxCall("getTaskById", "POST", "work_time_ajax.php", "work_id=" + id, function(response_work) {
-
-            switch(param) {
-                // Show current work spent time
-                case 'time':
-                    if (response_work.work_started && localStorage.getItem(wtc_ticking_counter)) {
-                        Helper.setTextById("counter", localStorage.getItem(wtc_ticking_counter));
-                    }
-                    else {
-                        Helper.setTextById("counter", Helper.secondsToHms(response_work.spent_time));
-                    }
-                    break;
-                // Return name of current task
-                case 'name':
-                    return response_work.name;
-
-                default:
-                    break;
-            }
-
-        });
-    }
-}
-
 function startWorking() {
     var id = Helper.getSelectedTaskId();
     // Check if some work started
     Helper.ajaxCall("checkTaskStarted", "POST", "work_time_ajax.php", undefined, function(work_started) {
         if (!work_started && id != null && id != "") {   // No other work started
             // Update work in DB
-            var data = "work_id=" + id +
+            var data = "task_id=" + id +
                         "&last_start=" + Helper.getCurrentTime();   // We store time in seconds
 
             Helper.ajaxCall("startTask", "POST", "work_time_ajax.php", data, function(response) {
@@ -144,7 +144,7 @@ function stopWorking() {
             if (work_started.id == id) {   // Current work started
                 // Update work in DB
                 var spent_time = work_started.spent_time + (Helper.getCurrentTime() - work_started.last_start);
-                var data = "work_id=" + id +
+                var data = "task_id=" + id +
                             "&spent_time=" + spent_time;   // We store time in seconds
 
                 Helper.ajaxCall("stopTask", "POST", "work_time_ajax.php", data, function(response) {
@@ -166,30 +166,43 @@ function stopWorking() {
 
 //================ Execution ================//
 function run() {
-    getTaskList();
 
-    //var date = new Date();
-    //var templateData = {
-    //    name: "Jonny",
-    //    timeNow: date.getHours() + ':' + date.getMinutes()
-    //};
-    //$.get('templates/new_task.html', function(template) {
-    //    //var new_task = $(template).filter('#newTask').html();
-    //    $('body #create_new_task').html(template);
-    //});
+    // Check if user is logged in
+    if (typeof $.cookie('wtc_login') === 'undefined'){  // Go to Login page
 
-    //============ Current Task Actions ============//
-    $('#newTask').on('click', function() {
-        $('#create_new_task').load('templates/new_task.html');
-    });
-    $('#editTask').on('click', function() {
-        $.get('templates/edit_task.htm', function(template) {
-            Helper.clearElementById("edit_task");
-            $('#edit_task').append(
-                Mustache.render($(template).html(), { name: $('#taskList option:selected').text() })
-            );
+
+    }
+    else {    // User is logged in
+
+
+        getTaskList();
+
+        //var date = new Date();
+        //var templateData = {
+        //    name: "Jonny",
+        //    timeNow: date.getHours() + ':' + date.getMinutes()
+        //};
+        //$.get('templates/new_task.html', function(template) {
+        //    //var new_task = $(template).filter('#newTask').html();
+        //    $('body #create_new_task').html(template);
+        //});
+
+        //============ Current Task Actions ============//
+        $('#newTask').on('click', function() {
+            $('#create_new_task').load('templates/new_task.html');
         });
-    });
+        $('#editTask').on('click', function() {
+            $.get('templates/edit_task.htm', function(template) {
+                Helper.clearElementById("edit_task");
+                var data = {
+                    name: $('#taskList option:selected').text()
+                };
+                $('#edit_task').append(
+                    Mustache.render($(template).html(), data)
+                );
+            });
+        });
+    }
 }
 
 

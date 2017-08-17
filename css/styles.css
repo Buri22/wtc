@@ -87,7 +87,7 @@ body {
     margin-top: 60px;
 }
 
-#new_task_name {
+#new_task_name, #edit_task_name {
     margin-top: 10px;
 }
 

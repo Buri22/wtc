@@ -28,7 +28,7 @@ var Helper = {
         });
     },
 
-    myTimer: function(started_work_id) {
+    myTimer: function(started_task_id) {
         var counter_time = localStorage.getItem(wtc_ticking_counter);
 
         var total_time = counter_time.split(":");
@@ -37,7 +37,7 @@ var Helper = {
 
         localStorage.setItem(wtc_ticking_counter, counter_time);
 
-        if (started_work_id == this.getSelectedTaskId()) {   // Read from localStorage
+        if (started_task_id == this.getSelectedTaskId()) {   // Read from localStorage
             this.setTextById("counter", counter_time);
         }
 
@@ -80,6 +80,32 @@ var Helper = {
             myNode.removeChild(myNode.firstChild);
         }
         return myNode;
+    },
+
+    // Cookie manipulation
+    createCookie: function(name,value,days) {
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime()+(days*24*60*60*1000));
+            var expires = "; expires="+date.toGMTString();
+        }
+        else var expires = "";
+        document.cookie = name+"="+value+expires+"; path=/";
+    },
+
+    readCookie: function(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    },
+
+    eraseCookie: function(name) {
+        createCookie(name,"",-1);
     }
 
 };
