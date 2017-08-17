@@ -33,16 +33,20 @@
     <div class="row"> <!-- Select Task Name -->
         <h2 class="text-center">Current task name: </h2>
         <div class="col-sm-12 col-md-6 col-md-offset-3">
-            <select id="taskList" class="form-control" onchange="getTime(this.value)"></select>
+            <select id="taskList" class="form-control" onchange="getTask('time', this.value)"></select>
         </div>
     </div>
 
-    <div class="row"> <!-- Current Task Actions -->
-        <div class="col-sm-12 col-md-6 col-md-offset-3 task_actions">
-            <button id="newTask" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#create_new_task">Create new task</button>
+    <section id="task_action_buttons">
+        <div class="row"> <!-- Current Task Actions -->
+            <div class="col-sm-12 col-md-6 col-md-offset-3 task_actions">
+                <button id="newTask" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#create_new_task">Create task</button>
+                <button id="editTask" class="btn btn-success btn-lg" data-toggle="modal" data-target="#edit_task">Edit task</button>
+            </div>
+            <div id="create_new_task" class="modal fade" role="dialog"></div>
+            <div id="edit_task" class="modal fade" role="dialog"></div>
         </div>
-        <div id="create_new_task" class="modal fade" role="dialog"></div>
-    </div>
+    </section>
 
     <div class="row"> <!-- Result Messages -->
         <div class="col-md-12 col-lg-10 col-lg-offset-1">
@@ -50,7 +54,7 @@
         </div>
     </div>
 
-    <section id="btn_start_stop">
+    <section id="start_stop_section">
         <div class="row"> <!-- Start, Stop Buttons -->
             <div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">
                 <button type="button" name="start" id="buttonStart" onclick="startWorking()">Start</button>

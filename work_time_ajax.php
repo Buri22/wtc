@@ -17,6 +17,7 @@ $ajax_actions = array(
     "START_TASK"         => "startTask",
     "STOP_TASK"          => "stopTask",
     "CREATE_TASK"        => "createTask",
+    "EDIT_TASK"          => "editTask",
     "GET_TASK_LIST"      => "getTaskList"
 );
 
@@ -30,7 +31,7 @@ if (is_ajax($headers) && $action != null) {
             if (isset($_POST['work_id']) && !empty($_POST['work_id'])) {
                 $result = Db::queryOne('
                                 SELECT *
-                                FROM work
+                                FROM task
                                 WHERE id = ?
                             ', intval($_POST['work_id']));
 
@@ -42,7 +43,7 @@ if (is_ajax($headers) && $action != null) {
         case ($ajax_actions["GET_TASK_LIST"]):
             $result = Db::queryAll('
                             SELECT id, name
-                            FROM work
+                            FROM task
                             ORDER BY id DESC
                         ');
 
@@ -55,17 +56,41 @@ if (is_ajax($headers) && $action != null) {
                 // Check if task name exists
                 $result = Db::query('
                                     SELECT *
-                                    FROM work
+                                    FROM task
                                     WHERE name = ?
                                 ', $_POST['new_task_name']);
 
                 if (!$result) {
-                    $newWork = Db::query('
-                                    INSERT INTO work (name)
-                                    VALUES (?)
+                    $newTask = Db::query('
+                                    INSERT INTO task (name, dateCreated)
+                                    VALUES (?, ?)
+                                ', $_POST['new_task_name'], date("Y-m-d H:i:s"));
+
+                    echo json_encode($newTask);
+                }
+                else echo json_encode("taskNameExists");
+            }
+            break;
+
+        // Edit task
+        case ($ajax_actions["EDIT_TASK"]):
+            if (isset($_POST['new_task_name']) && !empty($_POST['new_task_name'])
+                && isset($_POST['task_id']) && !empty($_POST['task_id'])) {
+                // Check if task name exists
+                $result = Db::query('
+                                    SELECT *
+                                    FROM task
+                                    WHERE name = ?
                                 ', $_POST['new_task_name']);
 
-                    echo json_encode($newWork);
+                if (!$result) {
+                    $editedTask = Db::query('
+                                    UPDATE task
+                                    SET name = ?
+                                    WHERE id = ?
+                                ', $_POST['new_task_name'], $_POST['task_id']);
+
+                    echo json_encode($editedTask);
                 }
                 else echo json_encode("taskNameExists");
             }
@@ -75,7 +100,7 @@ if (is_ajax($headers) && $action != null) {
         case ($ajax_actions["CHECK_TASK_STARTED"]):
             $result = Db::queryOne('
                           SELECT *
-                          FROM work
+                          FROM task
                           WHERE work_started = 1
                     ');
 
@@ -87,7 +112,7 @@ if (is_ajax($headers) && $action != null) {
             if (isset($_POST['work_id']) && !empty($_POST['work_id'])
                 && isset($_POST['last_start']) && !empty($_POST['last_start'])) {
                 $result = Db::query('
-                         UPDATE work
+                         UPDATE task
                          SET last_start = ?, work_started = true
                          WHERE id = ?
                      ', intval($_POST["last_start"]), intval($_POST['work_id']));
@@ -95,7 +120,7 @@ if (is_ajax($headers) && $action != null) {
                 if ($result) {
                     $work = Db::queryOne('
                                 SELECT *
-                                FROM work
+                                FROM task
                                 WHERE id = ?
                             ', intval($_POST['work_id']));
 
@@ -110,7 +135,7 @@ if (is_ajax($headers) && $action != null) {
             if (isset($_POST['work_id']) && !empty($_POST['work_id'])
                 && isset($_POST['spent_time']) && !empty($_POST['spent_time'])) {
                 $result = Db::query('
-                            UPDATE work
+                            UPDATE task
                             SET spent_time = ?, work_started = false
                             WHERE id = ?
                         ', intval($_POST["spent_time"]), intval($_POST['work_id']));

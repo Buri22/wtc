@@ -2,7 +2,8 @@
 const wtc_ticking_counter = 'wtc_ticking_counter';
 
 //================ Functions ================//
-function getTaskList() {
+function getTaskList(id) {
+    id = id || 0;
     Helper.ajaxCall("getTaskList", "POST", "work_time_ajax.php", undefined, function(taskList) {
         var select_box = Helper.clearElementById("taskList");
 
@@ -13,14 +14,14 @@ function getTaskList() {
             option.setAttribute("value", taskList[i].id);
             option.appendChild(taskName);
 
-            if (i == 0) {
+            if (taskList[i].id == id) {
                 option.setAttribute("selected", "");
             }
 
             select_box.appendChild(option);
         }
 
-        getTime(Helper.getSelectedWorkId());
+        getTask('time', Helper.getSelectedTaskId());
     });
 }
 
@@ -52,22 +53,66 @@ function createTask() {
 
 }
 
-function getTime(id) {
+function editTask(id) {
+    if (id != null && id != "") {
+        var edit_task_name = Helper.getValueById("edit_task_name");
+        var data = {
+            task_id: id,
+            new_task_name: edit_task_name
+        };
+
+        if (edit_task_name) {
+            Helper.ajaxCall('editTask', 'POST', 'work_time_ajax.php', data, function (response) {
+                if (response) {
+                    if (response == "taskNameExists") {
+                        Helper.setTextById("edit_result_msg", "This task name already exists, try something different.");
+                    }
+                    else {
+                        getTaskList(id);
+                        Helper.setTextById("result_msg", "New task name was successfully created!");
+                        $('#edit_task').modal('hide');
+                    }
+                }
+                else {
+                    Helper.setTextById("result_msg", "Edit task name failed!");
+                    $('#edit_task').modal('hide');
+                }
+            });
+        }
+        else {
+            Helper.setTextById("edit_result_msg", "Please input some creative task name.");
+        }
+    }
+}
+
+function getTask(param, id) {
     if (id != null && id != "") {
         Helper.ajaxCall("getTaskById", "POST", "work_time_ajax.php", "work_id=" + id, function(response_work) {
-            // Show current work spent time
-            if (response_work.work_started && localStorage.getItem(wtc_ticking_counter)) {
-                Helper.setTextById("counter", localStorage.getItem(wtc_ticking_counter));
+
+            switch(param) {
+                // Show current work spent time
+                case 'time':
+                    if (response_work.work_started && localStorage.getItem(wtc_ticking_counter)) {
+                        Helper.setTextById("counter", localStorage.getItem(wtc_ticking_counter));
+                    }
+                    else {
+                        Helper.setTextById("counter", Helper.secondsToHms(response_work.spent_time));
+                    }
+                    break;
+                // Return name of current task
+                case 'name':
+                    return response_work.name;
+
+                default:
+                    break;
             }
-            else {
-                Helper.setTextById("counter", Helper.secondsToHms(response_work.spent_time));
-            }
+
         });
     }
 }
 
 function startWorking() {
-    var id = Helper.getSelectedWorkId();
+    var id = Helper.getSelectedTaskId();
     // Check if some work started
     Helper.ajaxCall("checkTaskStarted", "POST", "work_time_ajax.php", undefined, function(work_started) {
         if (!work_started && id != null && id != "") {   // No other work started
@@ -92,7 +137,7 @@ function startWorking() {
 }
 
 function stopWorking() {
-    var id = Helper.getSelectedWorkId();
+    var id = Helper.getSelectedTaskId();
     // Check if some work started
     Helper.ajaxCall("checkTaskStarted", "POST", "work_time_ajax.php", undefined, function(work_started) {
         if (id != null && id != "" && work_started) {
@@ -106,7 +151,7 @@ function stopWorking() {
                     if (response) {
                         clearInterval(window.myTime);   // Stop ticking
                         Helper.deleteLocalStorage();    // Clear localStorage
-                        getTime(Helper.getSelectedWorkId());    // Show tasks spent time from db
+                        getTask('time', Helper.getSelectedTaskId());    // Show tasks spent time from db
                         Helper.setTextById("result_msg", work_started.name + ' stopped successfully!');
                     }
                     else Helper.setTextById("result_msg", 'Stopping failed!');
@@ -133,8 +178,17 @@ function run() {
     //    $('body #create_new_task').html(template);
     //});
 
+    //============ Current Task Actions ============//
     $('#newTask').on('click', function() {
         $('#create_new_task').load('templates/new_task.html');
+    });
+    $('#editTask').on('click', function() {
+        $.get('templates/edit_task.htm', function(template) {
+            Helper.clearElementById("edit_task");
+            $('#edit_task').append(
+                Mustache.render($(template).html(), { name: $('#taskList option:selected').text() })
+            );
+        });
     });
 }
 

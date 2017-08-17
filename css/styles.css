@@ -1,9 +1,4 @@
 /*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/* 
     Created on : 10.8.2017, 18:59:00
     Author     : Buri22
 */
@@ -21,21 +16,6 @@ body {
    -moz-font-smoothing: antialiased;
    -o-font-smoothing: antialiased;
 }
-/*button {*/
-    /*border: 1px solid transparent;*/
-    /*border-radius: 4px;*/
-    /*color: white !important;*/
-    /*padding: 15px 32px;*/
-    /*text-align: center;*/
-    /*text-decoration: none;*/
-    /*display: inline-block;*/
-    /*font-size: 16px !important;*/
-    /*/!*margin: 4px 2px !important;*!/*/
-    /*/!* To determine the speed of the "hover" effect*!/*/
-        /*-webkit-transition-duration: 0.4s !important; /!* Safari *!/*/
-        /*transition-duration: 0.4s;*/
-    /*cursor: pointer;*/
-/*}*/
 #buttonStart {
     border-radius: 4px;
     color: white !important;
@@ -86,7 +66,10 @@ body {
 .task_actions {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    /*margin-top: 20px;*/
+}
+.task_actions button {
+    margin: 20px 10px 0 10px;
 }
 
 #result_msg {
@@ -95,23 +78,29 @@ body {
     font-size: initial;
     height: 25px;
 }
-#create_result_msg {
+#create_result_msg, #edit_result_msg {
     padding-top: 10px;
 }
 
-#btn_start_stop {
+#start_stop_section {
     position: relative;
     margin-top: 60px;
+}
+
+#new_task_name {
+    margin-top: 10px;
 }
 
 #output_section {
     height: 500px;
 }
 
+/* Color styles */
 .red {
     color: red;
 }
 
+/* Position styles */
 .left {
     float: left;
 }
@@ -120,4 +109,9 @@ body {
 }
 .clear {
     clear: both;
+}
+
+/* Bootstrap styles */
+#task_action_buttons .modal-dialog {
+    margin-top: 75px;
 }

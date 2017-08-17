@@ -37,7 +37,7 @@ var Helper = {
 
         localStorage.setItem(wtc_ticking_counter, counter_time);
 
-        if (started_work_id == this.getSelectedWorkId()) {   // Read from localStorage
+        if (started_work_id == this.getSelectedTaskId()) {   // Read from localStorage
             this.setTextById("counter", counter_time);
         }
 
@@ -59,7 +59,7 @@ var Helper = {
         localStorage.getItem(wtc_ticking_counter) != null && localStorage.removeItem(wtc_ticking_counter);
     },
 
-    getSelectedWorkId: function() {
+    getSelectedTaskId: function() {
         return Number($("#taskList").val());
     },
 
