@@ -49,9 +49,10 @@ if (is_ajax($headers) && $action != null) {
             echo json_encode($result);
             break;
 
-        // Check if task name exists
+        // Create task
         case ($ajax_actions["CREATE_TASK"]):
             if (isset($_POST['new_task_name']) && !empty($_POST['new_task_name'])) {
+                // Check if task name exists
                 $result = Db::query('
                                     SELECT *
                                     FROM work
@@ -66,11 +67,11 @@ if (is_ajax($headers) && $action != null) {
 
                     echo json_encode($newWork);
                 }
-                else echo "taskNameExists";
+                else echo json_encode("taskNameExists");
             }
             break;
 
-        // Check if some Work started
+        // Check if some task started
         case ($ajax_actions["CHECK_TASK_STARTED"]):
             $result = Db::queryOne('
                           SELECT *
@@ -81,7 +82,7 @@ if (is_ajax($headers) && $action != null) {
             echo json_encode($result);
             break;
 
-        // Start Work and return started work
+        // Start task and return started task
         case ($ajax_actions["START_TASK"]):
             if (isset($_POST['work_id']) && !empty($_POST['work_id'])
                 && isset($_POST['last_start']) && !empty($_POST['last_start'])) {

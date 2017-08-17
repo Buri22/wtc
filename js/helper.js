@@ -6,6 +6,28 @@
 
 var Helper = {
 
+    ajaxCall: function(action, type, url, data, options) {
+        options = options || {};
+
+        // Define request headers
+        var headers = {
+            'Http-X-Requested-With': 'xmlhttprequest',
+            'Ajax-Action': action
+        };
+        if (type == 'POST') {
+            headers['Content-type'] = 'application/x-www-form-urlencoded';
+        }
+
+        $.ajax({
+            url: url,
+            headers: headers,
+            type: type,
+            data: data,
+            dataType: 'json',
+            success: options
+        });
+    },
+
     myTimer: function(started_work_id) {
         var counter_time = localStorage.getItem(wtc_ticking_counter);
 
@@ -38,7 +60,7 @@ var Helper = {
     },
 
     getSelectedWorkId: function() {
-        return Number(document.getElementById("work_setlist").value);
+        return Number($("#taskList").val());
     },
 
     setTextById: function(elementId, message) {
