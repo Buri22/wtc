@@ -25,7 +25,7 @@ $ajax_actions = array(
 
 $headers = getallheaders();
 $action = $headers["Ajax-Action"];
-xdebug_break();
+
 if (is_ajax($headers) && $action != null) {
     switch ($action) {
         // Get Work by Id
@@ -55,19 +55,20 @@ if (is_ajax($headers) && $action != null) {
 
         // Create task
         case ($ajax_actions["CREATE_TASK"]):
-            if (isset($_POST['new_task_name']) && !empty($_POST['new_task_name'])) {
+            if (isset($_POST['user_id']) && !empty($_POST['user_id'])
+                && isset($_POST['new_task_name']) && !empty($_POST['new_task_name'])) {
                 // Check if task name exists
                 $result = Db::query('
                                     SELECT *
                                     FROM task
-                                    WHERE Name = ?
-                                ', $_POST['new_task_name']);
+                                    WHERE UserId = ? AND Name = ?
+                                ', $_POST['user_id'], $_POST['new_task_name']);
 
                 if (!$result) {
                     $newTask = Db::query('
-                                    INSERT INTO task (Name, DateCreated)
-                                    VALUES (?, ?)
-                                ', $_POST['new_task_name'], date("Y-m-d H:i:s"));
+                                    INSERT INTO task (Name, DateCreated, UserId)
+                                    VALUES (?, ?, ?)
+                                ', $_POST['new_task_name'], date("Y-m-d H:i:s"), $_POST['user_id']);
 
                     echo json_encode($newTask);
                 }
