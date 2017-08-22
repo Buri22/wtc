@@ -11,7 +11,7 @@ var Helper = {
 
         // Define request headers
         var headers = {
-            'Http-X-Requested-With': 'xmlhttprequest',
+            'XDEBUG_SESSION_START': '16512',
             'Ajax-Action': action
         };
         if (type == 'POST') {

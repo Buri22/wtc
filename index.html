@@ -19,66 +19,18 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+    <script type="text/javascript" src="js/docCookie.js"></script>
     <script type="text/javascript" src="js/helper.js"></script>
+    <script type="text/javascript" src="js/actionListener.js"></script>
     <script type="text/javascript" src="js/master.js"></script>
 </head>
 <body>
-<div class="container">
-    <div class="row"> <!-- Nadpis -->
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <h1 class="text-center">Work Time Counter</h1>
-        </div>
-    </div>
 
-    <!--<div class="row"> &lt;!&ndash; Select Task Name &ndash;&gt;-->
-        <!--<h2 class="text-center">Current task name: </h2>-->
-        <!--<div class="col-sm-12 col-md-6 col-md-offset-3">-->
-            <!--<select id="taskList" class="form-control" onchange="getTask('time', this.value)"></select>-->
-        <!--</div>-->
-    <!--</div>-->
+    <div class="container" id="content"></div>
 
-    <!--<section id="task_action_buttons">-->
-        <!--<div class="row"> &lt;!&ndash; Current Task Actions &ndash;&gt;-->
-            <!--<div class="col-sm-12 col-md-6 col-md-offset-3 task_actions">-->
-                <!--<button id="newTask" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#create_new_task">Create new task</button>-->
-                <!--<button id="editTask" class="btn btn-success btn-lg" data-toggle="modal" data-target="#edit_task">Edit current task</button>-->
-                <!--<button id="deleteTask" class="btn btn-warning btn-lg" data-toggle="modal" data-target="#delete_task">Delete current task</button>-->
-            <!--</div>-->
-            <!--<div id="create_new_task" class="modal fade" role="dialog"></div>-->
-            <!--<div id="edit_task" class="modal fade" role="dialog"></div>-->
-            <!--<div id="delete_task" class="modal fade" role="dialog"></div>-->
-        <!--</div>-->
-    <!--</section>-->
+    <script type="text/javascript">
+        run();
+    </script>
 
-    <!--<div class="row"> &lt;!&ndash; Result Messages &ndash;&gt;-->
-        <!--<div class="col-md-12 col-lg-10 col-lg-offset-1">-->
-            <!--<div id="result_msg"></div>-->
-        <!--</div>-->
-    <!--</div>-->
-
-    <!--<section id="start_stop_section">-->
-        <!--<div class="row"> &lt;!&ndash; Start, Stop Buttons &ndash;&gt;-->
-            <!--<div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">-->
-                <!--<button type="button" name="start" id="buttonStart" onclick="startWorking()">Start</button>-->
-            <!--</div>-->
-            <!--<div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">-->
-                <!--<button type="button" name="stop" id="buttonStop" onclick="stopWorking()">Stop</button>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</section>-->
-
-    <!--<section id="output_section" class="container">-->
-        <!--<div class="row"> &lt;!&ndash; Time &ndash;&gt;-->
-            <!--<h2 class="text-center">Time spent on this task: </h2>-->
-            <!--<h2 id="counter" class="text-center"></h2>-->
-        <!--</div>-->
-    <!--</section>-->
-
-</div>
-
-<script type="text/javascript">
-    run();
-</script>
 </body>
-
 </html>

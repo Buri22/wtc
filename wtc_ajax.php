@@ -18,12 +18,14 @@ $ajax_actions = array(
     "STOP_TASK"          => "stopTask",
     "CREATE_TASK"        => "createTask",
     "EDIT_TASK"          => "editTask",
-    "GET_TASK_LIST"      => "getTaskList"
+    "GET_TASK_LIST"      => "getTaskList",
+    "LOGIN"              => "login",
+    "REGISTER"           => "register"
 );
 
 $headers = getallheaders();
 $action = $headers["Ajax-Action"];
-
+xdebug_break();
 if (is_ajax($headers) && $action != null) {
     switch ($action) {
         // Get Work by Id
@@ -44,8 +46,9 @@ if (is_ajax($headers) && $action != null) {
             $result = Db::queryAll('
                             SELECT Id, Name
                             FROM task
+                            WHERE UserId = ?
                             ORDER BY Id DESC
-                        ');
+                        ', $_POST['user_id']);
 
             echo json_encode($result);
             break;
@@ -144,8 +147,90 @@ if (is_ajax($headers) && $action != null) {
             }
             break;
 
+        // Register
+        case ($ajax_actions["REGISTER"]):
+            // Input data validation
+            $reg_err = 0;
+            // Check if all inputs were entered
+            if (!isset($_POST['user_name']) || empty($_POST['user_name'])
+                || !isset($_POST['email']) || empty($_POST['email'])
+                || !isset($_POST['password']) || empty($_POST['password'])
+                || !isset($_POST['password_confirm']) || empty($_POST['password_confirm'])) {
+                echo json_encode($reg_err = 2);
+                break;
+            }
+            // Email validation
+            if (!isValidEmail(trim($_POST['email']))) {
+                echo json_encode($reg_err = 3);
+                break;
+            }
+            // Password == Password_confirm
+            if (trim($_POST['password']) != trim($_POST['password_confirm'])) {
+                echo json_encode($reg_err = 4);
+                break;
+            }
+            // Check if user is already registered
+            $registered = Db::queryOne('
+                          SELECT *
+                          FROM user
+                          WHERE Email = ?
+                    ', $_POST['email']);
+
+            if ($registered) {
+                echo json_encode($reg_err = 5);
+                break;
+            }
+
+            if ($reg_err === 0) {
+                $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
+                $new_user = Db::query('
+                                    INSERT INTO user (UserName, Password, Email)
+                                    VALUES (?, ?, ?)
+                                ', trim($_POST['user_name']), $password, trim($_POST['email']));
+
+                echo json_encode($new_user);
+            }
+            break;
+
+        // Login
+        case ($ajax_actions["LOGIN"]):
+            // Input data validation
+            $login_err = 0;
+            // Check if all inputs were entered
+            if (!isset($_POST['email']) || empty($_POST['email'])
+                || !isset($_POST['password']) || empty($_POST['password'])) {
+                echo json_encode($login_err = 2);
+                break;
+            }
+            // Email validation
+            if (!isValidEmail(trim($_POST['email']))) {
+                echo json_encode($login_err = 3);
+                break;
+            }
+            // Try to find user
+            $user =  Db::queryOne('
+                          SELECT *
+                          FROM user
+                          WHERE Email = ?
+                    ', trim($_POST['email']));
+
+            if (!$user) {    // User has no record in DB
+                echo json_encode($login_err = 4);
+                break;
+            }
+            else if (!password_verify($_POST['password'], $user['Password'])) {   // Check passwords
+                echo json_encode($login_err = 5);
+                break;
+            }
+
+            if ($login_err === 0) {
+                unset($user['Password']);
+                echo json_encode($user);
+            }
+            break;
+
         default:
-            echo "Unknown action used.";
+            echo json_encode("Unknown action used.");
     }
 } else {
     echo json_encode($headers);
@@ -153,5 +238,11 @@ if (is_ajax($headers) && $action != null) {
 
 // Check if the request is an AJAX request
 function is_ajax($headers) {
-    return isset($headers['Http-X-Requested-With']) && strtolower($headers['Http-X-Requested-With']) == 'xmlhttprequest';
+    return isset($headers['X-Requested-With']) && strtolower($headers['X-Requested-With']) == 'xmlhttprequest';
+}
+
+// Validate email
+function isValidEmail($email) {
+    return filter_var($email, FILTER_VALIDATE_EMAIL)
+            && preg_match('/[0-9A-z]+@[A-z]+\.[A-z]+/', $email);
 }
