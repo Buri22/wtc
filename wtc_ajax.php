@@ -12,13 +12,14 @@ require_once 'Db_config.php';
 Db::connect($host, $database, $userName, $password);
 
 $ajax_actions = array(
+    "GET_TASK_LIST"      => "getTaskList",
     "GET_TASK_BY_ID"     => "getTaskById",
     "CHECK_TASK_STARTED" => "checkTaskStarted",
     "START_TASK"         => "startTask",
     "STOP_TASK"          => "stopTask",
     "CREATE_TASK"        => "createTask",
     "EDIT_TASK"          => "editTask",
-    "GET_TASK_LIST"      => "getTaskList",
+    "DELETE_TASK"        => "deleteTask",
     "LOGIN"              => "login",
     "REGISTER"           => "register"
 );
@@ -87,7 +88,7 @@ if (is_ajax($headers) && $action != null) {
                                     WHERE Name = ?
                                 ', $_POST['new_task_name']);
 
-                if (!$result) {
+                if (!$result || $result['Name'] !== $_POST['new_task_name']) {
                     $editedTask = Db::query('
                                     UPDATE task
                                     SET Name = ?
@@ -97,6 +98,42 @@ if (is_ajax($headers) && $action != null) {
                     echo json_encode($editedTask);
                 }
                 else echo json_encode("taskNameExists");
+            }
+            break;
+
+        // Delete task
+        case ($ajax_actions["DELETE_TASK"]):
+            $delete_err = 0;
+
+            // Check if all inputs were entered
+            if (!isset($_POST['password']) || empty($_POST['password'])
+                && !isset($_POST['task_id']) || empty($_POST['task_id'])) {
+                echo json_encode($delete_err = 2);
+                break;
+            }
+
+            // Try to find the task
+            $password = Db::queryOne('
+                            SELECT Password
+                            FROM user
+                            LEFT JOIN task ON task.UserId = user.Id
+                            WHERE task.Id = ?
+                        ', $_POST['task_id']);
+            if (!$password) {
+                echo json_encode($delete_err = 3);
+                break;
+            }
+            else if(!password_verify($_POST['password'], $password['Password'])) {
+                echo json_encode($delete_err = 4);
+                break;
+            }
+
+            if ($delete_err === 0) {
+                $result = Db::queryOne('
+                                DELETE FROM task
+                                WHERE Id = ?
+                              ', $_POST['task_id']);
+                echo json_encode($result);
             }
             break;
 

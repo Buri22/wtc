@@ -104,7 +104,7 @@ var ActionProvider = {
         }
     },
     getTask: function(param, id) {
-        if (id != null && id != "") {
+        if (id) {
             Helper.ajaxCall("getTaskById", "POST", "wtc_ajax.php", "task_id=" + id, function(response_work) {
 
                 switch(param) {
@@ -165,14 +165,13 @@ var ActionProvider = {
     },
     editTask: function() {
         var task_id = Helper.getSelectedTaskId();
-        if (task_id != null && task_id != "") {
-            var edit_task_name = Helper.getValueById("edit_task_name");
+        if (task_id) {
             var data = {
                 task_id: task_id,
-                new_task_name: edit_task_name
+                new_task_name: Helper.getValueById("edit_task_name")
             };
 
-            if (edit_task_name) {
+            if (data.new_task_name) {
                 Helper.ajaxCall('editTask', 'POST', 'wtc_ajax.php', data, function (response) {
                     if (response) {
                         if (response == "taskNameExists") {
@@ -198,9 +197,7 @@ var ActionProvider = {
     renderEditTask: function() {
         $.get('templates/edit_task.htm', function(template) {
             Helper.clearElementById("edit_task");
-            var data = {
-                name: $('#taskList option:selected').text()
-            };
+            var data = { name: $('#taskList option:selected').text() };
             $('#edit_task').append(
                 Mustache.render($(template).html(), data)
             );
@@ -209,15 +206,52 @@ var ActionProvider = {
 
     // TODO: delete current task
     deleteCurrentTask: function() {
-
+        var task_id = Helper.getSelectedTaskId();
+        if (task_id) {
+            var data = {
+                task_id: task_id,
+                password: Helper.getValueById('delete_task_password_confirm')
+            };
+            Helper.ajaxCall('deleteTask', 'POST', 'wtc_ajax.php', data, function(response) {
+                if (response == false) {
+                    ActionProvider.getTaskList();
+                    Helper.setTextById("result_msg", "Task was deleted successfully.");
+                    $('#delete_task').modal('hide');
+                }
+                else if(response == 2) {
+                    Helper.setTextById("delete_result_msg", "Some information is missing.");
+                }
+                else if(response == 3) {
+                    Helper.setTextById("result_msg", "Record of current task is missing in database.");
+                    $('#delete_task').modal('hide');
+                }
+                else if(response == 4) {
+                    Helper.setTextById("delete_result_msg", "You entered wrong password.");
+                }
+                //else {
+                //    Helper.setTextById("result_msg", "Failed to delete current task.");
+                //    $('#delete_task').modal('hide');
+                //}
+            });
+        }
+    },
+    renderDeleteTask: function() {
+        $.get('templates/delete_task.htm', function(template) {
+            Helper.clearElementById("delete_task");
+            var data = { name: $('#taskList option:selected').text() };
+            $('#delete_task').append(
+                Mustache.render($(template).html(), data)
+            );
+        });
     },
 
     startTicking: function() {
         var id = Helper.getSelectedTaskId();
-        // Check if some work started
+        // Check if some Task started
+        // TODO: implement userId - we want to check only users tasks
         Helper.ajaxCall("checkTaskStarted", "POST", "wtc_ajax.php", undefined, function(work_started) {
             if (!work_started && id != null && id != "") {   // No other work started
-                // Update work in DB
+                // Update Task in DB
                 var data = "task_id=" + id +
                     "&last_start=" + Helper.getCurrentTime();   // We store time in seconds
 
@@ -238,11 +272,11 @@ var ActionProvider = {
     },
     stopTicking: function() {
         var id = Helper.getSelectedTaskId();
-        // Check if some work started
+        // Check if some task started
         Helper.ajaxCall("checkTaskStarted", "POST", "wtc_ajax.php", undefined, function(work_started) {
             if (id != null && id != "" && work_started) {
                 if (work_started.Id == id) {   // Current work started
-                    // Update work in DB
+                    // Update task in DB
                     var spent_time = work_started.SpentTime + (Helper.getCurrentTime() - work_started.LastStart);
                     var data = "task_id=" + id +
                         "&spent_time=" + spent_time;   // We store time in seconds
