@@ -14,7 +14,7 @@ var ActionProvider = {
             password_confirm: $('#passwordConfirm').val()
         };
 
-        Helper.ajaxCall('register', 'POST', 'wtc_ajax.php', data, function (response) {
+        Helper.ajaxCall('register', 'POST', data, function (response) {
             if (response == 1) {  // new user was created successfully
                 $('#content').load('templates/login.html', function() {
                     Helper.setTextById('login_msg', 'You were successfully registered, please login with your credentials.');
@@ -46,11 +46,12 @@ var ActionProvider = {
             password: $('#password').val()
         };
 
-        Helper.ajaxCall('login', 'POST', 'wtc_ajax.php', data, function (response) {
-            if (response.Id && response.UserName && response.Email) {
-                docCookies.setItem(wtc_login, response.Id);   // Create cookie wtc_login
+        Helper.ajaxCall('login', 'POST', data, function (response) {
+            if (response.Id && response.UserName) {
+                // TODO: use userName to show in menu for logout button
+                //docCookies.setItem(wtc_login, response.Id);   // Create cookie wtc_login
                 $('#content').load('templates/main.html');
-                this.getTaskList();
+                ActionProvider.getTaskList();
             }
             else if (response == 2) {
                 Helper.setTextById("login_msg", "Please, enter all information.");
@@ -62,6 +63,9 @@ var ActionProvider = {
                 Helper.setTextById("login_msg", "You are not registered yet.");
             }
             else if (response == 5) {
+                Helper.setTextById("login_msg", "Your account is blocked.");
+            }
+            else if (response == 6) {
                 Helper.setTextById("login_msg", "Wrong password, please try it again");
             }
             else {
@@ -80,8 +84,8 @@ var ActionProvider = {
 
 //============ Main Actions ============//
     getTaskList: function(task_id) {
-        if (docCookies.getItem(wtc_login)) {
-            Helper.ajaxCall("getTaskList", "POST", "wtc_ajax.php", 'user_id=' + docCookies.getItem(wtc_login), function(taskList) {
+        Helper.ajaxCall("getTaskList", "POST", undefined, function(taskList) {
+            if (taskList) {
                 var select_box = Helper.clearElementById("taskList");
 
                 for (var i = 0; i < taskList.length; i++) {
@@ -100,33 +104,36 @@ var ActionProvider = {
                 }
 
                 ActionProvider.getTask('time', Helper.getSelectedTaskId());
-            });
-        }
+            }
+            else {
+                $('#content').load('templates/login.html', function() {
+                    Helper.setTextById('login_msg', 'You were logged out, please login again.');
+                });
+            }
+        });
     },
     getTask: function(param, id) {
-        if (id) {
-            Helper.ajaxCall("getTaskById", "POST", "wtc_ajax.php", "task_id=" + id, function(response_work) {
+        Helper.ajaxCall("getTaskById", "POST", "task_id=" + id, function(response_work) {
 
-                switch(param) {
-                    // Show current work spent time
-                    case 'time':
-                        if (response_work.TaskStarted && localStorage.getItem(wtc_ticking_counter)) {
-                            Helper.setTextById("counter", localStorage.getItem(wtc_ticking_counter));
-                        }
-                        else {
-                            Helper.setTextById("counter", Helper.secondsToHms(response_work.SpentTime));
-                        }
-                        break;
-                    // Return name of current task
-                    case 'name':
-                        return response_work.Name;
+            switch(param) {
+                // Show current work spent time
+                case 'time':
+                    if (response_work.TaskStarted && localStorage.getItem(wtc_ticking_counter)) {
+                        Helper.setTextById("counter", localStorage.getItem(wtc_ticking_counter));
+                    }
+                    else {
+                        Helper.setTextById("counter", Helper.secondsToHms(response_work.SpentTime));
+                    }
+                    break;
+                // Return name of current task
+                case 'name':
+                    return response_work.Name;
 
-                    default:
-                        break;
-                }
+                default:
+                    break;
+            }
 
-            });
-        }
+        });
     },
 
 //============ Current Task Actions ============//
@@ -136,7 +143,7 @@ var ActionProvider = {
             new_task_name: Helper.getValueById("new_task_name")
         };
 
-        Helper.ajaxCall("createTask", "POST", "wtc_ajax.php", data, function(response) {
+        Helper.ajaxCall("createTask", "POST", data, function(response) {
             if (response == 1) {
                 ActionProvider.getTaskList();
                 Helper.setValueById("new_task_name", "");
@@ -162,7 +169,7 @@ var ActionProvider = {
             new_task_name: Helper.getValueById("edit_task_name")
         };
 
-        Helper.ajaxCall('editTask', 'POST', 'wtc_ajax.php', data, function (response) {
+        Helper.ajaxCall('editTask', 'POST', data, function (response) {
             if (response == 1) {
                 ActionProvider.getTaskList(data.task_id);
                 Helper.setTextById("result_msg", "New task name was successfully saved!");
@@ -195,7 +202,7 @@ var ActionProvider = {
             task_id: Helper.getSelectedTaskId(),
             password: Helper.getValueById('delete_task_password_confirm')
         };
-        Helper.ajaxCall('deleteTask', 'POST', 'wtc_ajax.php', data, function(response) {
+        Helper.ajaxCall('deleteTask', 'POST', data, function(response) {
             if (response == false) {
                 ActionProvider.getTaskList();
                 Helper.setTextById("result_msg", "Task was deleted successfully.");
@@ -225,62 +232,50 @@ var ActionProvider = {
 
     startTicking: function() {
         var data = {
-            user_id: docCookies.getItem(wtc_login),
             task_id: Helper.getSelectedTaskId(),
             last_start: Helper.getCurrentTime() // We store time in seconds
         };
-        // Check if some Task started
-        Helper.ajaxCall("checkTaskStarted", "POST", "wtc_ajax.php", data, function(work_started) {
-            if (!work_started) {   // No other work started
-                // Update Task in DB
-                Helper.ajaxCall("startTask", "POST", "wtc_ajax.php", data, function(response) {
-                    if (response) {
-                        localStorage.setItem(wtc_ticking_counter, Helper.secondsToHms(response.SpentTime));
-                        window.myTime = setInterval(function () {
-                            Helper.myTimer(response.Id);
-                        }, 1000);
-
-                        Helper.setTextById("result_msg", 'Started successfully!');
-                    }
-                    else Helper.setTextById("result_msg", 'Failed to start this task.');
-                });
+        Helper.ajaxCall("startTask", "POST", data, function(response) {
+            if (response == 'logOut') {    // User isn`t logged in
+                ActionProvider.logOut();
             }
-            else if (work_started == 2) {   // User id is missing
-                this.logOut();
+            else if (response.someTaskAlreadyStarted) {
+                Helper.setTextById("result_msg", "You are already working on <strong>" + response.Name + "</strong>");
             }
-            else if (work_started.Name) {
-                Helper.setTextById("result_msg", "You are already working on <strong>" + work_started.Name + "</strong>");
+            else if (response == 2) {
+                Helper.setTextById("result_msg", "Parameters to start the task are missing.");
             }
+            else if (response.Id && response.SpentTime) {
+                localStorage.setItem(wtc_ticking_counter, Helper.secondsToHms(response.SpentTime));
+                window.myTime = setInterval(function () {
+                    Helper.myTimer(response.Id);
+                }, 1000);
+                Helper.setTextById("result_msg", 'Started successfully!');
+            }
+            else Helper.setTextById("result_msg", 'Failed to start this task.');    // failed to UPDATE or SELECT
         });
     },
     stopTicking: function() {
-        var data = {
-            user_id: docCookies.getItem(wtc_login),
-            task_id: Helper.getSelectedTaskId()
-        };
-        // Check if some task started
-        Helper.ajaxCall("checkTaskStarted", "POST", "wtc_ajax.php", data, function(work_started) {
-            if (work_started) {
-                if (work_started.Id == data.task_id) {   // Current work started
-                    data['spent_time'] = work_started.SpentTime + (Helper.getCurrentTime() - work_started.LastStart);   // We store time in seconds
-                    // Update task in DB
-                    Helper.ajaxCall("stopTask", "POST", "wtc_ajax.php", data, function(response) {
-                        if (response) {
-                            clearInterval(window.myTime);   // Stop ticking
-                            Helper.deleteLocalStorage();    // Clear localStorage
-                            ActionProvider.getTask('time', Helper.getSelectedTaskId());    // Show tasks spent time from db
-                            Helper.setTextById("result_msg", "<strong>" + work_started.Name + "</strong> stopped successfully!");
-                        }
-                        else Helper.setTextById("result_msg", 'Stopping failed!');
-                    });
-                }
-                // Some other work already started
-                else Helper.setTextById("result_msg", "You are already working on <strong>" + work_started.Name + "</strong>");
+        Helper.ajaxCall("stopTask", "POST", "task_id=" + Helper.getSelectedTaskId(), function(response) {
+            if (response == 'logOut') {    // User isn`t logged in
+                ActionProvider.logOut();
             }
-            else if (work_started == 2) {   // User id is missing
-                this.logOut();
+            else if (response == 'noTaskStarted') {
+                Helper.setTextById("result_msg", "You have to start some task first.");
             }
-            else Helper.setTextById("result_msg", "You aren`t working at any task.");
+            else if (response == 2) {
+                Helper.setTextById("result_msg", "Parameters to stop the task are missing.");
+            }
+            else if(response.otherTaskStarted) {
+                Helper.setTextById("result_msg", "You are already working on <strong>" + response.Name + "</strong>");
+            }
+            else if (response) {
+                clearInterval(window.myTime);   // Stop ticking
+                Helper.deleteLocalStorage();    // Clear localStorage
+                ActionProvider.getTask('time', Helper.getSelectedTaskId());    // Show tasks spent time from db
+                Helper.setTextById("result_msg", "<strong>" + $('#taskList option:selected').text() + "</strong> stopped successfully!");
+            }
+            else Helper.setTextById("result_msg", 'Stopping failed!');
         });
     }
 };

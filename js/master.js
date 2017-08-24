@@ -1,18 +1,20 @@
 function run() {
 
     // Check if user is logged in
-    if (!docCookies.getItem(wtc_login)){  // Go to Login page
+    Helper.ajaxCall("checkLogin", "POST", undefined, function(result) {
+        if (result){    // User is logged in
 
-        $('#content').load('templates/login.html');
+            $('#content').load('templates/main.html', function() {
+                ActionProvider.getTaskList();
+            });
 
-    }
-    else {    // User is logged in
+        }
+        else {          // Go to Login page
 
-        $('#content').load('templates/main.html', function() {
-            ActionProvider.getTaskList();
-        });
+            $('#content').load('templates/login.html');
 
-    }
+        }
+    });
 }
 
 

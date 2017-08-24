@@ -57,6 +57,7 @@ class Db
 	private static function executeStatement($params)
 	{
 		$query = array_shift($params);
+		// Using prepared statements means that SQL injection is not possible.
 		$statement = self::$connection->prepare($query);
 		$statement->execute($params);
 		return $statement;
