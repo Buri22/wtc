@@ -25,7 +25,6 @@ $ajax_actions = array(
 
 $headers = getallheaders();
 $action = $headers["Ajax-Action"];
-$error_code = 0;
 
 if (is_ajax($headers) && $action != null) {
     switch ($action) {
@@ -41,17 +40,17 @@ if (is_ajax($headers) && $action != null) {
                 || !isset($_POST['email']) || empty($_POST['email'])
                 || !isset($_POST['password']) || empty($_POST['password'])
                 || !isset($_POST['password_confirm']) || empty($_POST['password_confirm'])) {
-                echo json_encode($error_code = 2);
+                echo json_encode(2);
                 break;
             }
             // Email validation
             if (!isValidEmail(trim($_POST['email']))) {
-                echo json_encode($error_code = 3);
+                echo json_encode(3);
                 break;
             }
             // Password == Password_confirm
             if (trim($_POST['password']) != trim($_POST['password_confirm'])) {
-                echo json_encode($error_code = 4);
+                echo json_encode(4);
                 break;
             }
             // Check if user is already registered
@@ -62,19 +61,17 @@ if (is_ajax($headers) && $action != null) {
                     ', $_POST['email']);
 
             if ($registered) {
-                echo json_encode($error_code = 5);
+                echo json_encode(5);
                 break;
             }
 
-            if ($error_code === 0) {
-                $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
-                $new_user = Db::query('
-                                    INSERT INTO user (UserName, Password, Email)
-                                    VALUES (?, ?, ?)
-                                ', trim($_POST['user_name']), $password, trim($_POST['email']));
+            $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
+            $new_user = Db::query('
+                                INSERT INTO user (UserName, Password, Email)
+                                VALUES (?, ?, ?)
+                            ', trim($_POST['user_name']), $password, trim($_POST['email']));
 
-                echo json_encode($new_user);
-            }
+            echo json_encode($new_user);
             break;
 
         // Login
@@ -82,12 +79,12 @@ if (is_ajax($headers) && $action != null) {
             // Check if all inputs were entered
             if (!isset($_POST['email']) || empty($_POST['email'])
                 || !isset($_POST['password']) || empty($_POST['password'])) {
-                echo json_encode($error_code = 2);
+                echo json_encode(2);
                 break;
             }
             // Email validation
             if (!isValidEmail(trim($_POST['email']))) {
-                echo json_encode($error_code = 3);
+                echo json_encode(3);
                 break;
             }
             // Try to find user
@@ -98,24 +95,22 @@ if (is_ajax($headers) && $action != null) {
                     ', trim($_POST['email']));
 
             if (!$user) {    // User has no record in DB
-                echo json_encode($error_code = 4);
+                echo json_encode(4);
                 break;
             }
             else if (check_brute($user)){
-                echo json_encode($error_code = 5);
+                echo json_encode(5);
                 break;
             }
             else if (!password_verify($_POST['password'], $user['Password'])) {   // Check passwords
-                echo json_encode($error_code = 6);
+                echo json_encode(6);
                 break;
             }
 
-            if ($error_code === 0) {
-                $_SESSION['user_id'] = $user['Id'];
-                $_SESSION['login_string'] = hash('sha512', $user['Password'] . $_SERVER['HTTP_USER_AGENT']);
+            $_SESSION['user_id'] = $user['Id'];
+            $_SESSION['login_string'] = hash('sha512', $user['Password'] . $_SERVER['HTTP_USER_AGENT']);
 
-                echo json_encode(getUserForJS($user));
-            }
+            echo json_encode(getUserForJS($user));
             break;
 
         // Get Task by Id
@@ -149,60 +144,64 @@ if (is_ajax($headers) && $action != null) {
 
         // Create task
         case ($ajax_actions["CREATE_TASK"]):
-            if (!isset($_POST['user_id']) || empty($_POST['user_id'])
-                || !isset($_POST['new_task_name']) || empty($_POST['new_task_name'])) {
-                echo json_encode($error_code = 2);
+            if (!isset($_POST['new_task_name']) || empty($_POST['new_task_name'])) {
+                echo json_encode(2);
                 break;
             }
-            // Check if task name exists
+            $user = checkLogin();
+            if (!$user) {
+                echo json_encode(3);
+                break;
+            }
+            // Check if task name already exists
             $result = Db::query('
                             SELECT *
                             FROM task
                             WHERE UserId = ? AND Name = ?
-                        ', $_POST['user_id'], $_POST['new_task_name']);
+                        ', $user['Id'], $_POST['new_task_name']);
             if ($result) {
-                echo json_encode($error_code = 3);
+                echo json_encode(4);
                 break;
             }
 
-            if ($error_code === 0) {
-                $newTask = Db::query('
-                            INSERT INTO task (Name, DateCreated, UserId)
-                            VALUES (?, ?, ?)
-                        ', $_POST['new_task_name'], date("Y-m-d H:i:s"), $_POST['user_id']);
-
-                echo json_encode($newTask);
-            }
+            $newTask = Db::query('
+                        INSERT INTO task (Name, DateCreated, UserId)
+                        VALUES (?, ?, ?)
+                    ', $_POST['new_task_name'], date("Y-m-d H:i:s"), $user['Id']);
+            echo json_encode($newTask);
             break;
 
         // Edit task
         case ($ajax_actions["EDIT_TASK"]):
             // Check if all inputs were entered
             if (!isset($_POST['new_task_name']) || empty($_POST['new_task_name'])
-                || !isset($_POST['task_id']) || empty($_POST['task_id'])
-                || !isset($_POST['user_id']) || empty($_POST['user_id'])) {
-                echo json_encode($error_code = 2);
+                || !isset($_POST['task_id']) || empty($_POST['task_id'])) {
+                echo json_encode(2);
                 break;
             }
-
+            $user = checkLogin();
+            if (!$user) {
+                echo json_encode(3);
+                break;
+            }
             // Check if task name already exists
             $result = Db::queryOne('
                             SELECT *
                             FROM task
                             WHERE Name = ? AND UserId = ?
-                        ', $_POST['new_task_name'], $_POST['user_id']);
+                        ', $_POST['new_task_name'], $user['Id']);
             if ($result && $result['Name'] === $_POST['new_task_name']) {
-                echo json_encode($error_code = 3);
+                echo json_encode(4);
                 break;
             }
 
-            if ((!$result || $result['Name'] !== $_POST['new_task_name']) && $error_code === 0) {
+            // This task name does not exist or is not exactly the same as edited
+            if (!$result || $result['Name'] !== $_POST['new_task_name']) {
                 $editedTask = Db::query('
                                     UPDATE task
                                     SET Name = ?
                                     WHERE Id = ?
                                 ', $_POST['new_task_name'], $_POST['task_id']);
-
                 echo json_encode($editedTask);
             }
             break;
@@ -211,11 +210,10 @@ if (is_ajax($headers) && $action != null) {
         case ($ajax_actions["DELETE_TASK"]):
             // Check if all inputs were entered
             if (!isset($_POST['password']) || empty($_POST['password'])
-                && !isset($_POST['task_id']) || empty($_POST['task_id'])) {
-                echo json_encode($error_code = 2);
+                || !isset($_POST['task_id']) || empty($_POST['task_id'])) {
+                echo json_encode(2);
                 break;
             }
-
             // Try to find the task
             $password = Db::queryOne('
                             SELECT Password
@@ -224,21 +222,19 @@ if (is_ajax($headers) && $action != null) {
                             WHERE task.Id = ?
                         ', $_POST['task_id']);
             if (!$password) {
-                echo json_encode($error_code = 3);
+                echo json_encode(3);
                 break;
             }
             else if(!password_verify($_POST['password'], $password['Password'])) {
-                echo json_encode($error_code = 4);
+                echo json_encode(4);
                 break;
             }
 
-            if ($error_code === 0) {
-                $result = Db::queryOne('
-                                DELETE FROM task
-                                WHERE Id = ?
-                              ', $_POST['task_id']);
-                echo json_encode($result);
-            }
+            $result = Db::queryOne('
+                            DELETE FROM task
+                            WHERE Id = ?
+                          ', $_POST['task_id']);
+            echo json_encode($result);
             break;
 
         // Start counting and return started task values

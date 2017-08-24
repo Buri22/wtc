@@ -49,7 +49,6 @@ var ActionProvider = {
         Helper.ajaxCall('login', 'POST', data, function (response) {
             if (response.Id && response.UserName) {
                 // TODO: use userName to show in menu for logout button
-                //docCookies.setItem(wtc_login, response.Id);   // Create cookie wtc_login
                 $('#content').load('templates/main.html');
                 ActionProvider.getTaskList();
             }
@@ -74,9 +73,9 @@ var ActionProvider = {
         });
     },
 
+    // TODO: finish logOut function
     // Logout
     logOut: function() {
-        docCookies.removeItem(wtc_login);
         $('#content').load('templates/login.html', function() {
             Helper.setTextById('login_msg', 'Your login cookie expired, please login again.');
         });
@@ -138,12 +137,7 @@ var ActionProvider = {
 
 //============ Current Task Actions ============//
     createTask: function() {
-        var data = {
-            user_id: docCookies.getItem(wtc_login),
-            new_task_name: Helper.getValueById("new_task_name")
-        };
-
-        Helper.ajaxCall("createTask", "POST", data, function(response) {
+        Helper.ajaxCall("createTask", "POST", "new_task_name=" + Helper.getValueById("new_task_name"), function(response) {
             if (response == 1) {
                 ActionProvider.getTaskList();
                 Helper.setValueById("new_task_name", "");
@@ -154,6 +148,9 @@ var ActionProvider = {
                 Helper.setTextById("create_result_msg", "Please input some creative task name.");
             }
             else if (response == 3) {
+                ActionProvider.logOut();
+            }
+            else if (response == 4) {
                 Helper.setTextById("create_result_msg", "This task name already exists, try something different.");
             }
             else {
@@ -164,11 +161,9 @@ var ActionProvider = {
     },
     editTask: function() {
         var data = {
-            user_id: docCookies.getItem(wtc_login),
             task_id: Helper.getSelectedTaskId(),
             new_task_name: Helper.getValueById("edit_task_name")
         };
-
         Helper.ajaxCall('editTask', 'POST', data, function (response) {
             if (response == 1) {
                 ActionProvider.getTaskList(data.task_id);
@@ -179,6 +174,9 @@ var ActionProvider = {
                 Helper.setTextById("edit_result_msg", "Please input some creative task name.");
             }
             else if (response == 3) {
+                ActionProvider.logOut();
+            }
+            else if (response == 4) {
                 Helper.setTextById("edit_result_msg", "This task name already exists, try something different.");
             }
             else {

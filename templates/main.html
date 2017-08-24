@@ -16,27 +16,27 @@
     <div class="row"> <!-- Current Task Actions -->
         <div class="col-sm-12 col-md-6 col-md-offset-3 task_actions">
             <button
-                    id="newTask"
-                    class="btn btn-primary btn-lg"
-                    data-toggle="modal"
-                    data-target="#create_new_task"
-                    onclick="$('#create_new_task').load('templates/new_task.html');">
+                id="newTask"
+                class="btn btn-primary btn-lg"
+                data-toggle="modal"
+                data-target="#create_new_task"
+                onclick="$('#create_new_task').load('templates/create_task.html');">
                 Create new task
             </button>
             <button
-                    id="editTask"
-                    class="btn btn-success btn-lg"
-                    data-toggle="modal"
-                    data-target="#edit_task"
-                    onclick="ActionProvider.renderEditTask()">
+                id="editTask"
+                class="btn btn-success btn-lg"
+                data-toggle="modal"
+                data-target="#edit_task"
+                onclick="ActionProvider.renderEditTask()">
                 Edit current task
             </button>
             <button
-                    id="deleteTask"
-                    class="btn btn-warning btn-lg"
-                    data-toggle="modal"
-                    data-target="#delete_task"
-                    onclick="ActionProvider.renderDeleteTask()">
+                id="deleteTask"
+                class="btn btn-warning btn-lg"
+                data-toggle="modal"
+                data-target="#delete_task"
+                onclick="ActionProvider.renderDeleteTask()">
                 Delete current task
             </button>
         </div>
