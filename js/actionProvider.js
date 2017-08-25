@@ -142,7 +142,7 @@ var ActionProvider = {
                 ActionProvider.getTaskList();
                 Helper.setValueById("new_task_name", "");
                 Helper.setTextById("result_msg", "New task name was successfully created!");
-                $('#create_new_task').modal('hide');
+                $('#task_action_buttons .modal').modal('hide');
             }
             else if (response == 2) {
                 Helper.setTextById("create_result_msg", "Please input some creative task name.");
@@ -155,7 +155,7 @@ var ActionProvider = {
             }
             else {
                 Helper.setTextById("result_msg", "New task name failed to create!");
-                $('#create_new_task').modal('hide');
+                $('#task_action_buttons .modal').modal('hide');
             }
         });
     },
@@ -168,7 +168,7 @@ var ActionProvider = {
             if (response == 1) {
                 ActionProvider.getTaskList(data.task_id);
                 Helper.setTextById("result_msg", "New task name was successfully saved!");
-                $('#edit_task').modal('hide');
+                $('#task_action_buttons .modal').modal('hide');
             }
             else if (response == 2) {
                 Helper.setTextById("edit_result_msg", "Please input some creative task name.");
@@ -181,20 +181,10 @@ var ActionProvider = {
             }
             else {
                 Helper.setTextById("result_msg", "Edit task name failed!");
-                $('#edit_task').modal('hide');
+                $('#task_action_buttons .modal').modal('hide');
             }
         });
     },
-    renderEditTask: function() {
-        $.get('templates/edit_task.htm', function(template) {
-            Helper.clearElementById("edit_task");
-            var data = { name: $('#taskList option:selected').text() };
-            $('#edit_task').append(
-                Mustache.render($(template).html(), data)
-            );
-        });
-    },
-
     deleteTask: function() {
         var data = {
             task_id: Helper.getSelectedTaskId(),
@@ -204,28 +194,44 @@ var ActionProvider = {
             if (response == false) {
                 ActionProvider.getTaskList();
                 Helper.setTextById("result_msg", "Task was deleted successfully.");
-                $('#delete_task').modal('hide');
+                $('#task_action_buttons .modal').modal('hide');
             }
             else if(response == 2) {
                 Helper.setTextById("delete_result_msg", "Some information is missing.");
             }
             else if(response == 3) {
                 Helper.setTextById("result_msg", "Record of current task is missing in database.");
-                $('#delete_task').modal('hide');
+                $('#task_action_buttons .modal').modal('hide');
             }
             else if(response == 4) {
                 Helper.setTextById("delete_result_msg", "You entered wrong password.");
             }
         });
     },
-    renderDeleteTask: function() {
-        $.get('templates/delete_task.htm', function(template) {
-            Helper.clearElementById("delete_task");
-            var data = { name: $('#taskList option:selected').text() };
-            $('#delete_task').append(
-                Mustache.render($(template).html(), data)
-            );
-        });
+    renderModal: function(url, data) {
+        if (data) {
+            $.get('templates/modals/' + url, function(template) {
+                //var data = { name: $('#taskList option:selected').text() };
+                $('#task_action_buttons .modal')
+                    .append(Mustache.render($(template).html(), data))
+                    .modal('show');
+            });
+        }
+        else {
+            $('#task_action_buttons .modal').load('templates/modals/' + url, function() {
+                $(this).modal('show');
+            });
+        }
+    },
+    getModalData: function(action) {
+        // Add more actions if you need
+        if (action == 'edit' || action == 'delete') {
+            // Return current task name
+            return { name: $('#taskList option:selected').text() };
+        }
+        else {
+            return false;
+        }
     },
 
     startTicking: function() {
@@ -277,3 +283,6 @@ var ActionProvider = {
         });
     }
 };
+
+// Alias for ActionProvider
+var AP = ActionProvider;

@@ -18,31 +18,26 @@
             <button
                 id="newTask"
                 class="btn btn-primary btn-lg"
-                data-toggle="modal"
-                data-target="#create_new_task"
-                onclick="$('#create_new_task').load('templates/create_task.html');">
+                data-target=".modal"
+                onclick="AP.renderModal('create_task.html', false)">
                 Create new task
             </button>
             <button
                 id="editTask"
                 class="btn btn-success btn-lg"
-                data-toggle="modal"
-                data-target="#edit_task"
-                onclick="ActionProvider.renderEditTask()">
+                data-target=".modal"
+                onclick="AP.renderModal('edit_task.htm', AP.getModalData('edit'))">
                 Edit current task
             </button>
             <button
                 id="deleteTask"
                 class="btn btn-warning btn-lg"
-                data-toggle="modal"
-                data-target="#delete_task"
-                onclick="ActionProvider.renderDeleteTask()">
+                data-target=".modal"
+                onclick="AP.renderModal('delete_task.htm', AP.getModalData('delete'))">
                 Delete current task
             </button>
         </div>
-        <div id="create_new_task" class="modal fade" role="dialog"></div>
-        <div id="edit_task" class="modal fade" role="dialog"></div>
-        <div id="delete_task" class="modal fade" role="dialog"></div>
+        <div class="modal fade" role="dialog"></div>
     </div>
 </section>
 

@@ -17,11 +17,14 @@ function run() {
     });
 
     // Every time a modal is shown, if it has an autofocus attribute, focus on it.
-    //$('.modal').on('shown.bs.modal', function() {
-    //    setTimeout(function() {
-    //        $(this).find('[autofocus]').focus();
-    //    }, 1000);
-    //});
+    $(document).on('shown.bs.modal','.modal', function () {
+        $(this).find('[autofocus]').focus();
+    });
+
+    // Clear .modal after close
+    $(document).on('hidden.bs.modal', '.modal', function () {
+        $(this).empty();
+    })
 
 }
 
