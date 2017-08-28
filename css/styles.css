@@ -58,6 +58,9 @@ body {
     background-color: white;
     color: black !important;
 }
+#task_action_buttons .btn-action {
+    width: 22%;
+}
 
 .btn-modal-close {
     float: left;

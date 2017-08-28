@@ -4,27 +4,35 @@ function run() {
     Helper.ajaxCall("checkLogin", "POST", undefined, function(result) {
         if (result){    // User is logged in
 
-            $('#content').load('templates/main.html', function() {
-                ActionProvider.getTaskList();
+            $('#content').load('view/layout.html', function() {
+                $.get('view/menu.htm', function(template) {
+                    $('#menu').append(
+                        Mustache.render($(template).html(), { userName: result.UserName })
+                    )
+                });
+
+                $('#page').load('view/counter.htm', function() {
+                    ActionProvider.getTaskList();
+                });
+
             });
-
         }
-        else {          // Go to Login page
+        else {  // Go to Login page
 
-            $('#content').load('templates/login.html');
+            $('#content').load('view/login.html');
 
         }
     });
 
-    // Every time a modal is shown, if it has an autofocus attribute, focus on it.
-    $(document).on('shown.bs.modal','.modal', function () {
-        $(this).find('[autofocus]').focus();
-    });
-
-    // Clear .modal after close
-    $(document).on('hidden.bs.modal', '.modal', function () {
-        $(this).empty();
-    })
+    $(document)
+        // Every time a modal is shown, if it has an autofocus attribute, focus on it.
+        .on('shown.bs.modal','.modal', function () {
+            $(this).find('[autofocus]').focus();
+        })
+        // Clear .modal after close
+        .on('hidden.bs.modal', '.modal', function () {
+            $(this).empty();
+        });
 
 }
 

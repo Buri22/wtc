@@ -1,10 +1,4 @@
-<!-- Page Tasks -->
-<div class="row"> <!-- Title -->
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <h1 class="text-center">Work Time Counter</h1>
-    </div>
-</div>
-
+<!-- Page Counter -->
 <div class="row"> <!-- Select Task Name -->
     <h2 class="text-center">Current task name: </h2>
     <div class="col-sm-12 col-md-6 col-md-offset-3">
@@ -17,24 +11,27 @@
         <div class="col-sm-12 col-md-6 col-md-offset-3 task_actions">
             <button
                 id="newTask"
-                class="btn btn-primary btn-lg"
+                title="Create new task"
+                class="btn btn-primary btn-lg btn-action"
                 data-target=".modal"
                 onclick="AP.renderModal('create_task.html', false)">
-                Create new task
+                Create
             </button>
             <button
                 id="editTask"
-                class="btn btn-success btn-lg"
+                title="Edit current task"
+                class="btn btn-success btn-lg btn-action"
                 data-target=".modal"
-                onclick="AP.renderModal('edit_task.htm', AP.getModalData('edit'))">
-                Edit current task
+                onclick="AP.renderModal('edit_task.htm', AP.getData('edit'))">
+                Edit
             </button>
             <button
                 id="deleteTask"
-                class="btn btn-warning btn-lg"
+                title="Delete current task"
+                class="btn btn-warning btn-lg btn-action"
                 data-target=".modal"
-                onclick="AP.renderModal('delete_task.htm', AP.getModalData('delete'))">
-                Delete current task
+                onclick="AP.renderModal('delete_task.htm', AP.getData('delete'))">
+                Delete
             </button>
         </div>
         <div class="modal fade" role="dialog"></div>

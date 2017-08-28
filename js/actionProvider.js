@@ -16,7 +16,7 @@ var ActionProvider = {
 
         Helper.ajaxCall('register', 'POST', data, function (response) {
             if (response == 1) {  // new user was created successfully
-                $('#content').load('templates/login.html', function() {
+                $('#content').load('view/login.html', function() {
                     Helper.setTextById('login_msg', 'You were successfully registered, please login with your credentials.');
                 });
             }
@@ -48,8 +48,7 @@ var ActionProvider = {
 
         Helper.ajaxCall('login', 'POST', data, function (response) {
             if (response.Id && response.UserName) {
-                // TODO: use userName to show in menu for logout button
-                $('#content').load('templates/main.html');
+                $('#content').load('view/counter.htm');
                 ActionProvider.getTaskList();
             }
             else if (response == 2) {
@@ -73,11 +72,14 @@ var ActionProvider = {
         });
     },
 
-    // TODO: finish logOut function
     // Logout
     logOut: function() {
-        $('#content').load('templates/login.html', function() {
-            Helper.setTextById('login_msg', 'Your login cookie expired, please login again.');
+        Helper.ajaxCall('logout', 'POST', undefined, function(response) {
+            if (response) {
+                $('#content').load('view/login.html', function() {
+                    Helper.setTextById('login_msg', 'You have been successfully logged out.');
+                });
+            }
         });
     },
 
@@ -105,7 +107,7 @@ var ActionProvider = {
                 ActionProvider.getTask('time', Helper.getSelectedTaskId());
             }
             else {
-                $('#content').load('templates/login.html', function() {
+                $('#content').load('view/login.html', function() {
                     Helper.setTextById('login_msg', 'You were logged out, please login again.');
                 });
             }
@@ -209,25 +211,25 @@ var ActionProvider = {
         });
     },
     renderModal: function(url, data) {
+        url = 'view/modal/' + url;
+
         if (data) {
-            $.get('templates/modals/' + url, function(template) {
-                //var data = { name: $('#taskList option:selected').text() };
+            $.get(url, function(template) {
                 $('#task_action_buttons .modal')
                     .append(Mustache.render($(template).html(), data))
                     .modal('show');
             });
         }
         else {
-            $('#task_action_buttons .modal').load('templates/modals/' + url, function() {
+            $('#task_action_buttons .modal').load(url, function() {
                 $(this).modal('show');
             });
         }
     },
-    getModalData: function(action) {
-        // Add more actions if you need
-        if (action == 'edit' || action == 'delete') {
+    getData: function(view) {
+        if (view == 'edit' || view == 'delete') {
             // Return current task name
-            return { name: $('#taskList option:selected').text() };
+            return { taskName: $('#taskList option:selected').text() };
         }
         else {
             return false;

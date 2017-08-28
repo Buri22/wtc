@@ -8,8 +8,6 @@
 require_once 'Db_connect.php';
 require_once 'functions.php';
 
-sec_session_start();    // Our custom secure way of starting a PHP session.
-
 $ajax_actions = array(
     "GET_TASK_LIST"      => "getTaskList",
     "GET_TASK_BY_ID"     => "getTaskById",
@@ -20,6 +18,7 @@ $ajax_actions = array(
     "DELETE_TASK"        => "deleteTask",
     "LOGIN"              => "login",
     "CHECK_LOGIN"        => "checkLogin",
+    "LOGOUT"             => "logout",
     "REGISTER"           => "register"
 );
 
@@ -76,6 +75,8 @@ if (is_ajax($headers) && $action != null) {
 
         // Login
         case ($ajax_actions["LOGIN"]):
+            sec_session_start();    // Our custom secure way of starting a PHP session.
+
             // Check if all inputs were entered
             if (!isset($_POST['email']) || empty($_POST['email'])
                 || !isset($_POST['password']) || empty($_POST['password'])) {
@@ -111,6 +112,11 @@ if (is_ajax($headers) && $action != null) {
             $_SESSION['login_string'] = hash('sha512', $user['Password'] . $_SERVER['HTTP_USER_AGENT']);
 
             echo json_encode(getUserForJS($user));
+            break;
+
+        // Logout
+        case ($ajax_actions['LOGOUT']):
+            echo json_encode(logout());
             break;
 
         // Get Task by Id

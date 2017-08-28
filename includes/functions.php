@@ -48,6 +48,7 @@ function check_brute($user) {
 
 // Check if user is logged in
 function checkLogin() {
+    sec_session_start();
     // Check if all session variables are set
     if (!isset($_SESSION['user_id']) || !isset($_SESSION['login_string'])) {
         return false;
@@ -61,7 +62,7 @@ function checkLogin() {
     if (!$user) {    // User has no record in DB
         return false;
     }
-    // Check if login_string stored in session equals to login_check
+    // Check if login_string stored in session equals to $login_check
     $login_check = hash('sha512', $user['Password'] . $_SERVER['HTTP_USER_AGENT']);
     if (!hash_equals($login_check, $_SESSION['login_string'])) {
         return false;
@@ -95,4 +96,27 @@ function getUserForJS($user) {
     $result['UserName'] = $user['UserName'];
 
     return $result;
+}
+
+function logout() {
+    sec_session_start();
+
+    // Unset all session values
+    $_SESSION = array();
+
+    // get session parameters
+    $params = session_get_cookie_params();
+
+    // Delete the actual cookie.
+    setcookie(session_name(),
+        '', time() - 42000,
+        $params["path"],
+        $params["domain"],
+        $params["secure"],
+        $params["httponly"]);
+
+    // Destroy session
+    session_destroy();
+
+    return true;
 }
