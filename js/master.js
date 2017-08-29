@@ -3,24 +3,10 @@ function run() {
     // Check if user is logged in
     Helper.ajaxCall("checkLogin", "POST", undefined, function(result) {
         if (result){    // User is logged in
-
-            $('#content').load('view/layout.html', function() {
-                $.get('view/menu.htm', function(template) {
-                    $('#menu').append(
-                        Mustache.render($(template).html(), { userName: result.UserName })
-                    )
-                });
-
-                $('#page').load('view/counter.htm', function() {
-                    ActionProvider.getTaskList();
-                });
-
-            });
+            ActionProvider.renderLayout(result);
         }
         else {  // Go to Login page
-
             $('#content').load('view/login.html');
-
         }
     });
 

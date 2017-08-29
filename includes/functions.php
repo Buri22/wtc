@@ -46,7 +46,7 @@ function check_brute($user) {
     return $result;
 }
 
-// Check if user is logged in
+// Check if user is logged in and return User for JS manipulation
 function checkLogin() {
     sec_session_start();
     // Check if all session variables are set
@@ -55,7 +55,7 @@ function checkLogin() {
     }
     // Try to get user from db
     $user =  Db::queryOne('
-              SELECT Id, UserName, Password
+              SELECT Id, UserName, Password, Email
               FROM user
               WHERE Id = ?
             ', $_SESSION['user_id']);
@@ -92,8 +92,9 @@ function checkTaskStarted() {
 function getUserForJS($user) {
     $result = [];
 
-    $result['Id'] = $user['Id'];
+    $result['Id']       = $user['Id'];
     $result['UserName'] = $user['UserName'];
+    $result['Email']    = $user['Email'];
 
     return $result;
 }

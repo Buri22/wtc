@@ -6,12 +6,11 @@
 
 var Helper = {
 
-    ajaxCall: function(action, type, data, options) {
-        options = options || {};
+    ajaxCall: function(action, type, data, callback) {
+        callback = callback || {};
 
         // Define request headers
         var headers = {
-            //'XDEBUG_SESSION_START': '14607',
             'Ajax-Action': action
         };
         if (type == 'POST') {
@@ -24,7 +23,7 @@ var Helper = {
             type: type,
             data: data,
             dataType: 'json',
-            success: options
+            success: callback
         });
     },
 

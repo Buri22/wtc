@@ -48,8 +48,7 @@ var ActionProvider = {
 
         Helper.ajaxCall('login', 'POST', data, function (response) {
             if (response.Id && response.UserName) {
-                $('#content').load('view/counter.htm');
-                ActionProvider.getTaskList();
+                ActionProvider.renderLayout(response);
             }
             else if (response == 2) {
                 Helper.setTextById("login_msg", "Please, enter all information.");
@@ -210,32 +209,6 @@ var ActionProvider = {
             }
         });
     },
-    renderModal: function(url, data) {
-        url = 'view/modal/' + url;
-
-        if (data) {
-            $.get(url, function(template) {
-                $('#task_action_buttons .modal')
-                    .append(Mustache.render($(template).html(), data))
-                    .modal('show');
-            });
-        }
-        else {
-            $('#task_action_buttons .modal').load(url, function() {
-                $(this).modal('show');
-            });
-        }
-    },
-    getData: function(view) {
-        if (view == 'edit' || view == 'delete') {
-            // Return current task name
-            return { taskName: $('#taskList option:selected').text() };
-        }
-        else {
-            return false;
-        }
-    },
-
     startTicking: function() {
         var data = {
             task_id: Helper.getSelectedTaskId(),
@@ -283,7 +256,93 @@ var ActionProvider = {
             }
             else Helper.setTextById("result_msg", 'Stopping failed!');
         });
+    },
+
+//============ Render Modal Window ============//
+    renderLayout: function(data) {
+        $('#content').load('view/layout.html', function() {
+            // Load Menu
+            $.get('view/menu.htm', function(template) {
+                $('#menu').append(
+                    Mustache.render($(template).html(), { userName: data.UserName })
+                )
+            });
+            // Load page Counter
+            $('#page').load('view/counter.htm', function() {
+                ActionProvider.getTaskList();
+            });
+        });
+    },
+    renderModal: function(view) {
+        $.get('view/modal_parts.htm', function(templates) {
+            if (view == 'create') {
+                ActionProvider.getModalTemplate({
+                    modal_id: 'create_new_task',
+                    title: 'Create new task',
+                    modal_body: $(templates).filter('#modal_body_create').html(),
+                    submit_btn: {
+                        action: 'ActionProvider.createTask()',
+                        text: 'Save'
+                    }
+                });
+            }
+            else if (view == 'edit') {
+                var edit_body = Mustache.render(
+                    $(templates).filter('#modal_body_edit').html(),
+                    { taskName: $('#taskList option:selected').text() }
+                );
+                ActionProvider.getModalTemplate({
+                    modal_id: 'edit_task',
+                    title: 'Edit task name',
+                    modal_body: edit_body,
+                    submit_btn: {
+                        action: 'ActionProvider.editTask()',
+                        text: 'Save'
+                    }
+                });
+            }
+            else if (view == 'delete') {
+                var delete_body = Mustache.render(
+                    $(templates).filter('#modal_body_delete').html(),
+                    { taskName: $('#taskList option:selected').text() }
+                );
+                ActionProvider.getModalTemplate({
+                    modal_id: 'delete_task',
+                    title: 'Delete current task',
+                    modal_body: delete_body,
+                    submit_btn: {
+                        action: 'ActionProvider.deleteTask()',
+                        text: 'Delete'
+                    }
+                });
+            }
+            else if (view == 'account') {
+                Helper.ajaxCall("checkLogin", "POST", undefined, function(user) {
+                    var account_body = Mustache.render(
+                        $(templates).filter('#modal_body_account').html(),
+                        { userName: user.UserName, email: user.Email }
+                    );
+                    ActionProvider.getModalTemplate({
+                        modal_id: 'user_account',
+                        title: 'Account settings',
+                        modal_body: account_body,
+                        submit_btn: {
+                            action: 'ActionProvider.saveAccount()',
+                            text: 'Save'
+                        }
+                    });
+                });
+            }
+        });
+    },
+    getModalTemplate: function(data) {
+        $.get('view/modal.htm', function(template) {
+            $('#task_action_buttons .modal')
+                .append(Mustache.render($(template).html(), data))
+                .modal('show');
+        });
     }
+
 };
 
 // Alias for ActionProvider

@@ -16,6 +16,12 @@ body {
    -moz-font-smoothing: antialiased;
    -o-font-smoothing: antialiased;
 }
+
+/*========== Counter Page ==========*/
+#start_stop_section {
+    position: relative;
+    margin-top: 60px;
+}
 #buttonStart {
     border-radius: 4px;
     color: white !important;
@@ -58,14 +64,10 @@ body {
     background-color: white;
     color: black !important;
 }
+
 #task_action_buttons .btn-action {
     width: 22%;
 }
-
-.btn-modal-close {
-    float: left;
-}
-
 .task_actions {
     display: flex;
     justify-content: center;
@@ -75,6 +77,15 @@ body {
     margin: 20px 10px 0 10px;
 }
 
+#output_section {
+    height: 500px;
+}
+
+
+/*========== Modal Window ==========*/
+.btn-modal-close {
+    float: left;
+}
 #result_msg {
     margin-top: 60px;
     text-align: center;
@@ -84,19 +95,17 @@ body {
 #create_result_msg, #edit_result_msg {
     padding-top: 10px;
 }
-
-#start_stop_section {
-    position: relative;
-    margin-top: 60px;
-}
-
 #new_task_name, #edit_task_name, #delete_task_password_confirm {
     margin-top: 10px;
 }
 
-#output_section {
-    height: 500px;
+#user_account .password_section {
+    display: none;
 }
+#change_password {
+    margin-top: 10px;
+}
+
 
 /* Color styles */
 .red {

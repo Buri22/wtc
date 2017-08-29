@@ -1,0 +1,83 @@
+<!-- Create modal body -->
+<script id="modal_body_create" type="text/html">
+
+    <input type="text" id="new_task_name" placeholder="Enter new task name..." class="form-control" autofocus />
+    <div id="create_result_msg" class="red"></div>
+
+</script>
+
+<!-- Edit modal body -->
+<script id="modal_body_edit" type="text/html">
+
+    <input type="text" id="edit_task_name" value="{{taskName}}" class="form-control" autofocus />
+    <div id="edit_result_msg" class="red"></div>
+
+</script>
+
+<!-- Delete modal body -->
+<script id="modal_body_delete" type="text/html">
+
+    <div class="">Do you really want to delete task: <strong>{{taskName}}</strong>?</div>
+    <input
+        type="password"
+        id="delete_task_password_confirm"
+        class="form-control"
+        placeholder="Enter your password for confirmation"
+        autofocus />
+    <div id="delete_result_msg" class="red"></div>
+
+</script>
+
+<!-- Account modal body -->
+<script id="modal_body_account" type="text/html">
+
+    <form class="form-horizontal">
+        <fieldset>
+            <!-- Text input-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="userName">User Name</label>
+                <div class="col-md-6">
+                    <input value="{{userName}}" id="userName" name="userName" type="text" placeholder="Enter your User Name" class="form-control input-md">
+                </div>
+            </div>
+            <!-- Text input-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="email">Email</label>
+                <div class="col-md-6">
+                    <input value="{{email}}" id="email" name="email" type="email" placeholder="Enter your Email" class="form-control input-md">
+                </div>
+            </div>
+            <!-- Checkbox -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="change_password">Change Password</label>
+                <div class="col-md-6">
+                    <input type="checkbox" name="change_password" id="change_password" onclick="$('section.password_section').toggle();">
+                </div>
+            </div>
+            <section class="password_section">
+                <!-- Password input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="password_old">Current Password</label>
+                    <div class="col-md-6">
+                        <input id="password_old" name="password_old" type="password" class="form-control input-md">
+                    </div>
+                </div>
+                <!-- Password input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="password_new">New Password</label>
+                    <div class="col-md-6">
+                        <input id="password_new" name="password_new" type="password" class="form-control input-md">
+                    </div>
+                </div>
+                <!-- Password input-->
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="password_confirm">Confirm New Password</label>
+                    <div class="col-md-6">
+                        <input id="password_confirm" name="password_confirm" type="password" class="form-control input-md">
+                    </div>
+                </div>
+            </section>
+        </fieldset>
+    </form>
+
+</script>

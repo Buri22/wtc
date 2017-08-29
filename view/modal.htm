@@ -1,0 +1,27 @@
+<script type="text/html">
+
+    <div class="modal-dialog" id="{{modal_id}}" >
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">{{title}}</h4>
+            </div>
+            <div class="modal-body">
+                {{{modal_body}}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-modal-close" data-dismiss="modal">Close</button>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="{{submit_btn.action}}">
+                    {{submit_btn.text}}
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+</script>
