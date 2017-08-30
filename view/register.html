@@ -28,6 +28,8 @@
 
     <button type="submit" id="register" class="btn btn-lg btn-primary btn-block" onclick="ActionProvider.register()">Sign up</button>
 
-    <a href="#" id="login_page" onclick="$('#content').load('view/login.html');">Back to login</a>
+    <a href="#" id="login_page" onclick="ActionProvider.renderLogin();">
+        <span class="glyphicon glyphicon-arrow-left"></span> Login
+    </a>
 
 </section>

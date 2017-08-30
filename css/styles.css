@@ -81,6 +81,15 @@ body {
     height: 500px;
 }
 
+#login_msg, #register_msg {
+    height: 20px;
+    display: block;
+    margin-bottom: 5px;
+    text-align: center;
+}
+button#login, button#register {
+    margin: 25px 0 10px 0;
+}
 
 /*========== Modal Window ==========*/
 .btn-modal-close {

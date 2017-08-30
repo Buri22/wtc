@@ -16,9 +16,7 @@ var ActionProvider = {
 
         Helper.ajaxCall('register', 'POST', data, function (response) {
             if (response == 1) {  // new user was created successfully
-                $('#content').load('view/login.html', function() {
-                    Helper.setTextById('login_msg', 'You were successfully registered, please login with your credentials.');
-                });
+                ActionProvider.renderLogin('You were successfully registered, please login with your credentials.');
             }
             else if (response == 2) {
                 Helper.setTextById("register_msg", "Please, enter all information.");
@@ -75,9 +73,7 @@ var ActionProvider = {
     logOut: function() {
         Helper.ajaxCall('logout', 'POST', undefined, function(response) {
             if (response) {
-                $('#content').load('view/login.html', function() {
-                    Helper.setTextById('login_msg', 'You have been successfully logged out.');
-                });
+                ActionProvider.renderLogin('You have been successfully logged out.');
             }
         });
     },
@@ -106,33 +102,34 @@ var ActionProvider = {
                 ActionProvider.getTask('time', Helper.getSelectedTaskId());
             }
             else {
-                $('#content').load('view/login.html', function() {
-                    Helper.setTextById('login_msg', 'You were logged out, please login again.');
-                });
+                ActionProvider.renderLogin('You were logged out, please login again.');
             }
         });
     },
     getTask: function(param, id) {
         Helper.ajaxCall("getTaskById", "POST", "task_id=" + id, function(response_work) {
-
-            switch(param) {
-                // Show current work spent time
-                case 'time':
-                    if (response_work.TaskStarted && localStorage.getItem(wtc_ticking_counter)) {
-                        Helper.setTextById("counter", localStorage.getItem(wtc_ticking_counter));
-                    }
-                    else {
-                        Helper.setTextById("counter", Helper.secondsToHms(response_work.SpentTime));
-                    }
-                    break;
-                // Return name of current task
-                case 'name':
-                    return response_work.Name;
-
-                default:
-                    break;
+            if (response_work == 2) {
+                Helper.setTextById("result_msg", "Task id is missing.");
             }
+            else {
+                switch(param) {
+                    // Show current work spent time
+                    case 'time':
+                        if (response_work.TaskStarted && localStorage.getItem(wtc_ticking_counter)) {
+                            Helper.setTextById("counter", localStorage.getItem(wtc_ticking_counter));
+                        }
+                        else {
+                            Helper.setTextById("counter", Helper.secondsToHms(response_work.SpentTime));
+                        }
+                        break;
+                    // Return name of current task
+                    case 'name':
+                        return response_work.Name;
 
+                    default:
+                        break;
+                }
+            }
         });
     },
 
@@ -258,7 +255,7 @@ var ActionProvider = {
         });
     },
 
-//============ Render Modal Window ============//
+//============ Render Views and Modals ============//
     renderLayout: function(data) {
         $('#content').load('view/layout.html', function() {
             // Load Menu
@@ -271,6 +268,23 @@ var ActionProvider = {
             $('#page').load('view/counter.htm', function() {
                 ActionProvider.getTaskList();
             });
+        });
+    },
+    renderLogin: function(msg) {
+        $('#content').load('view/login.html', function() {
+            Helper.bindEnterSubmitEvent(this, '#login');
+            Helper.setTextById('login_msg', msg || "");
+
+            //$('#register_page').click(function() {
+            //    $(this).parent().animate({right: '200px', opacity: '0' }, 'slow');
+            //});
+
+        });
+    },
+    renderRegister: function(msg) {
+        $('#content').load('view/register.html', function() {
+            Helper.bindEnterSubmitEvent(this, '#register');
+            Helper.setTextById('register_msg', msg || "");
         });
     },
     renderModal: function(view) {

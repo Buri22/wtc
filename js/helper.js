@@ -62,12 +62,13 @@ var Helper = {
         return Number($("#taskList").val());
     },
 
+    // TODO: add param type = success/warning => green/red text by adding css class
     setTextById: function(elementId, message) {
         document.getElementById(elementId).innerHTML = message;
     },
 
     getValueById: function(elementId) {
-        return document.getElementById(elementId).value;
+        return document.getElementById(elementId).value.trim();
     },
     setValueById: function(elementId, value) {
         document.getElementById(elementId).value = value;
@@ -79,6 +80,15 @@ var Helper = {
             myNode.removeChild(myNode.firstChild);
         }
         return myNode;
+    },
+
+    // Binds Enter keyup event to make click() on element by selector
+    bindEnterSubmitEvent: function(obj, selector) {
+        $(obj).keydown(function(e) {
+            if  (e.which == 13) {
+                $(selector).click();
+            }
+        });
     }
 
 };

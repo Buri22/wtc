@@ -6,7 +6,7 @@ function run() {
             ActionProvider.renderLayout(result);
         }
         else {  // Go to Login page
-            $('#content').load('view/login.html');
+            ActionProvider.renderLogin();
         }
     });
 
@@ -14,6 +14,7 @@ function run() {
         // Every time a modal is shown, if it has an autofocus attribute, focus on it.
         .on('shown.bs.modal','.modal', function () {
             $(this).find('[autofocus]').focus();
+            Helper.bindEnterSubmitEvent(this, '#submit');
         })
         // Clear .modal after close
         .on('hidden.bs.modal', '.modal', function () {
