@@ -77,7 +77,8 @@ var Account = function() {
 
         Helper.ajaxCall('login', 'POST', data, function (response) {
             if (response.Id && response.UserName) {
-                ActionProvider.renderLayout(response);
+                setUser(response);
+                mediator.publish('RenderAppLayout');
             }
             else if (response == 2) {
                 $loginMsg.text('Please, enter all information.');

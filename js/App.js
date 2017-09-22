@@ -4,6 +4,7 @@
 var App = function() {
     // Initialize Modules
     var account = new Account();
+    var menu = new Menu();
     var counter = new Counter();
 
     var $content = $('#content');
@@ -50,10 +51,15 @@ var App = function() {
                 Mustache.render($(template).html(), { userName: account.getUserName() })
             )
         });
+        //menu.render();
+
         // Load page Counter
-        counter.render($pageContent);
+        // TODO: Sometimes $pageContent is undefined - fix
+        counter.renderCounter($pageContent);
     }
 
+    // Subscribe to listen for calls from outside
+    mediator.subscribe('RenderAppLayout', renderAppLayout);
 
     return {
         run: run

@@ -74,21 +74,6 @@ var ActionProvider = {
     },
 
 //============ Render Views and Modals ============//
-    renderLayout: function(data) {
-        $('#content').load('view/layout.html', function() {
-            // Load Menu
-            $.get('view/menu.htm', function(template) {
-                $('#menu').append(
-                    Mustache.render($(template).html(), { userName: data.UserName })
-                )
-            });
-            // Load page Counter
-            $('#page').load('view/counter.htm', function() {
-                var counter = new Counter();
-                counter.getTaskList();
-            });
-        });
-    },
     renderLogin: function(msg) {
         $('#content').load('view/login.html', function() {
             Helper.bindEnterSubmitEvent(this, '#login');
@@ -98,12 +83,6 @@ var ActionProvider = {
             //    $(this).parent().animate({right: '200px', opacity: '0' }, 'slow');
             //});
 
-        });
-    },
-    renderRegister: function(msg) {
-        $('#content').load('view/register.html', function() {
-            Helper.bindEnterSubmitEvent(this, '#register');
-            Helper.setTextById('register_msg', msg || "");
         });
     },
     renderModal: function(view, $modal, innerData) {
@@ -170,7 +149,10 @@ var ActionProvider = {
 
             // Bind dynamic action from module
             if (action) {
-                $modal.find('#submit').on('click', action);
+                // To ensure that element hasn't bind event twice -> off()
+                $modal.find('#submit')
+                    .off('click')
+                    .on('click', action);
             }
         });
     }

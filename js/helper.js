@@ -84,7 +84,8 @@ var Helper = {
 
     // Binds Enter keyup event to make click() on element by selector
     bindEnterSubmitEvent: function(obj, selector) {
-        $(obj).keydown(function(e) {
+        // To ensure that element hasn't bind event twice -> off()
+        $(obj).off('keydown').on('keydown', function(e) {
             if  (e.which == 13) {
                 $(selector).click();
             }

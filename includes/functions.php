@@ -224,17 +224,28 @@ function createTask() {
     if (!$user) { return 3; }
 
     // Check if task name already exists
-    $result = Db::query('
+    $result = Db::queryOne('
                     SELECT *
                     FROM task
                     WHERE UserId = ? AND Name = ?
                 ', $user['Id'], $_POST['new_task_name']);
     if ($result) { return 4; }
 
-    $newTask = Db::query('
-                        INSERT INTO task (Name, DateCreated, UserId)
-                        VALUES (?, ?, ?)
-                    ', $_POST['new_task_name'], date("Y-m-d H:i:s"), $user['Id']);
+    $data = [
+        'Name'        => $_POST['new_task_name'],
+        'DateCreated' => date("Y-m-d H:i:s"),
+        'UserId'      => $user['Id']
+    ];
+    $newTask = Db::insert('task', $data);
+
+    if ($newTask == 1) {
+        $insertedTask = Db::queryOne('
+                    SELECT *
+                    FROM task
+                    WHERE UserId = ? AND Name = ?
+                ', $user['Id'], $_POST['new_task_name']);
+        return $insertedTask;
+    }
     return $newTask;
 }
 

@@ -2,21 +2,11 @@
  * Created by Uživatel on 11.9.2017.
  */
 var Counter = function() {
-    var tasks = {};
+    var tasks = [];
     var maxTaskNameLength = 80;
     var $counter, $taskList, taskListTemplate, $modal, $taskActionBtns, $startBtn, $stopBtn, $timeCounter, $resultMsg;
 
-    // Load Task data
-    Helper.ajaxCall("getTaskList", "POST", undefined, function(taskListData) {
-        if (taskListData) {
-            tasks = taskListData;
-            _renderTaskList();
-            _renderCurrentTaskTime();
-        }
-        else {
-            mediator.publish('RenderLogin', 'You were logged out, please login again.');
-        }
-    });
+    loadTaskData();
 
     // Load Views & Cache DOM
     $.get('view/counter.htm', function(template) {
@@ -31,13 +21,19 @@ var Counter = function() {
         $resultMsg       = $counter.find('#result_msg');
     });
 
-    function render($container) {
-        _renderTaskList();
-        _renderCurrentTaskTime();
-
-        bindCounterEvents();
-
-        $container.html($counter);
+    // Load Task data
+    function loadTaskData(callback) {
+        Helper.ajaxCall("getTaskList", "POST", undefined, function(taskListData) {
+            if (taskListData) {
+                // Define task model
+                tasks = taskListData;
+                // if callback is a function, call it
+                typeof callback == 'function' && callback();
+            }
+            else {
+                mediator.publish('RenderLogin', 'You were logged out, please login again.');
+            }
+        });
     }
 
     // Bind Events
@@ -46,6 +42,16 @@ var Counter = function() {
         $startBtn.on('click', _startTicking);
         $stopBtn.on('click', _stopTicking);
         $taskActionBtns.on('click', '#newTask, #editTask, #deleteTask', _renderModal);
+    }
+
+    function renderCounter($container) {
+        loadTaskData(function() {
+            _renderTaskList();
+            _renderCurrentTaskTime();
+
+            bindCounterEvents();
+            $container.html($counter);
+        });
     }
     
     function _renderTaskList(task_id) {
@@ -125,19 +131,26 @@ var Counter = function() {
         });
     }
 
-    function _getTask(id) {
+    function _getTask(id, param) {
         var task = {};
+        var index = 0;
         // Without id parameter gets selected task id
         id = id || Number($taskList.val());
 
         for (var i = 0; i < tasks.length; i++) {
             if (tasks[i].Id == id) {
                 task = tasks[i];
+                index = i;
                 break;
             }
         }
 
-        return task;
+        if (param == 'index') {
+            return index;
+        }
+        else {
+            return task;
+        }
     }
     function _setTask(id, data) {
         id = id || Number($taskList.val());
@@ -159,7 +172,6 @@ var Counter = function() {
         };
         Helper.ajaxCall("startTask", "POST", data, function(response) {
             if (response == 'logOut') {    // User isn`t logged in
-                //ActionProvider.logOut();
                 mediator.publish('LogOut');
             }
             else if (response.someTaskAlreadyStarted) {
@@ -187,7 +199,6 @@ var Counter = function() {
     function _stopTicking() {
         Helper.ajaxCall("stopTask", "POST", "task_id=" + Number($taskList.val()), function(response) {
             if (response == 'logOut') {    // User isn`t logged in
-                //ActionProvider.logOut();
                 mediator.publish('LogOut');
             }
             else if (response == 'noTaskStarted') {
@@ -218,9 +229,14 @@ var Counter = function() {
     function _createTask() {
         var $newTaskName = $modal.find('#new_task_name');
         var $createResultMsg = $modal.find('#create_result_msg');
+
         Helper.ajaxCall("createTask", "POST", "new_task_name=" + $newTaskName.val().trim(), function(response) {
-            if (response == 1) {
-                getTaskList();
+            if (response.Name == $newTaskName.val().trim()) {
+                // Update model
+                tasks.unshift(response);    // Adds created Task to the beginning of tasks array
+
+                _renderTaskList();
+                _renderCurrentTaskTime();
                 $newTaskName.val('');
                 $resultMsg.text("New task was successfully created!");
                 $modal.modal('hide');
@@ -229,7 +245,6 @@ var Counter = function() {
                 $createResultMsg.text("Please input some creative task name.");
             }
             else if (response == 3) {
-                //ActionProvider.logOut();
                 mediator.publish('LogOut');
             }
             else if (response == 4) {
@@ -249,7 +264,11 @@ var Counter = function() {
         };
         Helper.ajaxCall('editTask', 'POST', data, function (response) {
             if (response == 1) {
-                getTaskList(data.task_id);
+                // Update model
+                _setTask(data.task_id, { name: data.new_task_name });
+
+                _renderTaskList(data.task_id);
+                _renderCurrentTaskTime();
                 $resultMsg.text("Task name was successfully edited!");
                 $modal.modal('hide');
             }
@@ -257,7 +276,6 @@ var Counter = function() {
                 $editResultMsg.text("Please input some creative task name.");
             }
             else if (response == 3) {
-                //ActionProvider.logOut();
                 mediator.publish('LogOut');
             }
             else if (response == 4) {
@@ -277,7 +295,12 @@ var Counter = function() {
         };
         Helper.ajaxCall('deleteTask', 'POST', data, function(response) {
             if (response == false) {
-                getTaskList();
+                //getTaskList();
+                // Update model
+                tasks.splice(_getTask(data.task_id, 'index'), 1);
+
+                _renderTaskList();
+                _renderCurrentTaskTime();
                 $resultMsg.text("Task was deleted successfully.");
                 $modal.modal('hide');
             }
@@ -298,21 +321,7 @@ var Counter = function() {
         });
     }
 
-    function getTaskList(task_id) {
-        Helper.ajaxCall("getTaskList", "POST", undefined, function(taskListData) {
-            tasks = taskListData;
-            if (taskListData) {
-                _renderTaskList(task_id);
-                _renderCurrentTaskTime();
-            }
-            else {
-                //ActionProvider.renderLogin('You were logged out, please login again.');
-                mediator.publish('RenderLogin', 'You were logged out, please login again.');
-            }
-        });
-    }
-
     return {
-        render: render
+        renderCounter: renderCounter
     };
 };
