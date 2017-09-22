@@ -4,24 +4,81 @@
 var Counter = function() {
     var tasks = {};
     var maxTaskNameLength = 80;
+    var $counter, $taskList, taskListTemplate, $modal, $taskActionBtns, $startBtn, $stopBtn, $timeCounter, $resultMsg;
 
-    // Cache DOM
-    var $page             = $('#page'),
-        $taskList         = $page.find('#taskList'),
-        taskListTemplate  = $page.find('#taskListTemplate').html(),
-        $modal            = $page.find('#task_action_modal'),
-        $taskActionBtns   = $page.find('#task_action_buttons'),
-        $startBtn         = $page.find('#buttonStart'),
-        $stopBtn          = $page.find('#buttonStop'),
-        $timeCounter      = $page.find('#timeCounter'),
-        $resultMsg        = $page.find('#result_msg');
+    // Load Task data
+    Helper.ajaxCall("getTaskList", "POST", undefined, function(taskListData) {
+        if (taskListData) {
+            tasks = taskListData;
+            _renderTaskList();
+            _renderCurrentTaskTime();
+        }
+        else {
+            mediator.publish('RenderLogin', 'You were logged out, please login again.');
+        }
+    });
+
+    // Load Views & Cache DOM
+    $.get('view/counter.htm', function(template) {
+        $counter         = $(template);
+        $taskList        = $counter.find('#taskList');
+        taskListTemplate = $counter.find('#taskListTemplate').html();
+        $modal           = $counter.find('#task_action_modal');
+        $taskActionBtns  = $counter.filter('#task_action_buttons');
+        $startBtn        = $counter.find('#buttonStart');
+        $stopBtn         = $counter.find('#buttonStop');
+        $timeCounter     = $counter.find('#timeCounter');
+        $resultMsg       = $counter.find('#result_msg');
+    });
+
+    function render($container) {
+        _renderTaskList();
+        _renderCurrentTaskTime();
+
+        bindCounterEvents();
+
+        $container.html($counter);
+    }
 
     // Bind Events
-    $taskList.on('change', _renderCurrentTaskTime);
-    $startBtn.on('click', _startTicking);
-    $stopBtn.on('click', _stopTicking);
-    $taskActionBtns.on('click', '#newTask, #editTask, #deleteTask', _renderModal);
+    function bindCounterEvents() {
+        $taskList.on('change', _renderCurrentTaskTime);
+        $startBtn.on('click', _startTicking);
+        $stopBtn.on('click', _stopTicking);
+        $taskActionBtns.on('click', '#newTask, #editTask, #deleteTask', _renderModal);
+    }
+    
+    function _renderTaskList(task_id) {
+        var taskList = [];
+        for (var i = 0; i < tasks.length; i++) {
+            var taskName = tasks[i].Name;
+            if (taskName.length > maxTaskNameLength) {
+                taskName = taskName.substring(0, maxTaskNameLength - 3) + '...';
+            }
+            taskList.push({ Id: tasks[i].Id, Name: taskName });
+        }
+        $taskList.empty();
+        $taskList.html(Mustache.render(taskListTemplate, {options: taskList}));
 
+        // Set selected task
+        task_id = task_id || taskList[0] && taskList[0].Id;
+        $taskList.find('option[value="' + task_id + '"]').attr('selected', '');
+    }
+    function _renderCurrentTaskTime(event) {
+        var task = _getTask();
+
+        if (typeof task.Id == 'undefined') {
+            $timeCounter.html(loadingGif);
+        }
+        else if (task.TaskStarted && localStorage.getItem(wtc_ticking_counter)) {
+            $timeCounter.text(localStorage.getItem(wtc_ticking_counter));
+        }
+        else {
+            $timeCounter.text(Helper.secondsToHms(task.SpentTime));
+        }
+
+        typeof event != 'undefined' && event.type == 'change' && $resultMsg.empty();  // Clear result msg on change
+    }
     function _renderModal(event) {
         $.get('view/modal_parts.htm', function(templates) {
             var data = {};
@@ -68,25 +125,9 @@ var Counter = function() {
         });
     }
 
-    function _renderTaskList(task_id) {
-        var taskList = [];
-        for (var i = 0; i < tasks.length; i++) {
-            var taskName = tasks[i].Name;
-            if (taskName.length > maxTaskNameLength) {
-                taskName = taskName.substring(0, maxTaskNameLength - 3) + '...';
-            }
-            taskList.push({ Id: tasks[i].Id, Name: taskName });
-        }
-        $taskList.empty();
-        $taskList.html(Mustache.render(taskListTemplate, {options: taskList}));
-
-        // Set selected task
-        task_id = task_id || taskList[0].Id;
-        $taskList.find('option[value="' + task_id + '"]').attr('selected', '');
-    }
-
     function _getTask(id) {
         var task = {};
+        // Without id parameter gets selected task id
         id = id || Number($taskList.val());
 
         for (var i = 0; i < tasks.length; i++) {
@@ -110,19 +151,6 @@ var Counter = function() {
             }
         }
     }
-    function _renderCurrentTaskTime() {
-        var task = _getTask(),
-            text = '';
-
-        if (task.TaskStarted && localStorage.getItem(wtc_ticking_counter)) {
-            text = localStorage.getItem(wtc_ticking_counter);
-        }
-        else {
-            text = Helper.secondsToHms(task.SpentTime);
-        }
-        event.type == 'change' && $resultMsg.text('');
-        $timeCounter.text(text);
-    }
 
     function _startTicking() {
         var data = {
@@ -131,7 +159,8 @@ var Counter = function() {
         };
         Helper.ajaxCall("startTask", "POST", data, function(response) {
             if (response == 'logOut') {    // User isn`t logged in
-                ActionProvider.logOut();
+                //ActionProvider.logOut();
+                mediator.publish('LogOut');
             }
             else if (response.someTaskAlreadyStarted) {
                 $resultMsg.html("You are already working on <strong>" + response.Name + "</strong>");
@@ -158,7 +187,8 @@ var Counter = function() {
     function _stopTicking() {
         Helper.ajaxCall("stopTask", "POST", "task_id=" + Number($taskList.val()), function(response) {
             if (response == 'logOut') {    // User isn`t logged in
-                ActionProvider.logOut();
+                //ActionProvider.logOut();
+                mediator.publish('LogOut');
             }
             else if (response == 'noTaskStarted') {
                 $resultMsg.text("You have to start some task first.");
@@ -199,7 +229,8 @@ var Counter = function() {
                 $createResultMsg.text("Please input some creative task name.");
             }
             else if (response == 3) {
-                ActionProvider.logOut();
+                //ActionProvider.logOut();
+                mediator.publish('LogOut');
             }
             else if (response == 4) {
                 $createResultMsg.text("This task name already exists, try something different.");
@@ -226,7 +257,8 @@ var Counter = function() {
                 $editResultMsg.text("Please input some creative task name.");
             }
             else if (response == 3) {
-                ActionProvider.logOut();
+                //ActionProvider.logOut();
+                mediator.publish('LogOut');
             }
             else if (response == 4) {
                 $editResultMsg.text("This task name already exists, try something different.");
@@ -259,6 +291,10 @@ var Counter = function() {
             else if(response == 4) {
                 $deleteResultMsg.text("You entered wrong password.");
             }
+            else if(response == 5) {
+                $resultMsg.text("You have to stop current task, to delete it.");
+                $modal.modal('hide');
+            }
         });
     }
 
@@ -270,12 +306,13 @@ var Counter = function() {
                 _renderCurrentTaskTime();
             }
             else {
-                ActionProvider.renderLogin('You were logged out, please login again.');
+                //ActionProvider.renderLogin('You were logged out, please login again.');
+                mediator.publish('RenderLogin', 'You were logged out, please login again.');
             }
         });
     }
 
     return {
-        getTaskList: getTaskList
+        render: render
     };
 };

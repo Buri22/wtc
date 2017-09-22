@@ -2,7 +2,11 @@
 <div class="row"> <!-- Select Task Name -->
     <h2 class="text-center">Current task name: </h2>
     <div class="col-sm-12 col-md-6 col-md-offset-3">
-        <select id="taskList" class="form-control" onchange="ActionProvider.getTask('time', this.value)"></select>
+        <select id="taskList" class="form-control" >
+            <script id="taskListTemplate" type="text/template">
+                {{#options}}<option value="{{Id}}">{{Name}}</option>{{/options}}
+            </script>
+        </select>
     </div>
 </div>
 
@@ -13,28 +17,25 @@
                 id="newTask"
                 title="Create new task"
                 class="btn btn-primary btn-lg btn-action"
-                data-target=".modal"
-                onclick="ActionProvider.renderModal('create')">
+                data-target=".modal">
                 Create
             </button>
             <button
                 id="editTask"
                 title="Edit current task"
                 class="btn btn-success btn-lg btn-action"
-                data-target=".modal"
-                onclick="ActionProvider.renderModal('edit')">
+                data-target=".modal">
                 Edit
             </button>
             <button
                 id="deleteTask"
                 title="Delete current task"
                 class="btn btn-warning btn-lg btn-action"
-                data-target=".modal"
-                onclick="ActionProvider.renderModal('delete')">
+                data-target=".modal">
                 Delete
             </button>
         </div>
-        <div class="modal fade" role="dialog"></div>
+        <div id="task_action_modal" class="modal fade" role="dialog"></div>
     </div>
 </section>
 
@@ -47,10 +48,10 @@
 <section id="start_stop_section">
     <div class="row"> <!-- Start, Stop Buttons -->
         <div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">
-            <button type="button" name="start" id="buttonStart" onclick="ActionProvider.startTicking()">Start</button>
+            <button type="button" name="start" id="buttonStart" >Start</button>
         </div>
         <div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">
-            <button type="button" name="stop" id="buttonStop" onclick="ActionProvider.stopTicking()">Stop</button>
+            <button type="button" name="stop" id="buttonStop" >Stop</button>
         </div>
     </div>
 </section>
@@ -58,6 +59,6 @@
 <section id="output_section" class="container">
     <div class="row"> <!-- Time -->
         <h2 class="text-center">Time spent on this task: </h2>
-        <h2 id="counter" class="text-center"></h2>
+        <h2 id="timeCounter" class="text-center"></h2>
     </div>
 </section>

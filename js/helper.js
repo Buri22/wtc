@@ -37,7 +37,7 @@ var Helper = {
         localStorage.setItem(wtc_ticking_counter, counter_time);
 
         if (started_task_id == this.getSelectedTaskId()) {   // Read from localStorage
-            this.setTextById("counter", counter_time);
+            this.setTextById("timeCounter", counter_time);
         }
 
     },

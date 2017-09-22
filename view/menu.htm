@@ -13,7 +13,7 @@
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li>
-                <a href="#" onclick="ActionProvider.renderModal('account')" title="Account">
+                <a href="#" id="account" onclick="ActionProvider.renderModal('account')" title="Account">
                     <span class="glyphicon glyphicon-user"></span> {{userName}}
                 </a>
             </li>
@@ -24,6 +24,7 @@
             </li>
         </ul>
     </div>
+    <div id="account_modal" class="modal fade" role="dialog"></div>
 </nav>
 
 </script>

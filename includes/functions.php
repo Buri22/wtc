@@ -161,7 +161,7 @@ function login() {
 
     $_SESSION['user_id'] = $user['Id'];
     $_SESSION['login_string'] = hash('sha512', $user['Password'] . $_SERVER['HTTP_USER_AGENT']);
-    return $user;
+    return getUserForJS($user);
 }
 
 function logout() {
@@ -179,7 +179,8 @@ function logout() {
         $params["path"],
         $params["domain"],
         $params["secure"],
-        $params["httponly"]);
+        $params["httponly"]
+    );
 
     // Destroy session
     session_destroy();
@@ -204,7 +205,7 @@ function getTaskList() {
     $user = checkLogin();
     if ($user) {
         $result = Db::queryAll('
-                        SELECT Id, Name
+                        SELECT *
                         FROM task
                         WHERE UserId = ?
                         ORDER BY Id DESC
@@ -272,6 +273,12 @@ function deleteTask() {
     if (!isset($_POST['password']) || empty($_POST['password'])
         || !isset($_POST['task_id']) || empty($_POST['task_id'])
     ) { return 2; }
+
+    // Prevent from deleting running Task
+    $runningTask = checkTaskStarted();
+    if ($runningTask && $runningTask['Id'] == $_POST['task_id']) {
+        return 5;
+    }
 
     // Try to find the task
     $password = Db::queryOne('
@@ -352,6 +359,9 @@ function stopCounting() {
                     SET SpentTime = ?, TaskStarted = false
                     WHERE Id = ?
                   ', $spent_time, intval($_POST['task_id']));
+    if ($result) {
+        $result = array('SpentTime' => $spent_time);
+    }
 
     return $result;
 }
