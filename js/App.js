@@ -15,9 +15,12 @@ var App = function() {
         $layout      = $(template);
         $menu        = $layout.filter('#menu');
         $pageContent = $layout.filter('#page');
+
+        mediator.publish('AppLayoutLoaded');
     });
 
     function run() {
+        //$content.html(LOADING_GIF);
         // Check if user is logged in
         Helper.ajaxCall("checkLogin", "POST", undefined, function(result) {
             if (result){
@@ -44,18 +47,17 @@ var App = function() {
     }
 
     function renderAppLayout() {
-        $content.html($layout);
-        // Load Menu
-        $.get('view/menu.htm', function(template) {
-            $('#menu').append(
-                Mustache.render($(template).html(), { userName: account.getUserName() })
-            )
-        });
-        //menu.render();
+        if (typeof $layout == 'undefined') {
+            mediator.subscribe('AppLayoutLoaded', renderAppLayout);
+        } else {
+            $content.html($layout);
 
-        // Load page Counter
-        // TODO: Sometimes $pageContent is undefined - fix
-        counter.renderCounter($pageContent);
+            // Load Menu
+            menu.renderMenu($menu);
+
+            // Load page Counter
+            counter.renderCounter($pageContent);
+        }
     }
 
     // Subscribe to listen for calls from outside

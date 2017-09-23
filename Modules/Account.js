@@ -4,29 +4,36 @@
 var Account = function() {
     var user = {};
     var $content = $('#content');
-    var $loginPage, $loginMsg, $loginEmail, $loginPassword, $loginBtn, $registrationLink,
-        $regPage, $regMsg, $userName, $regEmail, $regPassword, $regPasswordConfirm, $registerBtn, $loginLink;
+    var $account, $loginPage, $loginMsg, $loginEmail, $loginPassword, $loginBtn, $registrationLink,
+        $regPage, $regMsg, $userName, $regEmail, $regPassword, $regPasswordConfirm, $registerBtn, $loginLink,
+        $accountMenuItems, $accountMenuItem, $logoutMenuItem, $modal;
 
     // Load Views & Cache DOM
-    $.get('view/login.html', function(template) {
-        $loginPage        = $(template);
-        $loginMsg         = $loginPage.find('#login_msg');
-        $loginEmail       = $loginPage.find('#email');
-        $loginPassword    = $loginPage.find('#password');
-        $loginBtn         = $loginPage.find('#login');
-        $registrationLink = $loginPage.find('#register_page');
+    $.get('view/account.html', function(template) {
+        $account            = $(template);
 
-        mediator.publish('LoginTemplateReady');
-    });
-    $.get('view/register.html', function(template) {
-        $regPage            = $(template);
+        $loginPage          = $account.filter('#login_page_content');
+        $loginMsg           = $loginPage.find('#login_msg');
+        $loginEmail         = $loginPage.find('#emailLogin');
+        $loginPassword      = $loginPage.find('#passwordLogin');
+        $loginBtn           = $loginPage.find('#login');
+        $registrationLink   = $loginPage.find('#registration_page');
+
+        $regPage            = $account.filter('#registration_page_content');
         $regMsg             = $regPage.find('#register_msg');
         $userName           = $regPage.find('#userName');
-        $regEmail           = $regPage.find('#email');
-        $regPassword        = $regPage.find('#password');
+        $regEmail           = $regPage.find('#emailReg');
+        $regPassword        = $regPage.find('#passwordReg');
         $regPasswordConfirm = $regPage.find('#passwordConfirm');
         $registerBtn        = $regPage.find('#register');
         $loginLink          = $regPage.find('#login_page');
+
+        $accountMenuItems   = $account.filter('#account_menu');
+        $accountMenuItem    = $accountMenuItems.find('#account');
+        $logoutMenuItem     = $accountMenuItems.find('#logout');
+        $modal              = $account.filter('#account_modal');
+
+        mediator.publish('AccountTemplatesReady');
     });
 
     function setUser(userData) {
@@ -42,7 +49,7 @@ var Account = function() {
 
     function renderLogin(msg) {
         if (typeof $loginPage == 'undefined') {
-            mediator.subscribe('LoginTemplateReady', renderLogin);
+            mediator.subscribe('AccountTemplatesReady', renderLogin);
         }
         else {
             msg = typeof msg != 'string' ? '' : msg || '';
@@ -56,6 +63,13 @@ var Account = function() {
         $content.html($regPage);
         $regMsg.text(msg);
         _bindRegitrationEvents();
+    }
+    function _renderMenuItem() {
+        // TODO: Make sure that templates are defined
+        $accountMenuItem.find('#user_name').empty().append(' ' + user.userName);
+        $('#main_menu').parent()
+            .append($accountMenuItems)
+            .append($modal);
     }
 
     function _bindLoginEvents() {
@@ -142,6 +156,7 @@ var Account = function() {
     // Subscribe to listen for calls from outside
     mediator.subscribe('RenderLogin', renderLogin);
     mediator.subscribe('LogOut', _logOut);
+    mediator.subscribe('MenuReadyToImportModuleItems', _renderMenuItem);
 
     return {
         setUser: setUser,

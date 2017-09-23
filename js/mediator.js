@@ -9,7 +9,7 @@ var mediator = (function(){
 
     // Subscribe/listen to event
     // Supply a callback to be executed when that event is broadcast to
-    var subscribe = function(event, func) {
+    var subscribe = function(event, func, args) {
         // If event doesn't exist, create it
         if (!events[event]) {
             events[event] = [];
@@ -17,7 +17,8 @@ var mediator = (function(){
 
         events[event].push({
             context: this,
-            func: func
+            func: func,
+            args: args
         });
 
         return this;
@@ -36,7 +37,7 @@ var mediator = (function(){
         // All subscribers executes their function subscribed to current event
         for (var i = 0; i < events[event].length; i++) {
             var sub = events[event][i];
-            sub.func.apply(sub.context, args);
+            sub.func.apply(sub.context, sub.args || args);
         }
 
         return this;

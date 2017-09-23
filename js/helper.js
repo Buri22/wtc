@@ -28,13 +28,13 @@ var Helper = {
     },
 
     myTimer: function(started_task_id) {
-        var counter_time = localStorage.getItem(wtc_ticking_counter);
+        var counter_time = localStorage.getItem(WTC_TICKING_COUNTER);
 
         var total_time = counter_time.split(":");
         counter_time = Number(total_time[2]) + Number(total_time[1]) * 60 + Number(total_time[0]) * 60 * 60 + 1;
         counter_time = this.secondsToHms(counter_time);
 
-        localStorage.setItem(wtc_ticking_counter, counter_time);
+        localStorage.setItem(WTC_TICKING_COUNTER, counter_time);
 
         if (started_task_id == this.getSelectedTaskId()) {   // Read from localStorage
             this.setTextById("timeCounter", counter_time);
@@ -55,7 +55,7 @@ var Helper = {
     },
 
     deleteLocalStorage: function() {
-        localStorage.getItem(wtc_ticking_counter) != null && localStorage.removeItem(wtc_ticking_counter);
+        localStorage.getItem(WTC_TICKING_COUNTER) != null && localStorage.removeItem(WTC_TICKING_COUNTER);
     },
 
     getSelectedTaskId: function() {

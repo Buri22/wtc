@@ -68,23 +68,24 @@ var ActionProvider = {
     logOut: function() {
         Helper.ajaxCall('logout', 'POST', undefined, function(response) {
             if (response) {
-                ActionProvider.renderLogin('You have been successfully logged out.');
+                mediator.publish('RenderLogin', 'You have been successfully logged out.');
+                //ActionProvider.renderLogin('You have been successfully logged out.');
             }
         });
     },
 
 //============ Render Views and Modals ============//
-    renderLogin: function(msg) {
-        $('#content').load('view/login.html', function() {
-            Helper.bindEnterSubmitEvent(this, '#login');
-            Helper.setTextById('login_msg', msg || "");
-
-            //$('#register_page').click(function() {
-            //    $(this).parent().animate({right: '200px', opacity: '0' }, 'slow');
-            //});
-
-        });
-    },
+//    renderLogin: function(msg) {
+//        $('#content').load('view/login.html', function() {
+//            Helper.bindEnterSubmitEvent(this, '#login');
+//            Helper.setTextById('login_msg', msg || "");
+//
+//            //$('#register_page').click(function() {
+//            //    $(this).parent().animate({right: '200px', opacity: '0' }, 'slow');
+//            //});
+//
+//        });
+//    },
     renderModal: function(view, $modal, innerData) {
         $.get('view/modal_parts.htm', function(templates) {
             //if (view == 'newTask') {

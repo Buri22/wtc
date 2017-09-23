@@ -1,0 +1,87 @@
+<div id="login_page_content">
+    <!-- Login Page -->
+    <div class="row"> <!-- Title -->
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h1 class="text-center">Work Time Counter</h1>
+        </div>
+    </div>
+
+    <section class="col-lg-4 col-lg-offset-4">
+
+        <h2 class="text-center">Login</h2>
+
+        <span id="login_msg"></span>
+
+        <div class="form-group">
+            <input type="email" id="emailLogin" class="form-control" placeholder="Email address" required/>
+        </div>
+
+        <div class="form-group">
+            <input type="password" id="passwordLogin" class="form-control" placeholder="Password" required/>
+        </div>
+
+        <button type="button" id="login" class="btn btn-lg btn-primary btn-block">Login</button>
+
+        <a href="#" id="registration_page" class="right">
+            Register <span class="glyphicon glyphicon-arrow-right"></span>
+        </a>
+        <!-- TODO: make forgot password functionality -->
+        <!--<a href="#" id="forgot_password">Forgot password?</a>-->
+
+    </section>
+</div>
+
+<div id="registration_page_content">
+    <!-- Register Page -->
+    <div class="row"> <!-- Title -->
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h1 class="text-center">Work Time Counter</h1>
+        </div>
+    </div>
+
+    <section class="col-lg-4 col-lg-offset-4">
+
+        <h2 class="text-center">Sign up</h2>
+
+        <span id="register_msg"></span>
+
+        <div class="form-group">
+            <input type="text" id="userName" class="form-control" placeholder="User name" />
+        </div>
+
+        <div class="form-group">
+            <input type="email" id="emailReg" class="form-control" placeholder="Email address" />
+        </div>
+
+        <div class="form-group">
+            <input type="password" id="passwordReg" class="form-control" placeholder="Password" />
+        </div>
+        <div class="form-group">
+            <input type="password" id="passwordConfirm" class="form-control" placeholder="Confirm password" />
+        </div>
+
+        <button type="submit" id="register" class="btn btn-lg btn-primary btn-block">Sign up</button>
+
+        <a href="#" id="login_page">
+            <span class="glyphicon glyphicon-arrow-left"></span> Login
+        </a>
+
+    </section>
+</div>
+
+<!-- Menu items -->
+<ul class="nav navbar-nav navbar-right" id="account_menu">
+    <li>
+        <a href="#" id="account" onclick="ActionProvider.renderModal('account')" title="Account">
+            <span class="glyphicon glyphicon-user"></span><span id="user_name"></span>
+        </a>
+    </li>
+    <li>
+        <a href="#" id="logout" onclick="ActionProvider.logOut()" title="Logout">
+            <span class="glyphicon glyphicon-log-out"></span>
+        </a>
+    </li>
+</ul>
+
+<!-- Modal Window -->
+<div id="account_modal" class="modal fade" role="dialog"></div>

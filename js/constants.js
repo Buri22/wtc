@@ -3,6 +3,6 @@
  */
 
 // Name of localStorage ticking object
-const wtc_ticking_counter = 'wtc_ticking_counter';
+const WTC_TICKING_COUNTER = 'wtc_ticking_counter';
 
-const loadingGif = $('<img src="img/loading.gif" style="width: 25px; height: 25px;">');
+const LOADING_GIF = $('<img src="img/loading.gif" style="width: 25px; height: 25px;">');

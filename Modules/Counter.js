@@ -4,9 +4,21 @@
 var Counter = function() {
     var tasks = [];
     var maxTaskNameLength = 80;
+    var modelViewLoadedSubscribed = false;
     var $counter, $taskList, taskListTemplate, $modal, $taskActionBtns, $startBtn, $stopBtn, $timeCounter, $resultMsg;
 
-    loadTaskData();
+    // Load Task data
+    Helper.ajaxCall("getTaskList", "POST", undefined, function(taskListData) {
+        if (taskListData) {
+            // Define task model
+            tasks = taskListData;
+
+            mediator.publish('CounterModelViewLoaded');
+        }
+        else {  // Just in case user is not logged in
+            mediator.publish('RenderLogin', 'You were logged out, please login again.');
+        }
+    });
 
     // Load Views & Cache DOM
     $.get('view/counter.htm', function(template) {
@@ -19,22 +31,9 @@ var Counter = function() {
         $stopBtn         = $counter.find('#buttonStop');
         $timeCounter     = $counter.find('#timeCounter');
         $resultMsg       = $counter.find('#result_msg');
-    });
 
-    // Load Task data
-    function loadTaskData(callback) {
-        Helper.ajaxCall("getTaskList", "POST", undefined, function(taskListData) {
-            if (taskListData) {
-                // Define task model
-                tasks = taskListData;
-                // if callback is a function, call it
-                typeof callback == 'function' && callback();
-            }
-            else {
-                mediator.publish('RenderLogin', 'You were logged out, please login again.');
-            }
-        });
-    }
+        mediator.publish('CounterModelViewLoaded');
+    });
 
     // Bind Events
     function bindCounterEvents() {
@@ -45,13 +44,18 @@ var Counter = function() {
     }
 
     function renderCounter($container) {
-        loadTaskData(function() {
+        if (tasks.length == 0 || typeof $counter == 'undefined') {
+            if (!modelViewLoadedSubscribed) {
+                mediator.subscribe('CounterModelViewLoaded', renderCounter, $container);
+                modelViewLoadedSubscribed = true;
+            }
+        } else {
             _renderTaskList();
             _renderCurrentTaskTime();
 
             bindCounterEvents();
-            $container.html($counter);
-        });
+            $($container).html($counter);
+        }
     }
     
     function _renderTaskList(task_id) {
@@ -74,10 +78,10 @@ var Counter = function() {
         var task = _getTask();
 
         if (typeof task.Id == 'undefined') {
-            $timeCounter.html(loadingGif);
+            $timeCounter.html(LOADING_GIF);
         }
-        else if (task.TaskStarted && localStorage.getItem(wtc_ticking_counter)) {
-            $timeCounter.text(localStorage.getItem(wtc_ticking_counter));
+        else if (task.TaskStarted && localStorage.getItem(WTC_TICKING_COUNTER)) {
+            $timeCounter.text(localStorage.getItem(WTC_TICKING_COUNTER));
         }
         else {
             $timeCounter.text(Helper.secondsToHms(task.SpentTime));
@@ -130,39 +134,9 @@ var Counter = function() {
             ActionProvider.getModalTemplate($modal, data, action);
         });
     }
-
-    function _getTask(id, param) {
-        var task = {};
-        var index = 0;
-        // Without id parameter gets selected task id
-        id = id || Number($taskList.val());
-
-        for (var i = 0; i < tasks.length; i++) {
-            if (tasks[i].Id == id) {
-                task = tasks[i];
-                index = i;
-                break;
-            }
-        }
-
-        if (param == 'index') {
-            return index;
-        }
-        else {
-            return task;
-        }
-    }
-    function _setTask(id, data) {
-        id = id || Number($taskList.val());
-        for (var i = 0; i < tasks.length; i++) {
-            if (tasks[i].Id == id) {
-                tasks[i].Name        = data.name || tasks[i].Name;
-                tasks[i].LastStart   = data.last_start || tasks[i].LastStart;
-                tasks[i].SpentTime   = data.spent_time || tasks[i].SpentTime;
-                tasks[i].TaskStarted = data.task_started == 0 ? 0 : data.task_started || tasks[i].TaskStarted;
-                break;
-            }
-        }
+    function _renderMenuItem() {
+        // TODO: html kod presunout do counter.htm
+        $('#main_menu').empty().append('<li class="active"><a href="#">Counter</a></li>');
     }
 
     function _startTicking() {
@@ -185,7 +159,7 @@ var Counter = function() {
                 data.task_started = 1;
                 _setTask(response.Id, data);
 
-                localStorage.setItem(wtc_ticking_counter, Helper.secondsToHms(response.SpentTime || 0));
+                localStorage.setItem(WTC_TICKING_COUNTER, Helper.secondsToHms(response.SpentTime || 0));
                 window.myTime = setInterval(function () {
                     Helper.myTimer(response.Id);
                 }, 1000);
@@ -224,6 +198,40 @@ var Counter = function() {
             }
             else $resultMsg.text('Stopping failed!');
         });
+    }
+
+    function _getTask(id, param) {
+        var task = {};
+        var index = 0;
+        // Without id parameter gets selected task id
+        id = id || Number($taskList.val());
+
+        for (var i = 0; i < tasks.length; i++) {
+            if (tasks[i].Id == id) {
+                task = tasks[i];
+                index = i;
+                break;
+            }
+        }
+
+        if (param == 'index') {
+            return index;
+        }
+        else {
+            return task;
+        }
+    }
+    function _setTask(id, data) {
+        id = id || Number($taskList.val());
+        for (var i = 0; i < tasks.length; i++) {
+            if (tasks[i].Id == id) {
+                tasks[i].Name        = data.name || tasks[i].Name;
+                tasks[i].LastStart   = data.last_start || tasks[i].LastStart;
+                tasks[i].SpentTime   = data.spent_time || tasks[i].SpentTime;
+                tasks[i].TaskStarted = data.task_started == 0 ? 0 : data.task_started || tasks[i].TaskStarted;
+                break;
+            }
+        }
     }
 
     function _createTask() {
@@ -321,6 +329,7 @@ var Counter = function() {
         });
     }
 
+    mediator.subscribe('MenuReadyToImportModuleItems', _renderMenuItem);
     return {
         renderCounter: renderCounter
     };
