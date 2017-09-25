@@ -64,12 +64,32 @@ var Account = function() {
         $regMsg.text(msg);
         _bindRegitrationEvents();
     }
-    function _renderMenuItem() {
+    function _renderMenuItem($container) {
+        // Bind onclick events for menuItems
+        $logoutMenuItem.on('click', _logOut);
+        $accountMenuItem.on('click', _renderModal);
+
         // TODO: Make sure that templates are defined
         $accountMenuItem.find('#user_name').empty().append(' ' + user.userName);
-        $('#main_menu').parent()
+        $container.parent()
             .append($accountMenuItems)
             .append($modal);
+    }
+    function _renderModal() {
+        $.get('view/modal_parts.htm', function(templates) {
+            var account_body = Mustache.render($(templates).filter('#modal_body_account').html(), {
+                userName: user.userName,
+                email: user.email
+            });
+            var data = {
+                modal_id: 'user_account',
+                title: 'Account settings',
+                modal_body: account_body,
+                submit_btn_text: 'Edit'
+            };
+
+            Helper.getModalTemplate($modal, data, _editUser);
+        });
     }
 
     function _bindLoginEvents() {
@@ -92,7 +112,7 @@ var Account = function() {
         Helper.ajaxCall('login', 'POST', data, function (response) {
             if (response.Id && response.UserName) {
                 setUser(response);
-                mediator.publish('RenderAppLayout');
+                mediator.publish('UserLogin');
             }
             else if (response == 2) {
                 $loginMsg.text('Please, enter all information.');
@@ -120,6 +140,9 @@ var Account = function() {
                 renderLogin('You have been successfully logged out.');
             }
         });
+        $loginEmail.val('');
+        $loginPassword.val('');
+        mediator.publish('UserLogout');
     }
     function register() {
         // TODO: Show password strength
@@ -151,6 +174,26 @@ var Account = function() {
             }
         });
 
+    }
+
+    function _editUser() {
+        var userName = $modal.find('#userName').val().trim();
+        var email = $modal.find('#email').val().trim();
+        var changePassword = $modal.find('#change_password').val();
+
+        var data = {
+            user_name: userName,
+            email: email
+        };
+        if (changePassword) {
+            data['password_old']     = $modal.find('password_old');
+            data['password_new']     = $modal.find('password_new');
+            data['password_confirm'] = $modal.find('password_confirm');
+        }
+
+        Helper.ajaxCall('editAccount', 'POST', data, function(response) {
+
+        });
     }
 
     // Subscribe to listen for calls from outside

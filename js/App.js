@@ -17,6 +17,7 @@ var App = function() {
         $pageContent = $layout.filter('#page');
 
         mediator.publish('AppLayoutLoaded');
+        bindEventsForMenuItems();
     });
 
     function run() {
@@ -55,13 +56,17 @@ var App = function() {
             // Load Menu
             menu.renderMenu($menu);
 
-            // Load page Counter
+            // Load module Counter
             counter.renderCounter($pageContent);
         }
     }
 
+    function bindEventsForMenuItems() {
+        mediator.subscribe('CounterMenuItemClick', counter.renderCounter, $pageContent);
+    }
+
     // Subscribe to listen for calls from outside
-    mediator.subscribe('RenderAppLayout', renderAppLayout);
+    mediator.subscribe('UserLogin', renderAppLayout);
 
     return {
         run: run

@@ -67,27 +67,27 @@ var Helper = {
         document.getElementById(elementId).innerHTML = message;
     },
 
-    getValueById: function(elementId) {
-        return document.getElementById(elementId).value.trim();
-    },
-    setValueById: function(elementId, value) {
-        document.getElementById(elementId).value = value;
-    },
-
-    clearElementById: function(id) {
-        var myNode = document.getElementById(id);
-        while (myNode.firstChild) {
-            myNode.removeChild(myNode.firstChild);
-        }
-        return myNode;
-    },
-
     // Binds Enter keyup event to make click() on element by selector
     bindEnterSubmitEvent: function(obj, selector) {
         // To ensure that element hasn't bind event twice -> off()
         $(obj).off('keydown').on('keydown', function(e) {
             if  (e.which == 13) {
                 $(selector).click();
+            }
+        });
+    },
+
+    getModalTemplate: function($modal, data, action) {
+        $.get('view/modal.htm', function(template) {
+            $modal.append(Mustache.render($(template).html(), data))
+                .modal('show');
+
+            // Bind dynamic action from module
+            if (action) {
+                // To ensure that element hasn't bind event twice -> off()
+                $modal.find('#submit')
+                    .off('click')
+                    .on('click', action);
             }
         });
     }

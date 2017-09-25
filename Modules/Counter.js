@@ -5,20 +5,23 @@ var Counter = function() {
     var tasks = [];
     var maxTaskNameLength = 80;
     var modelViewLoadedSubscribed = false;
-    var $counter, $taskList, taskListTemplate, $modal, $taskActionBtns, $startBtn, $stopBtn, $timeCounter, $resultMsg;
+    var $counter, $taskList, taskListTemplate, $modal, $taskActionBtns, $startBtn, $stopBtn, $timeCounter, $resultMsg, $menuItem;
 
     // Load Task data
-    Helper.ajaxCall("getTaskList", "POST", undefined, function(taskListData) {
-        if (taskListData) {
-            // Define task model
-            tasks = taskListData;
+    function _loadTaskData() {
+        Helper.ajaxCall("getTaskList", "POST", undefined, function(taskListData) {
+            if (taskListData) {
+                // Define task model
+                tasks = taskListData;
 
-            mediator.publish('CounterModelViewLoaded');
-        }
-        else {  // Just in case user is not logged in
-            mediator.publish('RenderLogin', 'You were logged out, please login again.');
-        }
-    });
+                mediator.publish('CounterModelViewLoaded');
+            }
+            else {  // Just in case user is not logged in
+                mediator.publish('RenderLogin', 'You were logged out, please login again.');
+            }
+        });
+    }
+    _loadTaskData();
 
     // Load Views & Cache DOM
     $.get('view/counter.htm', function(template) {
@@ -31,6 +34,8 @@ var Counter = function() {
         $stopBtn         = $counter.find('#buttonStop');
         $timeCounter     = $counter.find('#timeCounter');
         $resultMsg       = $counter.find('#result_msg');
+
+        $menuItem        = $counter.find('#menu_item');
 
         mediator.publish('CounterModelViewLoaded');
     });
@@ -131,12 +136,15 @@ var Counter = function() {
                     break;
             }
 
-            ActionProvider.getModalTemplate($modal, data, action);
+            Helper.getModalTemplate($modal, data, action);
         });
     }
-    function _renderMenuItem() {
-        // TODO: html kod presunout do counter.htm
-        $('#main_menu').empty().append('<li class="active"><a href="#">Counter</a></li>');
+    function _renderMenuItem($container) {
+        // Bind onclick event for menuItem
+        $menuItem.on('click', function() {
+            mediator.publish('CounterMenuItemClick');
+        });
+        $container.append($menuItem);
     }
 
     function _startTicking() {
@@ -329,7 +337,15 @@ var Counter = function() {
         });
     }
 
+    function _clearViewDataModel() {
+        tasks = [];
+        $taskList.empty();
+        modelViewLoadedSubscribed = false;
+    }
+
     mediator.subscribe('MenuReadyToImportModuleItems', _renderMenuItem);
+    mediator.subscribe('UserLogin', _loadTaskData);
+    mediator.subscribe('UserLogout', _clearViewDataModel);
     return {
         renderCounter: renderCounter
     };

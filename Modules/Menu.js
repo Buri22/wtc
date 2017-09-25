@@ -3,11 +3,12 @@
  */
 var Menu = function() {
     //var modules = [];
-    var $menu;
+    var $menu, $mainMenu;
 
     // Load View & Cache DOM
     $.get('view/menu.htm', function(template) {
         $menu = $(template);
+        $mainMenu = $menu.find('#main_menu');
 
         mediator.publish('MenuLoaded');
     });
@@ -16,10 +17,11 @@ var Menu = function() {
         if (typeof $menu == 'undefined') {
             mediator.subscribe('MenuLoaded', renderMenu, $container);
         } else {
+            $mainMenu.empty();
             $container.html($menu);
 
-            // Kazdy modul ma svuj $menuItem, ktery pak importne do menu ktore bude pripravene
-            mediator.publish('MenuReadyToImportModuleItems');
+            // All Moules which want to be in menu have to subscribe for "MenuReadyToImportModuleItems" event
+            mediator.publish('MenuReadyToImportModuleItems', $mainMenu);
         }
     }
 
