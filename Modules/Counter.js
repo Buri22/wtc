@@ -2,9 +2,9 @@
  * Created by Uživatel on 11.9.2017.
  */
 var Counter = function() {
-    var tasks = [];
+    var tasks = null;
     var maxTaskNameLength = 80;
-    var modelViewLoadedSubscribed = false;
+    var modelViewLoadSubscribed = false;
     var $counter, $taskList, taskListTemplate, $modal, $taskActionBtns, $startBtn, $stopBtn, $timeCounter, $resultMsg, $menuItem;
 
     // Load Task data
@@ -49,20 +49,21 @@ var Counter = function() {
     }
 
     function renderCounter($container) {
-        if (tasks.length == 0 || typeof $counter == 'undefined') {
-            if (!modelViewLoadedSubscribed) {
+        if (tasks == null || typeof $counter == 'undefined') {
+            if (!modelViewLoadSubscribed) {
                 mediator.subscribe('CounterModelViewLoaded', renderCounter, $container);
-                modelViewLoadedSubscribed = true;
+                modelViewLoadSubscribed = true;
             }
         } else {
+            adjustViewForNoTasks();
             _renderTaskList();
             _renderCurrentTaskTime();
 
-            bindCounterEvents();
             $($container).html($counter);
+            bindCounterEvents();
         }
     }
-    
+
     function _renderTaskList(task_id) {
         var taskList = [];
         for (var i = 0; i < tasks.length; i++) {
@@ -154,7 +155,7 @@ var Counter = function() {
         };
         Helper.ajaxCall("startTask", "POST", data, function(response) {
             if (response == 'logOut') {    // User isn`t logged in
-                mediator.publish('LogOut');
+                mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
             else if (response.someTaskAlreadyStarted) {
                 $resultMsg.html("You are already working on <strong>" + response.Name + "</strong>");
@@ -181,7 +182,7 @@ var Counter = function() {
     function _stopTicking() {
         Helper.ajaxCall("stopTask", "POST", "task_id=" + Number($taskList.val()), function(response) {
             if (response == 'logOut') {    // User isn`t logged in
-                mediator.publish('LogOut');
+                mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
             else if (response == 'noTaskStarted') {
                 $resultMsg.text("You have to start some task first.");
@@ -251,6 +252,7 @@ var Counter = function() {
                 // Update model
                 tasks.unshift(response);    // Adds created Task to the beginning of tasks array
 
+                adjustViewForNoTasks();
                 _renderTaskList();
                 _renderCurrentTaskTime();
                 $newTaskName.val('');
@@ -261,7 +263,7 @@ var Counter = function() {
                 $createResultMsg.text("Please input some creative task name.");
             }
             else if (response == 3) {
-                mediator.publish('LogOut');
+                mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
             else if (response == 4) {
                 $createResultMsg.text("This task name already exists, try something different.");
@@ -292,7 +294,7 @@ var Counter = function() {
                 $editResultMsg.text("Please input some creative task name.");
             }
             else if (response == 3) {
-                mediator.publish('LogOut');
+                mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
             else if (response == 4) {
                 $editResultMsg.text("This task name already exists, try something different.");
@@ -311,13 +313,13 @@ var Counter = function() {
         };
         Helper.ajaxCall('deleteTask', 'POST', data, function(response) {
             if (response == false) {
-                //getTaskList();
                 // Update model
                 tasks.splice(_getTask(data.task_id, 'index'), 1);
+                $resultMsg.text("Task was deleted successfully.");
 
+                adjustViewForNoTasks();
                 _renderTaskList();
                 _renderCurrentTaskTime();
-                $resultMsg.text("Task was deleted successfully.");
                 $modal.modal('hide');
             }
             else if(response == 2) {
@@ -338,14 +340,31 @@ var Counter = function() {
     }
 
     function _clearViewDataModel() {
-        tasks = [];
+        tasks = null;
         $taskList.empty();
-        modelViewLoadedSubscribed = false;
+        $resultMsg.empty();
+    }
+    function adjustViewForNoTasks() {
+        if (tasks.length == 0) {
+            $taskList.prop('disabled', true);
+            $taskActionBtns.find('#editTask, #deleteTask').prop('disabled', true);
+            $counter.filter('#start_stop_section, #output_section').hide();
+            $resultMsg.text("Please create task, by clicking on the Create button.");
+        } else {
+            $taskList.prop('disabled', false);
+            $taskActionBtns.find('#editTask, #deleteTask').prop('disabled', false);
+            $counter.filter('#start_stop_section, #output_section').show();
+        }
+    }
+
+    function _setResultMsg(text) {
+        $resultMsg.text(text);
     }
 
     mediator.subscribe('MenuReadyToImportModuleItems', _renderMenuItem);
     mediator.subscribe('UserLogin', _loadTaskData);
     mediator.subscribe('UserLogout', _clearViewDataModel);
+    mediator.subscribe('SetResultMessage', _setResultMsg);
     return {
         renderCounter: renderCounter
     };

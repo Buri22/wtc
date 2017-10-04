@@ -8,66 +8,56 @@
 require_once 'Db_connect.php';
 require_once 'functions.php';
 
-$ajax_actions = array(
-    "GET_TASK_LIST"      => "getTaskList",
-    "GET_TASK_BY_ID"     => "getTaskById",
-    "START_TASK"         => "startTask",
-    "STOP_TASK"          => "stopTask",
-    "CREATE_TASK"        => "createTask",
-    "EDIT_TASK"          => "editTask",
-    "DELETE_TASK"        => "deleteTask",
-    "LOGIN"              => "login",
-    "CHECK_LOGIN"        => "checkLogin",
-    "LOGOUT"             => "logout",
-    "REGISTER"           => "register"
-);
-
 $headers = getallheaders();
 $action = $headers["Ajax-Action"];
 
 if (is_ajax($headers) && $action != null) {
     switch ($action) {
-        case ($ajax_actions["CHECK_LOGIN"]):
+        case "checkLogin":
             echo json_encode(checkLogin());
             break;
 
-        case ($ajax_actions["REGISTER"]):
+        case "register":
             echo json_encode(register());
             break;
 
-        case ($ajax_actions["LOGIN"]):
+        case "login":
             echo json_encode(login());
             break;
 
-        case ($ajax_actions['LOGOUT']):
+        case "logout":
             echo json_encode(logout());
             break;
 
-        case $ajax_actions["GET_TASK_BY_ID"]:
+        case "editAccount":
+            echo json_encode(editAccount());
+            break;
+
+        case "getTaskById":
             echo json_encode(getTask());
             break;
 
-        case ($ajax_actions["GET_TASK_LIST"]):
+        case "getTaskList":
             echo json_encode(getTaskList());
             break;
 
-        case ($ajax_actions["CREATE_TASK"]):
+        case "createTask":
             echo json_encode(createTask());
             break;
 
-        case ($ajax_actions["EDIT_TASK"]):
+        case "editTask":
             echo json_encode(editTask());
             break;
 
-        case ($ajax_actions["DELETE_TASK"]):
+        case "deleteTask":
             echo json_encode(deleteTask());
             break;
 
-        case ($ajax_actions["START_TASK"]):
+        case "startTask":
             echo json_encode(startCounting());
             break;
 
-        case ($ajax_actions["STOP_TASK"]):
+        case "stopTask":
             echo json_encode(stopCounting());
             break;
 

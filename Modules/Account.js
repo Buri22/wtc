@@ -6,7 +6,7 @@ var Account = function() {
     var $content = $('#content');
     var $account, $loginPage, $loginMsg, $loginEmail, $loginPassword, $loginBtn, $registrationLink,
         $regPage, $regMsg, $userName, $regEmail, $regPassword, $regPasswordConfirm, $registerBtn, $loginLink,
-        $accountMenuItems, $accountMenuItem, $logoutMenuItem, $modal;
+        $accountMenuItems, $accountMenuItem, $logoutMenuItem, $menuItemContainer, $modal;
 
     // Load Views & Cache DOM
     $.get('view/account.html', function(template) {
@@ -65,13 +65,14 @@ var Account = function() {
         _bindRegitrationEvents();
     }
     function _renderMenuItem($container) {
+        $menuItemContainer = typeof $menuItemContainer == 'undefined' ? $container : $menuItemContainer;
         // Bind onclick events for menuItems
         $logoutMenuItem.on('click', _logOut);
         $accountMenuItem.on('click', _renderModal);
 
         // TODO: Make sure that templates are defined
         $accountMenuItem.find('#user_name').empty().append(' ' + user.userName);
-        $container.parent()
+        $menuItemContainer.parent()
             .append($accountMenuItems)
             .append($modal);
     }
@@ -88,7 +89,7 @@ var Account = function() {
                 submit_btn_text: 'Edit'
             };
 
-            Helper.getModalTemplate($modal, data, _editUser);
+            Helper.getModalTemplate($modal, data, _editAccount);
         });
     }
 
@@ -134,10 +135,11 @@ var Account = function() {
             }
         });
     }
-    function _logOut() {
+    function _logOut(msg) {
+        msg = typeof msg == 'string' ? msg : 'You have been successfully logged out.';
         Helper.ajaxCall('logout', 'POST', undefined, function(response) {
             if (response) {
-                renderLogin('You have been successfully logged out.');
+                renderLogin(msg);
             }
         });
         $loginEmail.val('');
@@ -176,23 +178,52 @@ var Account = function() {
 
     }
 
-    function _editUser() {
+    function _editAccount() {
         var userName = $modal.find('#userName').val().trim();
         var email = $modal.find('#email').val().trim();
-        var changePassword = $modal.find('#change_password').val();
+        var changePassword = $modal.find('#change_password').is(':checked');
 
         var data = {
             user_name: userName,
-            email: email
+            email: email,
+            change_password: changePassword
         };
         if (changePassword) {
-            data['password_old']     = $modal.find('password_old');
-            data['password_new']     = $modal.find('password_new');
-            data['password_confirm'] = $modal.find('password_confirm');
+            data['password_old']     = $modal.find('#password_old').val().trim();
+            data['password_new']     = $modal.find('#password_new').val().trim();
+            data['password_confirm'] = $modal.find('#password_confirm').val().trim();
         }
 
         Helper.ajaxCall('editAccount', 'POST', data, function(response) {
+            var $resultMsg = $modal.find('#edit_account_result_msg');
+            if (response == 1) {
+                // Update Account Model
+                user.userName = userName;
+                user.email = email;
 
+                _renderMenuItem();
+                mediator.publish('SetResultMessage', 'Your account info was successfully edited.');
+                $modal.modal('hide');
+            }
+            else if (response == 2) {
+                $resultMsg.text('Some required form data are missing.');
+            }
+            else if (response == 3) {
+                $modal.modal('hide');
+                _logOut('You were unexpectedly logged out.');
+            }
+            else if (response == 4) {
+                $resultMsg.text('Email has a wrong format (example@host.com).');
+            }
+            else if (response == 5) {
+                $resultMsg.text('You can not use this email, please try something else.');
+            }
+            else if (response == 6) {
+                $resultMsg.text('Current password is wrong.');
+            }
+            else if (response == 7) {
+                $resultMsg.text('New passwords do not equal.');
+            }
         });
     }
 

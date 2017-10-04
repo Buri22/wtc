@@ -110,7 +110,7 @@ function register() {
     // Email validation
     if (!isValidEmail(trim($_POST['email']))) { return 3; }
 
-    // Password == Password_confirm
+    // Password validation
     if (trim($_POST['password']) != trim($_POST['password_confirm'])) { return 4; }
 
     // Check if user is already registered
@@ -124,9 +124,9 @@ function register() {
 
     $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
     $new_user = Db::query('
-                                INSERT INTO user (UserName, Password, Email)
-                                VALUES (?, ?, ?)
-                            ', trim($_POST['user_name']), $password, trim($_POST['email']));
+                    INSERT INTO user (UserName, Password, Email)
+                    VALUES (?, ?, ?)
+                ', trim($_POST['user_name']), $password, trim($_POST['email']));
     return $new_user;
 }
 
@@ -186,6 +186,67 @@ function logout() {
     session_destroy();
 
     return true;
+}
+
+// Update User Account data
+function editAccount() {
+    // Check if all inputs were entered
+    if (!isset($_POST['user_name']) || empty($_POST['user_name'])
+        || !isset($_POST['email']) || empty($_POST['email'])
+        || ($_POST['change_password'] == "true"
+            && (!isset($_POST['password_old']) || empty($_POST['password_old'])
+            || !isset($_POST['password_new']) || empty($_POST['password_new'])
+            || !isset($_POST['password_confirm']) || empty($_POST['password_confirm'])))) {
+        return 2;
+    }
+
+    $user = checkLogin();
+    if (!$user) {
+        return 3;   // User is not logged in
+    }
+
+    // Email validation
+    if (!isValidEmail(trim($_POST['email']))) {
+        return 4;
+    }
+    // Check that edited email isn't already registered
+    $registered = Db::queryOne('
+                          SELECT *
+                          FROM user
+                          WHERE Email = ?
+                    ', $_POST['email']);
+    if ($registered && $registered['Id'] != $user['Id']) {
+        return 5;
+    }
+
+    // Define SQL query data
+    $data = array(
+        'UserName' => trim($_POST['user_name']),
+        'Email' => trim($_POST['email'])
+
+    );
+
+    // User wants to change his password
+    if ($_POST['change_password'] == "true") {
+        $loggedIn_user = Db::queryOne('SELECT * FROM user WHERE Id = ?', $user['Id']);
+        if ($loggedIn_user) {
+            // Check passwords
+            if (!password_verify($_POST['password_old'], $loggedIn_user['Password'])) { return 6; }
+
+            // New password validation
+            if (trim($_POST['password_new']) != trim($_POST['password_confirm'])) { return 7; }
+
+            // Define new password
+            $data['Password'] = password_hash(trim($_POST['password_new']), PASSWORD_BCRYPT);
+            // Update session login_string
+            $_SESSION['login_string'] = hash('sha512', $loggedIn_user['Password'] . $_SERVER['HTTP_USER_AGENT']);
+        }
+    }
+
+    $condition = 'WHERE Id = ' . $user['Id'];
+    $result = Db::update('user', $data, $condition);
+
+    return $result;
 }
 
 function getTask() {
