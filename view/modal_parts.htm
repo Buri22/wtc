@@ -38,7 +38,7 @@
             <div class="form-group">
                 <label class="col-md-4 control-label" for="userName">User Name</label>
                 <div class="col-md-6">
-                    <input value="{{userName}}" id="userName" name="userName" type="text" placeholder="Enter your User Name" class="form-control input-md">
+                    <input value="{{userName}}" id="userName" name="userName" type="text" placeholder="Enter your User Name" class="form-control input-md" autofocus>
                 </div>
             </div>
             <!-- Text input-->
@@ -56,23 +56,23 @@
                 </div>
             </div>
             <section class="password_section">
-                <!-- Password input-->
+                <!-- Password old input-->
                 <div class="form-group">
-                    <label class="col-md-4 control-label" for="password_old">Current Password</label>
+                    <label class="col-md-4 control-label" for="password_old">Current Password *</label>
                     <div class="col-md-6">
                         <input id="password_old" name="password_old" type="password" class="form-control input-md">
                     </div>
                 </div>
-                <!-- Password input-->
+                <!-- Password new input-->
                 <div class="form-group">
-                    <label class="col-md-4 control-label" for="password_new">New Password</label>
+                    <label class="col-md-4 control-label" for="password_new">New Password *</label>
                     <div class="col-md-6">
                         <input id="password_new" name="password_new" type="password" class="form-control input-md">
                     </div>
                 </div>
-                <!-- Password input-->
+                <!-- Password confirm input-->
                 <div class="form-group">
-                    <label class="col-md-4 control-label" for="password_confirm">Confirm New Password</label>
+                    <label class="col-md-4 control-label" for="password_confirm">Confirm New Password *</label>
                     <div class="col-md-6">
                         <input id="password_confirm" name="password_confirm" type="password" class="form-control input-md">
                     </div>
@@ -82,3 +82,8 @@
     </form>
 
 </script>
+
+<!-- Modal Submit Button -->
+<div id="modal_submit_btn">
+    <button type="button" class="btn btn-primary" id="submit_btn"></button>
+</div>

@@ -67,8 +67,7 @@ var Account = function() {
     function _renderMenuItem($container) {
         $menuItemContainer = typeof $menuItemContainer == 'undefined' ? $container : $menuItemContainer;
         // Bind onclick events for menuItems
-        $logoutMenuItem.on('click', _logOut);
-        $accountMenuItem.on('click', _renderModal);
+        _bindMenuItemsEvents();
 
         // TODO: Make sure that templates are defined
         $accountMenuItem.find('#user_name').empty().append(' ' + user.userName);
@@ -82,26 +81,46 @@ var Account = function() {
                 userName: user.userName,
                 email: user.email
             });
+            var $modalSubmitBtn = $(templates).find('#submit_btn').text('Edit').prop('disabled', true);
             var data = {
                 modal_id: 'user_account',
                 title: 'Account settings',
                 modal_body: account_body,
-                submit_btn_text: 'Edit'
+                submit_btn: $modalSubmitBtn.parent().html()
             };
 
-            Helper.getModalTemplate($modal, data, _editAccount);
+            Helper.getModalTemplate($modal, data);
         });
     }
 
     function _bindLoginEvents() {
         $loginBtn.on('click', login);
         $registrationLink.on('click', renderRegister);
-        Helper.bindEnterSubmitEvent($loginPage, '#login');
+        Helper.bindKeyShortcutEvent($loginPage, '#login');
     }
     function _bindRegitrationEvents() {
         $registerBtn.on('click', register);
         $loginLink.on('click', renderLogin);
-        Helper.bindEnterSubmitEvent($regPage, '#register');
+        Helper.bindKeyShortcutEvent($regPage, '#register');
+    }
+    function _bindMenuItemsEvents() {
+        $logoutMenuItem.off('click').on('click', _logOut);
+        $accountMenuItem.off('click').on('click', _renderModal);
+    }
+    function _bindModalEvents($container) {
+        // Check to handle just account modal
+        if ($container.find('.modal-dialog').attr('id') == 'user_account') {
+            // Bind submit event
+            $container.find('#submit_btn').off('click').on('click', _editAccount);
+
+            // Handle submit button according to changed form data
+            var $form = $container.find('form');
+            var origForm = $form.serialize();
+            // Bind event to toggle disabled submit button
+            $form.find(':input').on('change input', function() {
+                $container.find('#submit_btn').prop('disabled', $form.serialize() == origForm);
+            });
+        }
     }
 
     function login() {
@@ -231,6 +250,7 @@ var Account = function() {
     mediator.subscribe('RenderLogin', renderLogin);
     mediator.subscribe('LogOut', _logOut);
     mediator.subscribe('MenuReadyToImportModuleItems', _renderMenuItem);
+    mediator.subscribe('ReadyToBindModalEvents', _bindModalEvents);
 
     return {
         setUser: setUser,

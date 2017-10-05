@@ -39,7 +39,7 @@ var App = function() {
             // Every time a modal is shown, if it has an autofocus attribute, focus on it.
             .on('shown.bs.modal','.modal', function () {
                 $(this).find('[autofocus]').focus();
-                Helper.bindEnterSubmitEvent(this, '#submit');
+                Helper.bindKeyShortcutEvent(this, '#submit_btn');
             })
             // Clear .modal after close
             .on('hidden.bs.modal', '.modal', function () {

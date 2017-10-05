@@ -47,6 +47,28 @@ var Counter = function() {
         $stopBtn.on('click', _stopTicking);
         $taskActionBtns.on('click', '#newTask, #editTask, #deleteTask', _renderModal);
     }
+    function _bindModalEvents($container) {
+        var action;
+        switch ($container.find('.modal-dialog').attr('id')) {
+            case 'create_new_task':
+                action = _createTask;
+                break;
+            case 'edit_task':
+                action = _editTask;
+                break;
+            case 'delete_task':
+                action = _deleteTask;
+                break;
+
+            default:
+                break;
+        }
+
+        // Bind submit event
+        if (typeof action != 'undefined') {
+            $container.find('#submit_btn').off('click').on('click', action);
+        }
+    }
 
     function renderCounter($container) {
         if (tasks == null || typeof $counter == 'undefined') {
@@ -98,8 +120,8 @@ var Counter = function() {
     function _renderModal(event) {
         $.get('view/modal_parts.htm', function(templates) {
             var data = {};
-            var action;
             var $templates = $(templates);
+            var $submitBtn = $templates.find('#submit_btn');
 
             // Create data for modal template
             switch (event.target.id) {
@@ -108,9 +130,8 @@ var Counter = function() {
                         modal_id: 'create_new_task',
                         title: 'Create new task',
                         modal_body: $templates.filter('#modal_body_create').html(),
-                        submit_btn_text: 'Create'
+                        submit_btn: $submitBtn.text('Create').parent().html()
                     };
-                    action = _createTask;
                     break;
                 case 'editTask':
                     var edit_body = Mustache.render($templates.filter('#modal_body_edit').html(), { taskName: _getTask().Name });
@@ -118,9 +139,8 @@ var Counter = function() {
                         modal_id: 'edit_task',
                         title: 'Edit task name',
                         modal_body: edit_body,
-                        submit_btn_text: 'Edit'
+                        submit_btn: $submitBtn.text('Edit').parent().html()
                     };
-                    action = _editTask;
                     break;
                 case 'deleteTask':
                     var delete_body = Mustache.render($templates.filter('#modal_body_delete').html(), { taskName: _getTask().Name });
@@ -128,20 +148,20 @@ var Counter = function() {
                         modal_id: 'delete_task',
                         title: 'Delete current task',
                         modal_body: delete_body,
-                        submit_btn_text: 'Delete'
+                        submit_btn: $submitBtn.text('Delete').parent().html()
                     };
-                    action = _deleteTask;
                     break;
 
                 default:
                     break;
             }
 
-            Helper.getModalTemplate($modal, data, action);
+            Helper.getModalTemplate($modal, data);
         });
     }
     function _renderMenuItem($container) {
         // Bind onclick event for menuItem
+        // TODO: Make sure that $menuItem is already defined
         $menuItem.on('click', function() {
             mediator.publish('CounterMenuItemClick');
         });
@@ -365,6 +385,7 @@ var Counter = function() {
     mediator.subscribe('UserLogin', _loadTaskData);
     mediator.subscribe('UserLogout', _clearViewDataModel);
     mediator.subscribe('SetResultMessage', _setResultMsg);
+    mediator.subscribe('ReadyToBindModalEvents', _bindModalEvents);
     return {
         renderCounter: renderCounter
     };

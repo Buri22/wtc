@@ -67,28 +67,25 @@ var Helper = {
         document.getElementById(elementId).innerHTML = message;
     },
 
-    // Binds Enter keyup event to make click() on element by selector
-    bindEnterSubmitEvent: function(obj, selector) {
+    // Binds keyboard event to make click() on element by selector
+    bindKeyShortcutEvent: function(obj, selector) {
         // To ensure that element hasn't bind event twice -> off()
         $(obj).off('keydown').on('keydown', function(e) {
-            if  (e.which == 13) {
+            if (e.which == 13) {
                 $(selector).click();
+            }
+            if (e.which == 27) {
+                $(obj).find('button.close').click();
             }
         });
     },
 
-    getModalTemplate: function($modal, data, action) {
+    getModalTemplate: function($modal, data) {
         $.get('view/modal.htm', function(template) {
             $modal.append(Mustache.render($(template).html(), data))
                 .modal('show');
 
-            // Bind dynamic action from module
-            if (action) {
-                // To ensure that element hasn't bind event twice -> off()
-                $modal.find('#submit')
-                    .off('click')
-                    .on('click', action);
-            }
+            mediator.publish('ReadyToBindModalEvents', $modal);
         });
     }
 

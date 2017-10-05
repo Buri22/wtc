@@ -18,7 +18,7 @@ var Menu = function() {
             mediator.subscribe('MenuLoaded', renderMenu, $container);
         } else {
             $mainMenu.empty();
-            $container.html($menu);
+            $($container).html($menu);
 
             // All Moules which want to be in menu have to subscribe for "MenuReadyToImportModuleItems" event
             mediator.publish('MenuReadyToImportModuleItems', $mainMenu);
