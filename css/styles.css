@@ -101,10 +101,13 @@ button#login, button#register {
     font-size: initial;
     height: 25px;
 }
-#create_result_msg, #edit_result_msg {
+#create_result_msg {
     padding-top: 10px;
 }
-#new_task_name, #edit_task_name, #delete_task_password_confirm {
+#edit_result_msg {
+    margin-left: 35%;
+}
+#new_task_name, #delete_task_password_confirm {
     margin-top: 10px;
 }
 

@@ -65,15 +65,20 @@ var Account = function() {
         _bindRegitrationEvents();
     }
     function _renderMenuItem($container) {
-        $menuItemContainer = typeof $menuItemContainer == 'undefined' ? $container : $menuItemContainer;
-        // Bind onclick events for menuItems
-        _bindMenuItemsEvents();
+        // TO make sure that templates are defined
+        if (typeof $accountMenuItem == 'undefined') {
+            mediator.subscribe('AccountTemplatesReady', _renderMenuItem, $container);
+        }
+        else {
+            $menuItemContainer = typeof $menuItemContainer == 'undefined' ? $container : $menuItemContainer;
+            // Bind onclick events for menuItems
+            _bindMenuItemsEvents();
 
-        // TODO: Make sure that templates are defined
-        $accountMenuItem.find('#user_name').empty().append(' ' + user.userName);
-        $menuItemContainer.parent()
-            .append($accountMenuItems)
-            .append($modal);
+            $accountMenuItem.find('#user_name').empty().append(' ' + user.userName);
+            $menuItemContainer.parent()
+                .append($accountMenuItems)
+                .append($modal);
+        }
     }
     function _renderModal() {
         $.get('view/modal_parts.htm', function(templates) {

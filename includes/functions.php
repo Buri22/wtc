@@ -313,6 +313,7 @@ function createTask() {
 function editTask() {
     // Check if all inputs were entered
     if (!isset($_POST['new_task_name']) || empty($_POST['new_task_name'])
+        || !isset($_POST['new_task_spent_time']) || empty($_POST['new_task_spent_time'])
         || !isset($_POST['task_id']) || empty($_POST['task_id'])) {
         return 2;
     }
@@ -324,20 +325,29 @@ function editTask() {
                     SELECT *
                     FROM task
                     WHERE Name = ? AND UserId = ?
-                ', $_POST['new_task_name'], $user['Id']);
+                ', trim($_POST['new_task_name']), $user['Id']);
 
-    // This task name does not exist or is not exactly the same as edited
-    if (!$result || ($result && $result['Name'] !== $_POST['new_task_name'])) {
-        $editedTask = Db::query('
-                            UPDATE task
-                            SET Name = ?
-                            WHERE Id = ?
-                        ', $_POST['new_task_name'], $_POST['task_id']);
-        return $editedTask;
-    }
-    else {
+    // New task name is already used by another task
+    if ($result && $result['Id'] != $_POST['task_id']) {
         return 4;
     }
+
+    // Validate task spent time format
+    if (!preg_match('/[0-9]+:[0-9]{1,2}:[0-9]{1,2}/', $_POST['new_task_spent_time'])) {
+        return 5;
+    }
+
+    // Define data for update query
+    $data = array();
+    $data['Name'] = trim($_POST['new_task_name']);
+    $spentTime = explode(':', $_POST['new_task_spent_time']);
+    $data['SpentTime'] = intval($spentTime[0]) * 60 * 60 + intval($spentTime[1]) * 60 + intval($spentTime[2]);
+
+    $condition = 'WHERE Id = ' . intval($_POST['task_id']);
+
+    $result = Db::update('task', $data, $condition);
+
+    return $result;
 }
 
 function deleteTask() {

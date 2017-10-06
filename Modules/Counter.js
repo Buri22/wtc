@@ -4,8 +4,9 @@
 var Counter = function() {
     var tasks = null;
     var maxTaskNameLength = 80;
-    var modelViewLoadSubscribed = false;
-    var $counter, $taskList, taskListTemplate, $modal, $taskActionBtns, $startBtn, $stopBtn, $timeCounter, $resultMsg, $menuItem;
+    var modelViewLoadSubscribedForRenderCounter, modelViewLoadSubscribedForRenderMenuItem,
+        $counter, $taskList, taskListTemplate, $modal, $taskActionBtns, $startBtn, $stopBtn, $timeCounter, $resultMsg, $menuItem;
+    modelViewLoadSubscribedForRenderCounter = modelViewLoadSubscribedForRenderMenuItem = false;
 
     // Load Task data
     function _loadTaskData() {
@@ -32,7 +33,7 @@ var Counter = function() {
         $taskActionBtns  = $counter.filter('#task_action_buttons');
         $startBtn        = $counter.find('#buttonStart');
         $stopBtn         = $counter.find('#buttonStop');
-        $timeCounter     = $counter.find('#timeCounter');
+        $timeCounter     = $counter.find('#time_counter');
         $resultMsg       = $counter.find('#result_msg');
 
         $menuItem        = $counter.find('#menu_item');
@@ -71,10 +72,11 @@ var Counter = function() {
     }
 
     function renderCounter($container) {
+        // To make sure that tasks and $counter are already defined
         if (tasks == null || typeof $counter == 'undefined') {
-            if (!modelViewLoadSubscribed) {
+            if (!modelViewLoadSubscribedForRenderCounter) { // To subscribe just one time
                 mediator.subscribe('CounterModelViewLoaded', renderCounter, $container);
-                modelViewLoadSubscribed = true;
+                modelViewLoadSubscribedForRenderCounter = true;
             }
         } else {
             adjustViewForNoTasks();
@@ -134,10 +136,13 @@ var Counter = function() {
                     };
                     break;
                 case 'editTask':
-                    var edit_body = Mustache.render($templates.filter('#modal_body_edit').html(), { taskName: _getTask().Name });
+                    var edit_body = Mustache.render($templates.filter('#modal_body_edit').html(), {
+                        taskName: _getTask().Name,
+                        taskSpentTime: _getTaskSpentTimeInHms()
+                    });
                     data = {
                         modal_id: 'edit_task',
-                        title: 'Edit task name',
+                        title: 'Edit task',
                         modal_body: edit_body,
                         submit_btn: $submitBtn.text('Edit').parent().html()
                     };
@@ -160,12 +165,19 @@ var Counter = function() {
         });
     }
     function _renderMenuItem($container) {
-        // Bind onclick event for menuItem
-        // TODO: Make sure that $menuItem is already defined
-        $menuItem.on('click', function() {
-            mediator.publish('CounterMenuItemClick');
-        });
-        $container.append($menuItem);
+        // To make sure that $menuItem is already defined
+        if (typeof $menuItem == 'undefined') {
+            if (!modelViewLoadSubscribedForRenderMenuItem) {    // To subscribe just one time
+                mediator.subscribe('CounterModelViewLoaded', _renderMenuItem, $container);
+                modelViewLoadSubscribedForRenderMenuItem = true;
+            }
+        } else {
+            // Bind onclick event for $menuItem
+            $menuItem.on('click', function() {
+                mediator.publish('CounterMenuItemClick');
+            });
+            $container.append($menuItem);
+        }
     }
 
     function _startTicking() {
@@ -250,6 +262,13 @@ var Counter = function() {
             return task;
         }
     }
+    function _getTaskSpentTimeInHms() {
+        var spentTime = _getTask().SpentTime;
+        if (spentTime == null || spentTime == "") {
+            return Helper.secondsToHms(0);
+        }
+        return Helper.secondsToHms(spentTime);
+    }
     function _setTask(id, data) {
         id = id || Number($taskList.val());
         for (var i = 0; i < tasks.length; i++) {
@@ -298,16 +317,17 @@ var Counter = function() {
         var $editResultMsg = $modal.find('#edit_result_msg');
         var data = {
             task_id: _getTask().Id,
-            new_task_name: $modal.find('#edit_task_name').val().trim()
+            new_task_name: $modal.find('#edit_task_name').val().trim(),
+            new_task_spent_time: $modal.find('#edit_task_spent_time').val().trim()
         };
         Helper.ajaxCall('editTask', 'POST', data, function (response) {
             if (response == 1) {
                 // Update model
-                _setTask(data.task_id, { name: data.new_task_name });
+                _setTask(data.task_id, { name: data.new_task_name, spent_time: Helper.hmsToSeconds(data.new_task_spent_time) });
 
                 _renderTaskList(data.task_id);
                 _renderCurrentTaskTime();
-                $resultMsg.text("Task name was successfully edited!");
+                $resultMsg.text("Task was successfully edited!");
                 $modal.modal('hide');
             }
             else if (response == 2) {
@@ -318,6 +338,9 @@ var Counter = function() {
             }
             else if (response == 4) {
                 $editResultMsg.text("This task name already exists, try something different.");
+            }
+            else if (response == 5) {
+                $editResultMsg.text("Please insert SpentTime in a valid format (hh:mm:ss).");
             }
             else {
                 $resultMsg.text("Edit task name failed!");
