@@ -3,6 +3,7 @@
  */
 var Counter = function() {
     var tasks = null;
+    var userId = null;
     var maxTaskNameLength = 80;
     var modelViewLoadSubscribedForRenderCounter, modelViewLoadSubscribedForRenderMenuItem,
         $counter, $taskList, taskListTemplate, $modal, $taskActionBtns, $startBtn, $stopBtn, $timeCounter, $resultMsg, $menuItem;
@@ -43,7 +44,7 @@ var Counter = function() {
 
     // Bind Events
     function bindCounterEvents() {
-        $taskList.on('change', _renderCurrentTaskTime);
+        $taskList.find('li').on('click', _renderModal);
         $startBtn.on('click', _startTicking);
         $stopBtn.on('click', _stopTicking);
         $taskActionBtns.on('click', '#newTask, #editTask, #deleteTask', _renderModal);
@@ -79,9 +80,10 @@ var Counter = function() {
                 modelViewLoadSubscribedForRenderCounter = true;
             }
         } else {
-            adjustViewForNoTasks();
+            _adjustViewForNoTasks();    // TODO: refactor
             _renderTaskList();
-            _renderCurrentTaskTime();
+            _checkTickingTask();
+            _renderCurrentTaskTime();// TODO: deprecated
 
             $($container).html($counter);
             bindCounterEvents();
@@ -95,10 +97,10 @@ var Counter = function() {
             if (taskName.length > maxTaskNameLength) {
                 taskName = taskName.substring(0, maxTaskNameLength - 3) + '...';
             }
-            taskList.push({ Id: tasks[i].Id, Name: taskName });
+            taskList.push({ Id: i, Name: taskName, SpentTime: secondsToHms(tasks[i].SpentTime) });
         }
         $taskList.empty();
-        $taskList.html(Mustache.render(taskListTemplate, {options: taskList}));
+        $taskList.html(Mustache.render(taskListTemplate, {listItems: taskList}));
 
         // Set selected task
         task_id = task_id || taskList[0] && taskList[0].Id;
@@ -110,11 +112,17 @@ var Counter = function() {
         if (typeof task.Id == 'undefined') {
             $timeCounter.html(LOADING_GIF);
         }
-        else if (task.TaskStarted && localStorage.getItem(WTC_TICKING_COUNTER)) {
-            $timeCounter.text(localStorage.getItem(WTC_TICKING_COUNTER));
+        else if (task.TaskStarted) {
+            var storageTickingItem = _getStorageTickingItem();
+            if (storageTickingItem != null && storageTickingItem.spent_time) {
+                $timeCounter.text(storageTickingItem.spent_time || secondsToHms(task.SpentTime));
+            }
+            else {
+                $timeCounter.text(secondsToHms(task.SpentTime));
+            }
         }
         else {
-            $timeCounter.text(Helper.secondsToHms(task.SpentTime));
+            $timeCounter.text(secondsToHms(task.SpentTime));
         }
 
         typeof event != 'undefined' && event.type == 'change' && $resultMsg.empty();  // Clear result msg on change
@@ -136,14 +144,14 @@ var Counter = function() {
                     };
                     break;
                 case 'editTask':
-                    var edit_body = Mustache.render($templates.filter('#modal_body_edit').html(), {
+                    var edit_body_old = Mustache.render($templates.filter('#modal_body_edit').html(), {
                         taskName: _getTask().Name,
                         taskSpentTime: _getTaskSpentTimeInHms()
                     });
                     data = {
                         modal_id: 'edit_task',
                         title: 'Edit task',
-                        modal_body: edit_body,
+                        modal_body: edit_body_old,
                         submit_btn: $submitBtn.text('Edit').parent().html()
                     };
                     break;
@@ -155,6 +163,21 @@ var Counter = function() {
                         modal_body: delete_body,
                         submit_btn: $submitBtn.text('Delete').parent().html()
                     };
+                    break;
+                case (''):
+                    if (Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'))) {
+                        var taskIndex = Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'));
+                        var edit_body = Mustache.render($templates.filter('#modal_body_edit').html(), {
+                            taskName: tasks[taskIndex].Name,
+                            taskSpentTime: secondsToHms(tasks[taskIndex].SpentTime)
+                        });
+                        data = {
+                            modal_id: 'edit_task',
+                            title: 'Edit task',
+                            modal_body: edit_body,
+                            submit_btn: $submitBtn.text('Edit').parent().html()
+                        };
+                    }
                     break;
 
                 default:
@@ -180,10 +203,63 @@ var Counter = function() {
         }
     }
 
+    function secondsToHms(d) {
+        d = Number(d);
+        var h = Math.floor(d / 3600);
+        var m = Math.floor(d % 3600 / 60);
+        var s = Math.floor(d % 3600 % 60);
+        return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+    }
+    function hmsToSeconds(s) {
+        var hms_time = s.split(":");
+        return Number(hms_time[2]) + Number(hms_time[1]) * 60 + Number(hms_time[0]) * 60 * 60;
+    }
+    function myTimer(started_task_id) {
+        var storageTickingItem = localStorage.getObject(WTC_TICKING_COUNTER + '-' + userId);
+        var counter_time = storageTickingItem.spent_time;
+
+        counter_time = hmsToSeconds(counter_time) + 1;
+        counter_time = secondsToHms(counter_time);
+        storageTickingItem.spent_time = counter_time;
+
+        localStorage.setObject(WTC_TICKING_COUNTER + '-' + userId, storageTickingItem);
+
+        if (started_task_id == _getTask().Id) {   // Read from localStorage
+            $timeCounter.text(counter_time);
+        }
+    }
+    function deleteLocalStorage() {
+        localStorage.getItem(WTC_TICKING_COUNTER + '-' + userId) != null && localStorage.removeItem(WTC_TICKING_COUNTER + '-' + userId);
+    }
+    function _getStorageTickingItem() {
+        if (userId == null) {
+            userId = app.getLoggedUserId();
+        }
+
+        return localStorage.getObject(WTC_TICKING_COUNTER + '-' + userId);
+    }
+    function _checkTickingTask() {
+        var storageTickingItem = _getStorageTickingItem();
+        for (var i = 0; i < tasks.length; i++) {
+            if (tasks[i].TaskStarted) {
+                // Storage Ticking Item is ok
+                if (storageTickingItem != null
+                    && storageTickingItem.spent_time
+                    && storageTickingItem.task_id
+                    && tasks[i].Id == storageTickingItem.task_id) {
+                    startMyTimer(tasks[i], storageTickingItem.spent_time);
+                }
+                else {  // Storage Ticking Item is missing
+                    startMyTimer(tasks[i]);
+                }
+                break;
+            }
+        }
+    }
     function _startTicking() {
         var data = {
             task_id: _getTask().Id,
-            last_start: Helper.getCurrentTime() // We store time in seconds
+            last_start: Math.round(new Date().getTime() / 1000) // We store time in seconds
         };
         Helper.ajaxCall("startTask", "POST", data, function(response) {
             if (response == 'logOut') {    // User isn`t logged in
@@ -200,10 +276,9 @@ var Counter = function() {
                 data.task_started = 1;
                 _setTask(response.Id, data);
 
-                localStorage.setItem(WTC_TICKING_COUNTER, Helper.secondsToHms(response.SpentTime || 0));
-                window.myTime = setInterval(function () {
-                    Helper.myTimer(response.Id);
-                }, 1000);
+                userId = app.getLoggedUserId();
+
+                startMyTimer(response);
                 $resultMsg.text('Started successfully!');
             }
             else {
@@ -211,8 +286,25 @@ var Counter = function() {
             }
         });
     }
+    function startMyTimer(task, storageSpentTime) {
+        var storageTickingItem = {
+            task_id: task.Id,
+            spent_time: storageSpentTime || secondsToHms(task.SpentTime || 0)
+        };
+        localStorage.setObject(WTC_TICKING_COUNTER + '-' + userId, storageTickingItem);
+
+        window.myTime = setInterval(function () {
+            myTimer(task.Id);
+        }, 1000);
+    }
     function _stopTicking() {
-        Helper.ajaxCall("stopTask", "POST", "task_id=" + Number($taskList.val()), function(response) {
+        var data = _getStorageTickingItem();
+        if (data == null || typeof data.task_id == 'undefined' || typeof data.spent_time == 'undefined') {
+            data = {
+                task_id: Number($taskList.val())
+            }
+        }
+        Helper.ajaxCall("stopTask", "POST", data, function(response) {
             if (response == 'logOut') {    // User isn`t logged in
                 mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
@@ -233,7 +325,8 @@ var Counter = function() {
                 });
 
                 clearInterval(window.myTime);   // Stop ticking
-                Helper.deleteLocalStorage();    // Clear localStorage
+                deleteLocalStorage();   // Clear localStorage
+                userId = null;          // Reset user id
                 _renderCurrentTaskTime();
                 $resultMsg.html("<strong>" + _getTask().Name + "</strong> stopped successfully!");
             }
@@ -265,9 +358,9 @@ var Counter = function() {
     function _getTaskSpentTimeInHms() {
         var spentTime = _getTask().SpentTime;
         if (spentTime == null || spentTime == "") {
-            return Helper.secondsToHms(0);
+            return secondsToHms(0);
         }
-        return Helper.secondsToHms(spentTime);
+        return secondsToHms(spentTime);
     }
     function _setTask(id, data) {
         id = id || Number($taskList.val());
@@ -291,7 +384,7 @@ var Counter = function() {
                 // Update model
                 tasks.unshift(response);    // Adds created Task to the beginning of tasks array
 
-                adjustViewForNoTasks();
+                _adjustViewForNoTasks();
                 _renderTaskList();
                 _renderCurrentTaskTime();
                 $newTaskName.val('');
@@ -323,10 +416,10 @@ var Counter = function() {
         Helper.ajaxCall('editTask', 'POST', data, function (response) {
             if (response == 1) {
                 // Update model
-                _setTask(data.task_id, { name: data.new_task_name, spent_time: Helper.hmsToSeconds(data.new_task_spent_time) });
+                _setTask(data.task_id, { name: data.new_task_name, spent_time: hmsToSeconds(data.new_task_spent_time) });
 
                 _renderTaskList(data.task_id);
-                _renderCurrentTaskTime();
+                //_renderCurrentTaskTime();
                 $resultMsg.text("Task was successfully edited!");
                 $modal.modal('hide');
             }
@@ -360,7 +453,7 @@ var Counter = function() {
                 tasks.splice(_getTask(data.task_id, 'index'), 1);
                 $resultMsg.text("Task was deleted successfully.");
 
-                adjustViewForNoTasks();
+                _adjustViewForNoTasks();
                 _renderTaskList();
                 _renderCurrentTaskTime();
                 $modal.modal('hide');
@@ -383,11 +476,13 @@ var Counter = function() {
     }
 
     function _clearViewDataModel() {
+        clearInterval(window.myTime);   // Stop ticking
+        userId = null;
         tasks = null;
         $taskList.empty();
         $resultMsg.empty();
     }
-    function adjustViewForNoTasks() {
+    function _adjustViewForNoTasks() {
         if (tasks.length == 0) {
             $taskList.prop('disabled', true);
             $taskActionBtns.find('#editTask, #deleteTask').prop('disabled', true);

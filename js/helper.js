@@ -27,42 +27,8 @@ var Helper = {
         });
     },
 
-    myTimer: function(started_task_id) {
-        var counter_time = localStorage.getItem(WTC_TICKING_COUNTER);
-
-        counter_time = this.hmsToSeconds(counter_time) + 1;
-        counter_time = this.secondsToHms(counter_time);
-
-        localStorage.setItem(WTC_TICKING_COUNTER, counter_time);
-
-        if (started_task_id == this.getSelectedTaskId()) {   // Read from localStorage
-            $('#time_counter').text(counter_time);
-        }
-
-    },
-
-    secondsToHms: function(d) {
-        d = Number(d);
-        var h = Math.floor(d / 3600);
-        var m = Math.floor(d % 3600 / 60);
-        var s = Math.floor(d % 3600 % 60);
-        return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-    },
-    hmsToSeconds: function(s) {
-        var hms_time = s.split(":");
-        return Number(hms_time[2]) + Number(hms_time[1]) * 60 + Number(hms_time[0]) * 60 * 60;
-    },
-
     getCurrentTime: function() { // in seconds
         return Math.round(new Date().getTime() / 1000);
-    },
-
-    deleteLocalStorage: function() {
-        localStorage.getItem(WTC_TICKING_COUNTER) != null && localStorage.removeItem(WTC_TICKING_COUNTER);
-    },
-
-    getSelectedTaskId: function() {
-        return Number($("#taskList").val());
     },
 
     // Binds keyboard event to make click() on element by selector

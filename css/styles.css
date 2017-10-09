@@ -18,6 +18,42 @@ body {
 }
 
 /*========== Counter Page ==========*/
+#taskList {
+    list-style-type: none;
+    padding: 0;
+}
+#taskList > li {
+    cursor: pointer;
+    margin: 2px;
+    padding: 3px;
+    background-color: #e7e7e7;
+}
+#taskList > li:nth-child(2n) {
+    background-color: #f8f8f8;
+}
+#taskList > li:hover {
+    margin: 2px 0;
+    background-color: #5cb85c;
+    color: white;
+}
+/*#taskList > li:nth-child(2n):hover {*/
+    /*background-color: #c5f7b8;*/
+/*}*/
+#taskList > li.header {
+    background-color: transparent;
+}
+
+#taskList > li > span {
+    display:inline-block;
+}
+#taskList > li > .name {
+    width: 74%;
+}
+#taskList > li > .spent_time {
+    width: 25%;
+    text-align: right;
+}
+
 #start_stop_section {
     position: relative;
     margin-top: 60px;

@@ -46,6 +46,9 @@ var Account = function() {
     function getUserName() {
         return user.userName || 'User name is missing.';
     }
+    function getUserId() {
+        return user.id || false;
+    }
 
     function renderLogin(msg) {
         if (typeof $loginPage == 'undefined') {
@@ -70,7 +73,7 @@ var Account = function() {
             mediator.subscribe('AccountTemplatesReady', _renderMenuItem, $container);
         }
         else {
-            $menuItemContainer = typeof $menuItemContainer == 'undefined' ? $container : $menuItemContainer;
+            $menuItemContainer = typeof $menuItemContainer == 'undefined' ? $($container) : $menuItemContainer;
             // Bind onclick events for menuItems
             _bindMenuItemsEvents();
 
@@ -259,6 +262,7 @@ var Account = function() {
 
     return {
         setUser: setUser,
+        getUserId: getUserId,
         getUserName: getUserName,
         renderLogin: renderLogin
     }

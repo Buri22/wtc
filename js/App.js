@@ -21,7 +21,6 @@ var App = function() {
     });
 
     function run() {
-        //$content.html(LOADING_GIF);
         // Check if user is logged in
         Helper.ajaxCall("checkLogin", "POST", undefined, function(result) {
             if (result){
@@ -45,6 +44,15 @@ var App = function() {
             .on('hidden.bs.modal', '.modal', function () {
                 $(this).empty();
             });
+
+        // Extend usage of localStorage to hold JS objects in JSON
+        Storage.prototype.setObject = function(key, value) {
+            this.setItem(key, JSON.stringify(value));
+        };
+        Storage.prototype.getObject = function(key) {
+            var value = this.getItem(key);
+            return value && JSON.parse(value);
+        };
     }
 
     function renderAppLayout() {
@@ -61,6 +69,10 @@ var App = function() {
         }
     }
 
+    function getLoggedUserId() {
+        return account.getUserId();
+    }
+
     function bindEventsForMenuItems() {
         mediator.subscribe('CounterMenuItemClick', counter.renderCounter, $pageContent);
     }
@@ -69,6 +81,7 @@ var App = function() {
     mediator.subscribe('UserLogin', renderAppLayout);
 
     return {
-        run: run
+        run: run,
+        getLoggedUserId: getLoggedUserId
     }
 };

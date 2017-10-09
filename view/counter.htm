@@ -1,12 +1,26 @@
 <!-- Page Counter -->
 <div class="row"> <!-- Select Task Name -->
-    <h2 class="text-center">Current task name: </h2>
-    <div class="col-sm-12 col-md-6 col-md-offset-3">
-        <select id="taskList" class="form-control" >
+    <h2 class="text-center">Tasks</h2>
+    <div class="col-sm-12 col-md-8 col-md-offset-2">
+        <!--<select id="taskList" class="form-control" >-->
+            <!--<script id="taskListTemplate" type="text/template">-->
+                <!--{{#options}}<option value="{{Id}}">{{Name}}</option>{{/options}}-->
+            <!--</script>-->
+        <!--</select>-->
+        <ul id="taskList">
             <script id="taskListTemplate" type="text/template">
-                {{#options}}<option value="{{Id}}">{{Name}}</option>{{/options}}
+                <li class="header">
+                    <span class="name">Name</span>
+                    <span class="spent_time">Spent time</span>
+                </li>
+                {{#listItems}}
+                <li data-id="{{Id}}">
+                    <span class="name">{{Name}}</span>
+                    <span class="spent_time">{{SpentTime}}</span>
+                </li>
+                {{/listItems}}
             </script>
-        </select>
+        </ul>
     </div>
 </div>
 
@@ -56,12 +70,12 @@
     </div>
 </section>
 
-<section id="output_section" class="container">
-    <div class="row"> <!-- Time -->
-        <h2 class="text-center">Time spent on this task: </h2>
-        <h2 id="time_counter" class="text-center"></h2>
-    </div>
-</section>
+<!--<section id="output_section" class="container">-->
+    <!--<div class="row"> &lt;!&ndash; Time &ndash;&gt;-->
+        <!--<h2 class="text-center">Time spent on this task: </h2>-->
+        <!--<h2 id="time_counter" class="text-center"></h2>-->
+    <!--</div>-->
+<!--</section>-->
 
 <!-- Counter menu item -->
 <div style="display:none;">
