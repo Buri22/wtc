@@ -10,11 +10,13 @@
         <ul id="taskList">
             <script id="taskListTemplate" type="text/template">
                 <li class="header">
+                    <span class="task_index">No.</span>
                     <span class="name">Name</span>
                     <span class="spent_time">Spent time</span>
                 </li>
                 {{#listItems}}
                 <li data-id="{{Id}}">
+                    <span class="task_index">{{index}}.</span>
                     <span class="name">{{Name}}</span>
                     <span class="spent_time">{{SpentTime}}</span>
                 </li>
@@ -34,20 +36,20 @@
                 data-target=".modal">
                 Create
             </button>
-            <button
-                id="editTask"
-                title="Edit current task"
-                class="btn btn-success btn-lg btn-action"
-                data-target=".modal">
-                Edit
-            </button>
-            <button
-                id="deleteTask"
-                title="Delete current task"
-                class="btn btn-warning btn-lg btn-action"
-                data-target=".modal">
-                Delete
-            </button>
+            <!--<button-->
+                <!--id="editTask"-->
+                <!--title="Edit current task"-->
+                <!--class="btn btn-success btn-lg btn-action"-->
+                <!--data-target=".modal">-->
+                <!--Edit-->
+            <!--</button>-->
+            <!--<button-->
+                <!--id="deleteTask"-->
+                <!--title="Delete current task"-->
+                <!--class="btn btn-warning btn-lg btn-action"-->
+                <!--data-target=".modal">-->
+                <!--Delete-->
+            <!--</button>-->
         </div>
         <div id="task_action_modal" class="modal fade" role="dialog"></div>
     </div>

@@ -7,40 +7,43 @@
 </script>
 
 <!-- Edit modal body -->
-<script id="modal_body_edit" type="text/html">
+<script id="modal_body_edit_delete" type="text/html">
 
-    <form class="form-horizontal">
-        <fieldset>
-            <div class="form-group">
-                <label class="col-md-3 control-label" for="userName">Name</label>
-                <div class="col-md-8">
-                    <input type="text" id="edit_task_name" value="{{taskName}}" class="form-control" autofocus />
+    <div class="modal-tabs">
+        <span id="edit_page" class="active">Edit</span>
+        <span id="delete_page">Delete</span>
+    </div>
+
+    <section id="edit_body">
+        <form class="form-horizontal">
+            <fieldset>
+                <div class="form-group">
+                    <label class="col-md-3 control-label" for="edit_task_name">Name</label>
+                    <div class="col-md-8">
+                        <input type="text" id="edit_task_name" value="{{taskName}}" class="form-control" name="edit_task_name" autofocus />
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-3 control-label" for="userName">Spent Time</label>
-                <div class="col-md-8">
-                    <input type="text" id="edit_task_spent_time" value="{{taskSpentTime}}" class="form-control" />
+                <div class="form-group">
+                    <label class="col-md-3 control-label" for="edit_task_spent_time">Spent Time</label>
+                    <div class="col-md-8">
+                        <input type="text" id="edit_task_spent_time" value="{{taskSpentTime}}" class="form-control" name="edit_task_spent_time"/>
+                    </div>
                 </div>
-            </div>
-        </fieldset>
-    </form>
+            </fieldset>
+        </form>
+    </section>
+
+    <section id="delete_body">
+        <div class="">Do you really want to delete task: <strong>{{taskName}}</strong>?</div>
+        <input
+            type="password"
+            id="delete_task_password_confirm"
+            class="form-control"
+            placeholder="Enter your password for confirmation"
+            autofocus />
+    </section>
 
     <div id="edit_result_msg" class="red"></div>
-
-</script>
-
-<!-- Delete modal body -->
-<script id="modal_body_delete" type="text/html">
-
-    <div class="">Do you really want to delete task: <strong>{{taskName}}</strong>?</div>
-    <input
-        type="password"
-        id="delete_task_password_confirm"
-        class="form-control"
-        placeholder="Enter your password for confirmation"
-        autofocus />
-    <div id="delete_result_msg" class="red"></div>
 
 </script>
 

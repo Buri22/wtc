@@ -47,28 +47,50 @@ var Counter = function() {
         $taskList.find('li').on('click', _renderModal);
         $startBtn.on('click', _startTicking);
         $stopBtn.on('click', _stopTicking);
-        $taskActionBtns.on('click', '#newTask, #editTask, #deleteTask', _renderModal);
+        $taskActionBtns.on('click', '#newTask', _renderModal);
     }
     function _bindModalEvents($container) {
-        var action;
         switch ($container.find('.modal-dialog').attr('id')) {
             case 'create_new_task':
-                action = _createTask;
+                $container.find('#submit_btn').off('click').on('click', _createTask);
                 break;
             case 'edit_task':
-                action = _editTask;
-                break;
-            case 'delete_task':
-                action = _deleteTask;
+                // Submit btn actions
+                $container.find('#submit_btn.edit_btn').off('click').on('click', _editTask);
+                $container.find('#submit_btn.delete_btn').off('click').on('click', _deleteTask);
+
+                // Edit/Delete tab click event
+                $container.find('#edit_page').off('click').on('click', function() {
+                    $container.find('#edit_page').addClass('active');
+                    $container.find('#delete_page').removeClass('active');
+                    $container.find('.modal-header .modal-title').text('Edit task');
+                    $container.find('#edit_body, #submit_btn.edit_btn').show();
+                    $container.find('#delete_body, #submit_btn.delete_btn').hide();
+
+                    $container.find('#edit_task_name').get(0).focus();
+                    $container.find('#edit_result_msg').empty();
+
+                    Helper.bindKeyShortcutEvent($container, '#submit_btn.edit_btn');
+                });
+                $container.find('#delete_page').off('click').on('click', function() {
+                    $container.find('#edit_page').removeClass('active');
+                    $container.find('#delete_page').addClass('active');
+                    $container.find('.modal-header .modal-title').text('Delete task');
+                    $container.find('#edit_body, #submit_btn.edit_btn').hide();
+                    $container.find('#delete_body, #submit_btn.delete_btn').show();
+
+                    $container.find('#delete_task_password_confirm').get(0).focus();
+                    $container.find('#edit_result_msg').empty();
+
+                    Helper.bindKeyShortcutEvent($container, '#submit_btn.delete_btn');
+                });
+
+                // Handle submit button according to changed form data
+                Helper.checkFormToDisableSubmitBtn($container.find('form'), $container.find('#submit_btn'));
                 break;
 
             default:
                 break;
-        }
-
-        // Bind submit event
-        if (typeof action != 'undefined') {
-            $container.find('#submit_btn').off('click').on('click', action);
         }
     }
 
@@ -83,7 +105,7 @@ var Counter = function() {
             _adjustViewForNoTasks();    // TODO: refactor
             _renderTaskList();
             _checkTickingTask();
-            _renderCurrentTaskTime();// TODO: deprecated
+            //_renderCurrentTaskTime();// TODO: deprecated
 
             $($container).html($counter);
             bindCounterEvents();
@@ -97,10 +119,10 @@ var Counter = function() {
             if (taskName.length > maxTaskNameLength) {
                 taskName = taskName.substring(0, maxTaskNameLength - 3) + '...';
             }
-            taskList.push({ Id: i, Name: taskName, SpentTime: secondsToHms(tasks[i].SpentTime) });
+            taskList.push({ index: i + 1, Id: i, Name: taskName, SpentTime: secondsToHms(tasks[i].SpentTime) });
         }
         $taskList.empty();
-        $taskList.html(Mustache.render(taskListTemplate, {listItems: taskList}));
+        $taskList.html(Mustache.render(taskListTemplate, { listItems: taskList }));
 
         // Set selected task
         task_id = task_id || taskList[0] && taskList[0].Id;
@@ -143,41 +165,22 @@ var Counter = function() {
                         submit_btn: $submitBtn.text('Create').parent().html()
                     };
                     break;
-                case 'editTask':
-                    var edit_body_old = Mustache.render($templates.filter('#modal_body_edit').html(), {
-                        taskName: _getTask().Name,
-                        taskSpentTime: _getTaskSpentTimeInHms()
-                    });
-                    data = {
-                        modal_id: 'edit_task',
-                        title: 'Edit task',
-                        modal_body: edit_body_old,
-                        submit_btn: $submitBtn.text('Edit').parent().html()
-                    };
-                    break;
-                case 'deleteTask':
-                    var delete_body = Mustache.render($templates.filter('#modal_body_delete').html(), { taskName: _getTask().Name });
-                    data = {
-                        modal_id: 'delete_task',
-                        title: 'Delete current task',
-                        modal_body: delete_body,
-                        submit_btn: $submitBtn.text('Delete').parent().html()
-                    };
-                    break;
-                case (''):
-                    if (Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'))) {
+                case (''):  // Edit task
+                    if (event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id')) {
                         var taskIndex = Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'));
-                        var edit_body = Mustache.render($templates.filter('#modal_body_edit').html(), {
+                        var edit_delete_body = Mustache.render($templates.filter('#modal_body_edit_delete').html(), {
                             taskName: tasks[taskIndex].Name,
                             taskSpentTime: secondsToHms(tasks[taskIndex].SpentTime)
                         });
                         data = {
                             modal_id: 'edit_task',
                             title: 'Edit task',
-                            modal_body: edit_body,
-                            submit_btn: $submitBtn.text('Edit').parent().html()
+                            modal_body: edit_delete_body,
+                            submit_btn: $submitBtn.addClass('edit_btn').attr('data-id', taskIndex).prop('disabled', true).text('Edit').parent().html()
+                                        + $submitBtn.hide().addClass('delete_btn').attr('data-id', taskIndex).prop('disabled', false).text('Delete').parent().html()
                         };
                     }
+                    else return false;
                     break;
 
                 default:
@@ -384,9 +387,9 @@ var Counter = function() {
                 // Update model
                 tasks.unshift(response);    // Adds created Task to the beginning of tasks array
 
-                _adjustViewForNoTasks();
+                _adjustViewForNoTasks();    // Does this need to be here?
                 _renderTaskList();
-                _renderCurrentTaskTime();
+                //_renderCurrentTaskTime();
                 $newTaskName.val('');
                 $resultMsg.text("New task was successfully created!");
                 $modal.modal('hide');
@@ -406,10 +409,10 @@ var Counter = function() {
             }
         });
     }
-    function _editTask() {
+    function _editTask(event) {
         var $editResultMsg = $modal.find('#edit_result_msg');
         var data = {
-            task_id: _getTask().Id,
+            task_id: tasks[Number(event.target.dataset.id)].Id,
             new_task_name: $modal.find('#edit_task_name').val().trim(),
             new_task_spent_time: $modal.find('#edit_task_spent_time').val().trim()
         };
@@ -419,6 +422,7 @@ var Counter = function() {
                 _setTask(data.task_id, { name: data.new_task_name, spent_time: hmsToSeconds(data.new_task_spent_time) });
 
                 _renderTaskList(data.task_id);
+                bindCounterEvents();
                 //_renderCurrentTaskTime();
                 $resultMsg.text("Task was successfully edited!");
                 $modal.modal('hide');
@@ -441,21 +445,23 @@ var Counter = function() {
             }
         });
     }
-    function _deleteTask() {
-        var $deleteResultMsg = $modal.find('#delete_result_msg');
+    function _deleteTask(event) {
+        var task_index = Number(event.target.dataset.id);
+        var $deleteResultMsg = $modal.find('#edit_result_msg');
         var data = {
-            task_id: _getTask().Id,
+            task_id: tasks[task_index].Id,
             password: $modal.find('#delete_task_password_confirm').val().trim()
         };
         Helper.ajaxCall('deleteTask', 'POST', data, function(response) {
             if (response == false) {
                 // Update model
-                tasks.splice(_getTask(data.task_id, 'index'), 1);
+                tasks.splice(task_index, 1);
                 $resultMsg.text("Task was deleted successfully.");
 
                 _adjustViewForNoTasks();
                 _renderTaskList();
-                _renderCurrentTaskTime();
+                bindCounterEvents();
+                //_renderCurrentTaskTime();
                 $modal.modal('hide');
             }
             else if(response == 2) {

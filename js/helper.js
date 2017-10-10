@@ -31,6 +31,15 @@ var Helper = {
         return Math.round(new Date().getTime() / 1000);
     },
 
+    checkFormToDisableSubmitBtn: function($form, $submitBtn) {
+        // Handle submit button according to changed form data
+        var origForm = $form.serialize();
+        // Bind event to toggle disabled submit button
+        $form.find(':input').on('change input', function() {
+            $submitBtn.prop('disabled', $form.serialize() == origForm);
+        });
+    },
+
     // Binds keyboard event to make click() on element by selector
     bindKeyShortcutEvent: function(obj, selector) {
         // To ensure that element hasn't bind event twice -> off()

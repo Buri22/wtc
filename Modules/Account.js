@@ -122,12 +122,7 @@ var Account = function() {
             $container.find('#submit_btn').off('click').on('click', _editAccount);
 
             // Handle submit button according to changed form data
-            var $form = $container.find('form');
-            var origForm = $form.serialize();
-            // Bind event to toggle disabled submit button
-            $form.find(':input').on('change input', function() {
-                $container.find('#submit_btn').prop('disabled', $form.serialize() == origForm);
-            });
+            Helper.checkFormToDisableSubmitBtn($container.find('form'), $container.find('#submit_btn'));
         }
     }
 
