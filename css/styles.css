@@ -86,52 +86,15 @@ body {
 #taskList > li > button.stop {
     display: none;
 }
+
+#page .pagination {
+    margin-bottom: 0;
+}
+
 #start_stop_section {
     position: relative;
     margin-top: 60px;
 }
-/*#buttonStart {*/
-    /*border-radius: 4px;*/
-    /*color: #fff !important;*/
-    /*padding: 15px 32px;*/
-    /*text-align: center;*/
-    /*text-decoration: none;*/
-    /*display: inline-block;*/
-    /*font-size: 16px !important;*/
-    /*margin: 4px 2px !important;*/
-    /*/!* To determine the speed of the "hover" effect*!/*/
-        /*-webkit-transition-duration: 0.4s !important; /!* Safari *!/*/
-        /*transition-duration: 0.4s;*/
-    /*cursor: pointer;*/
-
-    /*background-color: #4CAF50; /!* Green *!/*/
-    /*border: 1px solid #3e8e42; /!* Dark Green *!/*/
-/*}*/
-/*#buttonStart:hover {*/
-    /*background-color: #fff;*/
-    /*color: black !important;*/
-/*}*/
-/*#buttonStop {*/
-    /*border-radius: 4px;*/
-    /*color: #fff !important;*/
-    /*padding: 15px 32px;*/
-    /*text-align: center;*/
-    /*text-decoration: none;*/
-    /*display: inline-block;*/
-    /*font-size: 16px !important;*/
-    /*margin: 4px 2px !important;*/
-    /*/!* To determine the speed of the "hover" effect*!/*/
-        /*-webkit-transition-duration: 0.4s !important; /!* Safari *!/*/
-        /*transition-duration: 0.4s;*/
-    /*cursor: pointer;*/
-    /**/
-    /*background-color: #ff751a;*/
-    /*border: 1px solid #e65c00;*/
-/*}*/
-/*#buttonStop:hover {*/
-    /*background-color: #fff;*/
-    /*color: black !important;*/
-/*}*/
 
 .task_actions {
     display: flex;
@@ -162,7 +125,7 @@ button#login, button#register {
     float: left;
 }
 #result_msg {
-    margin-top: 60px;
+    margin-top: -5px;
     text-align: center;
     font-size: initial;
     height: 25px;
@@ -241,3 +204,18 @@ button#login, button#register {
 .btn {
     min-width: 65px;
 }
+
+/*==================== Media ======================*/
+/*@media (min-width: 768px) {*/
+    /*.container {*/
+        /*max-width: 750px;*/
+    /*}*/
+/*}*/
+
+
+
+
+
+
+
+

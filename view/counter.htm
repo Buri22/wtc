@@ -24,6 +24,14 @@
     </section>
 
     <div class="col-sm-12 col-md-8 col-md-offset-2">
+        <ul id="pagination" class="pagination right">
+            <script id="paginationTemplate" type="text/template">
+                {{#paginationItems}}
+                <li class="{{active}}"><a href="#" class="paginationBtn" data-page_num="{{pageNum}}">{{pageNum}}</a></li>
+                {{/paginationItems}}
+            </script>
+        </ul>
+        <div class="clear"></div>
         <ul id="taskList">
             <script id="taskListTemplate" type="text/template">
                 <li class="header">
