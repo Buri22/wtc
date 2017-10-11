@@ -1,12 +1,29 @@
 <!-- Page Counter -->
 <div class="row"> <!-- Select Task Name -->
     <h2 class="text-center">Tasks</h2>
+
+    <div class="row"> <!-- Result Messages -->
+        <div class="col-md-12 col-lg-10 col-lg-offset-1">
+            <div id="result_msg"></div>
+        </div>
+    </div>
+
+    <section id="task_action_buttons">
+        <div class="row"> <!-- Current Task Actions -->
+            <div class="col-sm-12 col-md-6 col-md-offset-3 task_actions">
+                <button
+                        id="newTask"
+                        title="Create new task"
+                        class="btn btn-primary btn-lg btn-action"
+                        data-target=".modal">
+                    Create
+                </button>
+            </div>
+            <div id="task_action_modal" class="modal fade" role="dialog"></div>
+        </div>
+    </section>
+
     <div class="col-sm-12 col-md-8 col-md-offset-2">
-        <!--<select id="taskList" class="form-control" >-->
-            <!--<script id="taskListTemplate" type="text/template">-->
-                <!--{{#options}}<option value="{{Id}}">{{Name}}</option>{{/options}}-->
-            <!--</script>-->
-        <!--</select>-->
         <ul id="taskList">
             <script id="taskListTemplate" type="text/template">
                 <li class="header">
@@ -19,65 +36,16 @@
                     <span class="task_index">{{index}}.</span>
                     <span class="name">{{Name}}</span>
                     <span class="spent_time">{{SpentTime}}</span>
+                    <button type="button" name="start" class="btn btn-warning start" >Start</button>
+                    <button type="button" name="stop" class="btn btn-primary stop" >Stop</button>
+
+                    <span class="edit_animation_box"></span>
                 </li>
                 {{/listItems}}
             </script>
         </ul>
     </div>
 </div>
-
-<section id="task_action_buttons">
-    <div class="row"> <!-- Current Task Actions -->
-        <div class="col-sm-12 col-md-6 col-md-offset-3 task_actions">
-            <button
-                id="newTask"
-                title="Create new task"
-                class="btn btn-primary btn-lg btn-action"
-                data-target=".modal">
-                Create
-            </button>
-            <!--<button-->
-                <!--id="editTask"-->
-                <!--title="Edit current task"-->
-                <!--class="btn btn-success btn-lg btn-action"-->
-                <!--data-target=".modal">-->
-                <!--Edit-->
-            <!--</button>-->
-            <!--<button-->
-                <!--id="deleteTask"-->
-                <!--title="Delete current task"-->
-                <!--class="btn btn-warning btn-lg btn-action"-->
-                <!--data-target=".modal">-->
-                <!--Delete-->
-            <!--</button>-->
-        </div>
-        <div id="task_action_modal" class="modal fade" role="dialog"></div>
-    </div>
-</section>
-
-<div class="row"> <!-- Result Messages -->
-    <div class="col-md-12 col-lg-10 col-lg-offset-1">
-        <div id="result_msg"></div>
-    </div>
-</div>
-
-<section id="start_stop_section">
-    <div class="row"> <!-- Start, Stop Buttons -->
-        <div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">
-            <button type="button" name="start" id="buttonStart" >Start</button>
-        </div>
-        <div class="text-center col-xs-6 col-sm-6 col-md-6 col-lg-6">
-            <button type="button" name="stop" id="buttonStop" >Stop</button>
-        </div>
-    </div>
-</section>
-
-<!--<section id="output_section" class="container">-->
-    <!--<div class="row"> &lt;!&ndash; Time &ndash;&gt;-->
-        <!--<h2 class="text-center">Time spent on this task: </h2>-->
-        <!--<h2 id="time_counter" class="text-center"></h2>-->
-    <!--</div>-->
-<!--</section>-->
 
 <!-- Counter menu item -->
 <div style="display:none;">
