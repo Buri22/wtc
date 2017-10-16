@@ -67,19 +67,12 @@ var App = function() {
 
             // Load page layout
             page.renderPage($pageContent);
-            //$pageContent.append('<div id="sideMenu"></div><div id="pageContent"></div>');
-            // Load module Counter
-            //counter.renderCounter($pageContent.find('#pageContent'));
         }
     }
 
     function getLoggedUserId() {
         return account.getUserId();
     }
-
-    //function bindEventsForMenuItems() {
-    //    mediator.subscribe('CounterMenuItemClick', counter.renderCounter, $pageContent.find('#pageContent'));
-    //}
 
     // Subscribe to listen for calls from outside
     mediator.subscribe('UserLogin', renderAppLayout);

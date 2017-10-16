@@ -1,275 +1,238 @@
-/*
-    Created on : 10.8.2017, 18:59:00
-    Author     : Buri22
-*/
+/************** Color palette ***************/
+/************** Styles ***************/
 body {
-   background: #fff;
-   width: 100%;
-   height: auto;
-   font-size: 1.5em;
-   font-family: 'Open Sans', sans-serif;
-   font-weight: normal;
-   color: #798097;
-   line-height: 2.3rem;
-   font-smoothing: antialiased;
-   -webkit-font-smoothing: antialiased;
-   -moz-font-smoothing: antialiased;
-   -o-font-smoothing: antialiased;
+  background: #fff;
+  width: 100%;
+  height: auto;
+  font-size: 1.5em;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: normal;
+  line-height: 2.3rem;
+  font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: antialiased;
+  -o-font-smoothing: antialiased;
 }
-
 /*========== Counter Page ==========*/
 #main_menu > li > a:hover {
-    background-color: #5cb85c;
-    color: #fff;
+  background-color: #5cb85c;
+  color: #fff;
 }
 #newTask {
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 }
-
 #taskList {
-    list-style-type: none;
-    padding: 0;
+  list-style-type: none;
+  padding: 0;
 }
 #taskList > li {
-    cursor: pointer;
-    margin: 2px 5px;
-    padding: 8px;
-    border-radius: 4px;
-    background-color: #e7e7e7;
+  cursor: pointer;
+  margin: 2px 5px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #e5e5e5;
 }
 #taskList > li:nth-child(2n) {
-    background-color: #f8f8f8;
+  background-color: #f8f8f8;
 }
-#taskList > li:not(:first-child):not(.active):hover {
-    background-color: #5cb85c;
-    color: #fff;
+#taskList > li:not(:first-child):hover {
+  background-color: #5cb85c;
+  color: #fff;
 }
 #taskList > li.active {
-    background-color: #f0ad4e; /*#ff751a;*/
-    color: #fff;
-}
-#taskList span.edit_animation_box {
-    /*content: '';*/
-    position: absolute;
-    width: 95%;
-    height: 36px;
-    /*display: block;*/
-    margin-top: -8px;
-    left: 20px;
-    background-color: #337ab7;
-    border-radius: 4px;
-    opacity: 0;
+  background-color: #fff;
+  -moz-box-shadow: inset 0 0 25px #f0ad4e;
+  -webkit-box-shadow: inset 0 0 25px #f0ad4e;
+  box-shadow: inset 0 0 25px #f0ad4e;
+  /*color: @white;*/
 }
 #taskList > li.header {
-    background-color: transparent;
+  background-color: transparent;
 }
-
 #taskList > li > span {
-    display:inline-block;
+  display: inline-block;
 }
 #taskList > li > .task_index {
-    width: 3%;
+  width: 3%;
 }
 #taskList > li > .name {
-    width: 75%;
-    overflow: hidden;
-    margin-bottom: -5px;
+  width: 75%;
+  overflow: hidden;
+  margin-bottom: -5px;
 }
 #taskList > li > .spent_time {
-    width: 10%;
-    min-width: 70px;
-    text-align: right;
+  width: 10%;
+  min-width: 70px;
+  text-align: right;
 }
-#taskList > li > button.start, #taskList > li > button.stop {
-    position: absolute;
-    margin-top: -8px;
-    right: 20px;
-    height: 36px;
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-    z-index: 1000;
+#taskList > li > button.start,
+#taskList > li > button.stop {
+  position: absolute;
+  margin-top: -8px;
+  right: 20px;
+  height: 36px;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  z-index: 1000;
 }
 #taskList > li > button.stop {
-    display: none;
+  display: none;
 }
-
+#taskList span.edit_animation_box {
+  position: absolute;
+  width: 95%;
+  height: 36px;
+  margin-top: -8px;
+  left: 20px;
+  background-color: #337ab7;
+  border-radius: 4px;
+  opacity: 0;
+}
 #page .pagination {
-    margin-bottom: 0;
-    margin-top: 10px;
+  margin-bottom: 0;
+  margin-top: 10px;
 }
 #page .paginationItemsPerPage {
-    display: inline-block;
-    width: initial;
-    margin-top: 10px;
-    margin-right: 15px;
-    padding: 6px;
+  display: inline-block;
+  width: initial;
+  margin-top: 10px;
+  margin-right: 15px;
+  padding: 6px;
 }
 #page .pagination_box {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4px;
 }
 #page .pagination_box:last-of-type {
-    margin-bottom: 70px;
+  margin-bottom: 70px;
 }
-
-#start_stop_section {
-    position: relative;
-    margin-top: 60px;
+#login_msg,
+#register_msg {
+  height: 20px;
+  display: block;
+  margin-bottom: 5px;
+  text-align: center;
 }
-
-.task_actions {
-    display: flex;
-    justify-content: center;
+button#login,
+button#register {
+  margin: 25px 0 10px 0;
 }
-.task_actions button {
-    margin: 20px 10px 0 10px;
-    width: 22%;
-}
-
-#output_section {
-    height: 500px;
-}
-
-#login_msg, #register_msg {
-    height: 20px;
-    display: block;
-    margin-bottom: 5px;
-    text-align: center;
-}
-button#login, button#register {
-    margin: 25px 0 10px 0;
-}
-
 /*========== Side Menu ==========*/
 #sideMenu > * {
-    width: 100%;
-    margin-bottom: 15px;
+  width: 100%;
+  margin-bottom: 15px;
 }
 #counter_side_menu_active_item {
-    background-color: #f0ad4e; /*#ff751a;*/
-    border-radius: 6px;
-    color: #fff;
+  background-color: transparent;
+  border-radius: 6px;
+  -moz-box-shadow: inset 0 0 50px #f0ad4e;
+  -webkit-box-shadow: inset 0 0 50px #f0ad4e;
+  box-shadow: inset 0 0 50px #f0ad4e;
 }
 #counter_side_menu_active_item span {
-    display: block;
-    text-align: center;
-    padding: 5px;
+  display: block;
+  text-align: center;
+  padding: 5px 10px;
 }
 #counter_side_menu_active_item .name {
-    font-size: 20px;
-    padding-top: 5px;
+  font-size: 20px;
+  padding-top: 10px;
 }
 #counter_side_menu_active_item .spent_time {
-    font-size: 35px;
-    padding-bottom: 5px;
+  font-size: 35px;
+  padding-bottom: 5px;
 }
 #counter_side_menu_active_item .stop {
-    width: 100%;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+  width: 100%;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
-
 /*========== Modal Window ==========*/
 .btn-modal-close {
-    float: left;
+  float: left;
 }
 #result_msg {
-    /* display:  block; */
-    margin-top: -5px;
-    text-align: center;
-    font-size: initial;
-    height: 25px;
+  margin-top: -5px;
+  text-align: center;
+  font-size: initial;
+  height: 25px;
 }
 #create_result_msg {
-    padding-top: 10px;
+  padding-top: 10px;
 }
 #edit_result_msg {
-    margin-left: 35%;
+  margin-left: 35%;
 }
-#new_task_name, #delete_task_password_confirm {
-    margin-top: 10px;
+#new_task_name,
+#delete_task_password_confirm {
+  margin-top: 10px;
 }
-
 #user_account .password_section {
-    display: none;
+  display: none;
 }
 #change_password {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 #delete_body {
-    display: none;
+  display: none;
 }
 .modal-body .modal-tabs {
-    display: flex;
-    justify-content: center;
-    margin-top: -15px;
+  display: flex;
+  justify-content: center;
+  margin-top: -15px;
 }
 .modal-body .modal-tabs > span {
-    margin: 0 3px 10px;
-    padding: 5px 8px;
-    border: 1px solid #e5e5e5;
-    border-top: none;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    cursor: pointer;
-    width: 65px;
-    text-align: center;
+  margin: 0 3px 10px;
+  padding: 5px 8px;
+  border: 1px solid #e5e5e5;
+  border-top: none;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  cursor: pointer;
+  width: 65px;
+  text-align: center;
 }
 .modal-body .modal-tabs > span.active {
-    color: #fff;
-    border-color: transparent;
+  color: #fff;
+  border-color: transparent;
 }
 #edit_page.active {
-    color: #fff;
-    background-color: #5cb85c;
-    border-color: #4cae4c;
+  color: #fff;
+  background-color: #5cb85c;
+  border-color: #449d44;
 }
 #delete_page.active {
-    color: #fff;
-    background-color: #d9534f;
-    border-color: #d43f3a;
+  color: #fff;
+  background-color: #d9534f;
+  border-color: #c9302c;
 }
-
-
 /* Color styles */
 .red {
-    color: red;
+  color: #d9534f;
 }
-
 /* Position styles */
 .left {
-    float: left;
+  float: left;
 }
 .right {
-    float: right;
+  float: right;
 }
 .clear {
-    clear: both;
+  clear: both;
 }
 .centered_flex {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
 /* Bootstrap styles */
 #task_action_buttons .modal-dialog {
-    margin-top: 75px;
+  margin-top: 75px;
 }
 .btn {
-    min-width: 65px;
+  min-width: 65px;
 }
-
 /*==================== Media ======================*/
-
-
-
-
-
-
-
-
-

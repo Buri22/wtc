@@ -11,7 +11,7 @@ var Tasks = function() {
                 // Define task model
                 tasks = taskListData;
 
-                mediator.publish('CounterModelViewLoaded');
+                mediator.publish('CounterModelLoaded');
             }
             else {  // Just in case user is not logged in
                 mediator.publish('RenderLogin', 'You were logged out, please login again.');
@@ -23,13 +23,13 @@ var Tasks = function() {
     function getTasks() {
         return tasks;
     }
-    function _clearDataModel () {
+    function clearDataModel () {
         tasks = null;
     }
 
     mediator.subscribe('UserLogin', _loadTaskData);
-    mediator.subscribe('ClearDataModel', _clearDataModel);
     return {
-        getItems: getTasks
+        getItems: getTasks,
+        clearDataModel: clearDataModel
     };
 };

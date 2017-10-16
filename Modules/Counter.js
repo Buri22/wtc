@@ -6,9 +6,7 @@ var Counter = function(models) {
     var items = null;
     var userId = null;
     var activeItemIndex = null;
-    var modelViewLoadSubscribedForRenderCounter = false, modelViewLoadSubscribedForRenderMenuItem = false,
-        modelViewLoadSubscribedForRenderSideMenuItem = false,
-        $parentContainer, $counter, $itemList, $activeListItem, taskListTemplate, $pagination, paginationTpl, $paginationItemsPerPage, paginationIPPTpl,
+    var $parentContainer, $counter, $itemList, $activeListItem, taskListTemplate, $pagination, paginationTpl, $paginationItemsPerPage, paginationIPPTpl,
         $modal, $newItemBtn, $resultMsg, $menuItem, $sideMenuItem;
 
     var pagination = {
@@ -33,7 +31,7 @@ var Counter = function(models) {
         $menuItem               = $counter.find('#counter_menu_item');
         $sideMenuItem           = $counter.find('#counter_side_menu_active_item');
 
-        mediator.publish('CounterModelViewLoaded');
+        mediator.publish('CounterViewLoaded');
     });
 
     // Load Item Model
@@ -52,6 +50,7 @@ var Counter = function(models) {
         $sideMenuItem.find('.stop').on('click', _stopTicking);
         $pagination.find('li a').off('click').on('click', _changeTablePage);
         $paginationItemsPerPage.off('change').on('change', _changeNumOfItemsPerPage);
+        $menuItem.off('click').on('click', renderCounter);
     }
     function bindModalEvents($container) {
         switch ($container.find('.modal-dialog').attr('id')) {
@@ -100,7 +99,11 @@ var Counter = function(models) {
 
     function renderCounter($container) {
         if ($container != null && typeof $container != 'undefined' || typeof $parentContainer != 'undefined') {
-            if (!$container) {
+            var startTicking = true;
+            if (typeof $container.currentTarget != 'undefined' && $container.currentTarget.id == 'counter_menu_item') {
+                startTicking = false;
+            }
+            if (!($container instanceof jQuery)) {
                 $container = $parentContainer;
             }
             if (!$parentContainer) {
@@ -109,15 +112,16 @@ var Counter = function(models) {
             // Load model items for counting
             items = Item.getItems();
             // To make sure that items and $counter are already defined
-            if (items == null || typeof $counter == 'undefined') {
-                if (!modelViewLoadSubscribedForRenderCounter) { // To subscribe just one time
-                    mediator.subscribe('CounterModelViewLoaded', renderCounter, $container);
-                    modelViewLoadSubscribedForRenderCounter = true;
-                }
+            if (items == null) {
+                mediator.subscribe('CounterModelLoaded', renderCounter, $container);
+            }
+            else if (typeof $counter == 'undefined') {
+                mediator.subscribe('CounterViewLoaded', renderCounter, $container);
             } else {
                 _renderTaskList();
                 _adjustViewForNoTasks();
-                _checkTickingTask(true);
+                adjustItemsNameLength();
+                _checkTickingTask(startTicking);
 
                 $($container).html($counter);
                 bindCounterEvents();
@@ -243,25 +247,15 @@ var Counter = function(models) {
     function renderMenuItem($container) {
         // To make sure that $menuItem is already defined
         if (typeof $menuItem == 'undefined') {
-            if (!modelViewLoadSubscribedForRenderMenuItem) {    // To subscribe just one time
-                mediator.subscribe('CounterModelViewLoaded', renderMenuItem, $container);
-                modelViewLoadSubscribedForRenderMenuItem = true;
-            }
+            mediator.subscribe('CounterViewLoaded', renderMenuItem, $container);
         } else {
-            // Bind onclick event for $menuItem
-            $menuItem.on('click', function() {
-                mediator.publish('CounterMenuItemClick');
-            });
             $container.append($menuItem);
         }
     }
     function renderPermanentSideMenuItems($container) {
         // To make sure that $menuItem is already defined
         if (typeof $newItemBtn == 'undefined') {
-            if (!modelViewLoadSubscribedForRenderSideMenuItem) {    // To subscribe just one time
-                mediator.subscribe('CounterModelViewLoaded', renderPermanentSideMenuItems, $container);
-                modelViewLoadSubscribedForRenderSideMenuItem = true;
-            }
+            mediator.subscribe('CounterViewLoaded', renderPermanentSideMenuItems, $container);
         } else {
             // Render items into SideMenu
             //$container.append($newItemBtn);	// Render Create Button
@@ -558,6 +552,7 @@ var Counter = function(models) {
         clearInterval(window.myTime);   // Stop ticking
         userId = null;
         items = null;
+        Item.clearDataModel();
         Item = null;
         $activeListItem = null;
         pagination.totalItems = null;
@@ -567,7 +562,7 @@ var Counter = function(models) {
         $pagination.empty();
         $resultMsg.empty();
 
-        mediator.publish('ClearDataModel');
+        //mediator.publish('ClearDataModel');
     }
     function _adjustViewForNoTasks() {
         if (items.length == 0) {
@@ -597,7 +592,7 @@ var Counter = function(models) {
     function adjustItemsListForActiveSideMenu() {
         // To make sure that $itemList is already defined
         if (typeof $itemList == 'undefined') {
-            mediator.subscribe('CounterModelViewLoaded', adjustItemsListForActiveSideMenu);
+            mediator.subscribe('CounterViewLoaded', adjustItemsListForActiveSideMenu);
         } else {
             $itemList.parent()
                 .removeClass('col-md-8 col-md-offset-2')
