@@ -1,18 +1,29 @@
 <!-- Page Counter -->
 <div class="row">
+    <!-- Counter Title -->
     <h2 class="text-center">Tasks</h2>
 
-    <div class="row"> <!-- Result Messages -->
-        <div class="col-md-12 col-lg-10 col-lg-offset-1">
+    <div class="row">
+        <div class="col-md-12 col-lg-10 col-lg-offset-1 centered_flex">
+
+            <!-- Result Messages -->
             <div id="result_msg"></div>
         </div>
     </div>
+    <!-- Counter New Task Button -->
+    <button id="newTask" title="Create new task" class="btn btn-primary btn-lg" data-target=".modal">
+        Create
+    </button>
 
     <!-- Modal window -->
     <div id="task_action_modal" class="modal fade" role="dialog"></div>
 
     <!-- Task List -->
     <div class="col-sm-12 col-md-8 col-md-offset-2">
+        <div class="pagination_box">
+            <select class="form-control paginationItemsPerPage"></select>
+            <ul class="pagination"></ul>
+        </div>
         <ul id="taskList">
             <script id="taskListTemplate" type="text/template">
                 <li class="header">
@@ -33,15 +44,15 @@
                 {{/listItems}}
             </script>
         </ul>
-        <div class="centered_flex">
-            <select id="paginationItemsPerPage" class="form-control">
+        <div class="pagination_box">
+            <select class="form-control paginationItemsPerPage">
                 <script id="paginationIPPTemplate" type="text/template">
                     {{#options}}
                     <option value="{{index}}" {{selected}}>{{number}}</option>
                     {{/options}}
                 </script>
             </select>
-            <ul id="pagination" class="pagination">
+            <ul class="pagination">
                 <script id="paginationTemplate" type="text/template">
                     {{#paginationItems}}
                     <li class="{{active}}"><a href="#" class="paginationBtn" data-page_num="{{pageNum}}">{{pageNum}}</a></li>
@@ -55,15 +66,6 @@
 
 <!-- Partial Counter Items -->
 <div style="display:none;">
-    <!-- Counter New Task Button -->
-    <button
-            id="newTask"
-            title="Create new task"
-            class="btn btn-primary btn-lg btn-action"
-            data-target=".modal">
-        Create
-    </button>
-
     <!-- Counter Menu item -->
     <li id="counter_menu_item" class="active"><a href="#">Counter</a></li>
 

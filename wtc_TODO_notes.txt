@@ -2,9 +2,9 @@ Bugy:
 - po odhlaseni a prihlaseni jineho uzivatele, se nevycisti vsechna pamet pravdepodobne
 
 Ukoly:
-- vytvorit postranni panel pro tikajici task (stop button, nazev tasku, tikajici cas) + pro Create btn
-- do Account settings vlozit tab App settings (pro nastaveni barev, zvyrazneni tasku, pozice sideMenu...)
+- vytvorit novou menu polozku App settings (pro nastaveni barev, zvyrazneni tasku, pozice sideMenu...)
 - task se da priradit do kategorie (Praca, volny cas...), ktere budou mit statistiky dle tydnu, mesicu...
+- kalendar v sideMenu
 - TODO tasks per day, per week
 - synchronize with TFS
 - nastaveni casu po kterem me WTC upozorni ze bych mel task dokoncit

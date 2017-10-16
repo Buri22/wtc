@@ -23,9 +23,9 @@ var Counter = function(models) {
         $counter                = $(template);
         $itemList               = $counter.find('#taskList');
         taskListTemplate        = $counter.find('#taskListTemplate').html();
-        $pagination             = $counter.find('#pagination');
+        $pagination             = $counter.find('.pagination');
         paginationTpl           = $counter.find('#paginationTemplate').html();
-        $paginationItemsPerPage = $counter.find('#paginationItemsPerPage');
+        $paginationItemsPerPage = $counter.find('.paginationItemsPerPage');
         paginationIPPTpl        = $counter.find('#paginationIPPTemplate').html();
         $modal                  = $counter.find('#task_action_modal');
         $newItemBtn             = $counter.find('#newTask');
@@ -264,7 +264,7 @@ var Counter = function(models) {
             }
         } else {
             // Render items into SideMenu
-            $container.append($newItemBtn);	// Render Create Button
+            //$container.append($newItemBtn);	// Render Create Button
         }
     }
     function getTickingSideMenuItem(itemIndex, items) {
