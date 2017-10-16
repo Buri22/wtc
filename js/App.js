@@ -5,7 +5,8 @@ var App = function() {
     // Initialize Modules
     var account = new Account();
     var menu = new Menu();
-    var counter = new Counter();
+    var page = new Page();
+    var counter = new Counter([new Tasks()]);
 
     var $content = $('#content');
     var $layout, $menu, $pageContent;
@@ -17,7 +18,7 @@ var App = function() {
         $pageContent = $layout.filter('#page');
 
         mediator.publish('AppLayoutLoaded');
-        bindEventsForMenuItems();
+        //bindEventsForMenuItems();
     });
 
     function run() {
@@ -64,8 +65,11 @@ var App = function() {
             // Load Menu
             menu.renderMenu($menu);
 
+            // Load page layout
+            page.renderPage($pageContent);
+            //$pageContent.append('<div id="sideMenu"></div><div id="pageContent"></div>');
             // Load module Counter
-            counter.renderCounter($pageContent);
+            //counter.renderCounter($pageContent.find('#pageContent'));
         }
     }
 
@@ -73,9 +77,9 @@ var App = function() {
         return account.getUserId();
     }
 
-    function bindEventsForMenuItems() {
-        mediator.subscribe('CounterMenuItemClick', counter.renderCounter, $pageContent);
-    }
+    //function bindEventsForMenuItems() {
+    //    mediator.subscribe('CounterMenuItemClick', counter.renderCounter, $pageContent.find('#pageContent'));
+    //}
 
     // Subscribe to listen for calls from outside
     mediator.subscribe('UserLogin', renderAppLayout);

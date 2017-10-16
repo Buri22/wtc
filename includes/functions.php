@@ -340,8 +340,7 @@ function editTask() {
     // Define data for update query
     $data = array();
     $data['Name'] = trim($_POST['new_task_name']);
-    $spentTime = explode(':', $_POST['new_task_spent_time']);
-    $data['SpentTime'] = intval($spentTime[0]) * 60 * 60 + intval($spentTime[1]) * 60 + intval($spentTime[2]);
+    $data['SpentTime'] = hmsToSeconds($_POST['new_task_spent_time']);
 
     $condition = 'WHERE Id = ' . intval($_POST['task_id']);
 
@@ -436,6 +435,9 @@ function stopCounting() {
     }
 
     $spent_time = time() - $task_started['LastStart'] + $task_started['SpentTime'];
+    if (isset($_POST['spent_time']) && !empty($_POST['spent_time'])) {
+        $spent_time = hmsToSeconds($_POST['spent_time']);
+    }
     $result = Db::query('
                     UPDATE task
                     SET SpentTime = ?, TaskStarted = false
@@ -448,6 +450,10 @@ function stopCounting() {
     return $result;
 }
 
+function hmsToSeconds($text) {
+    $spentTime = explode(':', $text);
+    return intval($spentTime[0]) * 60 * 60 + intval($spentTime[1]) * 60 + intval($spentTime[2]);
+}
 
 
 

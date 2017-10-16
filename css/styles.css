@@ -68,10 +68,13 @@ body {
     width: 3%;
 }
 #taskList > li > .name {
-    width: 70%;
+    width: 75%;
+    overflow: hidden;
+    margin-bottom: -5px;
 }
 #taskList > li > .spent_time {
-    width: 15%;
+    width: 10%;
+    min-width: 70px;
     text-align: right;
 }
 #taskList > li > button.start, #taskList > li > button.stop {
@@ -89,6 +92,14 @@ body {
 
 #page .pagination {
     margin-bottom: 0;
+    margin-top: 10px;
+}
+#paginationItemsPerPage {
+    display: inline-block;
+    width: initial;
+    margin-top: 10px;
+    margin-right: 15px;
+    padding: 6px;
 }
 
 #start_stop_section {
@@ -99,7 +110,6 @@ body {
 .task_actions {
     display: flex;
     justify-content: center;
-    /*margin-top: 20px;*/
 }
 .task_actions button {
     margin: 20px 10px 0 10px;
@@ -118,6 +128,35 @@ body {
 }
 button#login, button#register {
     margin: 25px 0 10px 0;
+}
+
+/*========== Side Menu ==========*/
+#sideMenu > * {
+    width: 100%;
+    margin-bottom: 15px;
+}
+#counter_side_menu_active_item {
+    background-color: #f0ad4e; /*#ff751a;*/
+    border-radius: 6px;
+    color: #fff;
+}
+#counter_side_menu_active_item span {
+    display: block;
+    text-align: center;
+    padding: 5px;
+}
+#counter_side_menu_active_item .name {
+    font-size: 17px;
+    padding-top: 5px;
+}
+#counter_side_menu_active_item .spent_time {
+    font-size: 25px;
+    padding-bottom: 5px;
+}
+#counter_side_menu_active_item .stop {
+    width: 100%;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 /*========== Modal Window ==========*/
@@ -196,6 +235,13 @@ button#login, button#register {
 .clear {
     clear: both;
 }
+.centered_flex {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 4px;
+    margin-bottom: 70px;
+}
 
 /* Bootstrap styles */
 #task_action_buttons .modal-dialog {
@@ -206,11 +252,7 @@ button#login, button#register {
 }
 
 /*==================== Media ======================*/
-/*@media (min-width: 768px) {*/
-    /*.container {*/
-        /*max-width: 750px;*/
-    /*}*/
-/*}*/
+
 
 
 

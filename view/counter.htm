@@ -1,5 +1,5 @@
 <!-- Page Counter -->
-<div class="row"> <!-- Select Task Name -->
+<div class="row">
     <h2 class="text-center">Tasks</h2>
 
     <div class="row"> <!-- Result Messages -->
@@ -8,30 +8,11 @@
         </div>
     </div>
 
-    <section id="task_action_buttons">
-        <div class="row"> <!-- Current Task Actions -->
-            <div class="col-sm-12 col-md-6 col-md-offset-3 task_actions">
-                <button
-                        id="newTask"
-                        title="Create new task"
-                        class="btn btn-primary btn-lg btn-action"
-                        data-target=".modal">
-                    Create
-                </button>
-            </div>
-            <div id="task_action_modal" class="modal fade" role="dialog"></div>
-        </div>
-    </section>
+    <!-- Modal window -->
+    <div id="task_action_modal" class="modal fade" role="dialog"></div>
 
+    <!-- Task List -->
     <div class="col-sm-12 col-md-8 col-md-offset-2">
-        <ul id="pagination" class="pagination right">
-            <script id="paginationTemplate" type="text/template">
-                {{#paginationItems}}
-                <li class="{{active}}"><a href="#" class="paginationBtn" data-page_num="{{pageNum}}">{{pageNum}}</a></li>
-                {{/paginationItems}}
-            </script>
-        </ul>
-        <div class="clear"></div>
         <ul id="taskList">
             <script id="taskListTemplate" type="text/template">
                 <li class="header">
@@ -52,11 +33,46 @@
                 {{/listItems}}
             </script>
         </ul>
+        <div class="centered_flex">
+            <select id="paginationItemsPerPage" class="form-control">
+                <script id="paginationIPPTemplate" type="text/template">
+                    {{#options}}
+                    <option value="{{index}}" {{selected}}>{{number}}</option>
+                    {{/options}}
+                </script>
+            </select>
+            <ul id="pagination" class="pagination">
+                <script id="paginationTemplate" type="text/template">
+                    {{#paginationItems}}
+                    <li class="{{active}}"><a href="#" class="paginationBtn" data-page_num="{{pageNum}}">{{pageNum}}</a></li>
+                    {{/paginationItems}}
+                </script>
+            </ul>
+        </div>
     </div>
 </div>
 
-<!-- Counter menu item -->
+
+<!-- Partial Counter Items -->
 <div style="display:none;">
-    <!-- Counter menu item -->
-    <li id="menu_item" class="active"><a href="#">Counter</a></li>
+    <!-- Counter New Task Button -->
+    <button
+            id="newTask"
+            title="Create new task"
+            class="btn btn-primary btn-lg btn-action"
+            data-target=".modal">
+        Create
+    </button>
+
+    <!-- Counter Menu item -->
+    <li id="counter_menu_item" class="active"><a href="#">Counter</a></li>
+
+    <!-- Counter SideMenu active item -->
+    <div id="counter_side_menu_active_item">
+        <!--<span class="task_index"></span>-->
+        <span class="name"></span>
+        <span class="spent_time"></span>
+
+        <button type="button" name="stop" class="btn btn-primary btn-lg stop" >Stop</button>
+    </div>
 </div>

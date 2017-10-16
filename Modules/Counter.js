@@ -1,61 +1,59 @@
 /**
  * Created by Uživatel on 11.9.2017.
  */
-var Counter = function() {
-    var tasks = null;
+var Counter = function(models) {
+    var Item = null;
+    var items = null;
     var userId = null;
-    var activeTaskIndex = null;
-    var maxTaskNameLength = 80;
+    var activeItemIndex = null;
     var modelViewLoadSubscribedForRenderCounter = false, modelViewLoadSubscribedForRenderMenuItem = false,
-        $counter, $taskList, $activeTaskListItem, taskListTemplate, $pagination, paginationTpl, $modal, $newTaskBtn, $resultMsg, $menuItem;
+        modelViewLoadSubscribedForRenderSideMenuItem = false,
+        $parentContainer, $counter, $itemList, $activeListItem, taskListTemplate, $pagination, paginationTpl, $paginationItemsPerPage, paginationIPPTpl,
+        $modal, $newItemBtn, $resultMsg, $menuItem, $sideMenuItem;
+
     var pagination = {
-        totalTasks: null,
-        tasksPerPage: 10,
+        totalItems: null,
+        itemsPerPage: [10, 20, 50, 100],
+        itemsPerPageIndex: 0,
         currentPage: 1
     };
 
-    // Load Task data
-    function _loadTaskData() {
-        Helper.ajaxCall("getTaskList", "POST", undefined, function(taskListData) {
-            if (taskListData) {
-                // Define task model
-                tasks = taskListData;
-                pagination.totalTasks = tasks.length;
-
-                mediator.publish('CounterModelViewLoaded');
-            }
-            else {  // Just in case user is not logged in
-                mediator.publish('RenderLogin', 'You were logged out, please login again.');
-            }
-        });
-    }
-    _loadTaskData();
-
     // Load Views & Cache DOM
     $.get('view/counter.htm', function(template) {
-        $counter         = $(template);
-        $taskList        = $counter.find('#taskList');
-        taskListTemplate = $counter.find('#taskListTemplate').html();
-        $pagination      = $counter.find('#pagination');
-        paginationTpl    = $counter.find('#paginationTemplate').html();
-        $modal           = $counter.find('#task_action_modal');
-        $newTaskBtn      = $counter.find('#newTask');
-        $resultMsg       = $counter.find('#result_msg');
-
-        $menuItem        = $counter.find('#menu_item');
+        $counter                = $(template);
+        $itemList               = $counter.find('#taskList');
+        taskListTemplate        = $counter.find('#taskListTemplate').html();
+        $pagination             = $counter.find('#pagination');
+        paginationTpl           = $counter.find('#paginationTemplate').html();
+        $paginationItemsPerPage = $counter.find('#paginationItemsPerPage');
+        paginationIPPTpl        = $counter.find('#paginationIPPTemplate').html();
+        $modal                  = $counter.find('#task_action_modal');
+        $newItemBtn             = $counter.find('#newTask');
+        $resultMsg              = $counter.find('#result_msg');
+        $menuItem               = $counter.find('#counter_menu_item');
+        $sideMenuItem           = $counter.find('#counter_side_menu_active_item');
 
         mediator.publish('CounterModelViewLoaded');
     });
 
+    // Load Item Model
+    function loadItemModel() {
+        Item = models[0];
+        items = null;
+    }
+    loadItemModel();
+
     // Bind Events
     function bindCounterEvents() {
-        $taskList.find('li').on('click', _renderModal);
-        $taskList.find('li .start').on('click', _startTicking);
-        $taskList.find('li .stop').on('click', _stopTicking);
-        $newTaskBtn.off('click').on('click', _renderModal);
-        $pagination.find('li a').off('click').on('click', _renderTablePage);
+        $newItemBtn.off('click').on('click', _renderModal);
+        $itemList.find('li').on('click', _renderModal);
+        $itemList.find('li .start').on('click', _startTicking);
+        $itemList.find('li .stop').on('click', _stopTicking);
+        $sideMenuItem.find('.stop').on('click', _stopTicking);
+        $pagination.find('li a').off('click').on('click', _changeTablePage);
+        $paginationItemsPerPage.off('change').on('change', _changeNumOfItemsPerPage);
     }
-    function _bindModalEvents($container) {
+    function bindModalEvents($container) {
         switch ($container.find('.modal-dialog').attr('id')) {
             case 'create_new_task':
                 $container.find('#submit_btn').off('click').on('click', _createTask);
@@ -101,45 +99,63 @@ var Counter = function() {
     }
 
     function renderCounter($container) {
-        // To make sure that tasks and $counter are already defined
-        if (tasks == null || typeof $counter == 'undefined') {
-            if (!modelViewLoadSubscribedForRenderCounter) { // To subscribe just one time
-                mediator.subscribe('CounterModelViewLoaded', renderCounter, $container);
-                modelViewLoadSubscribedForRenderCounter = true;
+        if ($container != null && typeof $container != 'undefined' || typeof $parentContainer != 'undefined') {
+            if (!$container) {
+                $container = $parentContainer;
             }
-        } else {
-            _renderTaskList();
-            _adjustViewForNoTasks();
-            _checkTickingTask(true);
+            if (!$parentContainer) {
+                $parentContainer = $container;
+            }
+            // Load model items for counting
+            items = Item.getItems();
+            // To make sure that items and $counter are already defined
+            if (items == null || typeof $counter == 'undefined') {
+                if (!modelViewLoadSubscribedForRenderCounter) { // To subscribe just one time
+                    mediator.subscribe('CounterModelViewLoaded', renderCounter, $container);
+                    modelViewLoadSubscribedForRenderCounter = true;
+                }
+            } else {
+                _renderTaskList();
+                _adjustViewForNoTasks();
+                _checkTickingTask(true);
 
-            $($container).html($counter);
-            bindCounterEvents();
+                $($container).html($counter);
+                bindCounterEvents();
+            }
         }
+
     }
     function _renderTaskList(startIndex) {
-        var taskList = [];
-        startIndex = startIndex || (pagination.currentPage - 1) * 10;
-        var endIndex = startIndex + pagination.tasksPerPage;
-        for (var i = 0; i < tasks.length; i++) {
-            // Save ticking task
-            if (tasks[i].TaskStarted) {
-                activeTaskIndex = i;
+        // Render TaskList table
+        var itemList = [];
+        // TODO: Make sure that items are defined
+        pagination.totalItems = items.length;
+        var itemsPerPage = pagination.itemsPerPage[pagination.itemsPerPageIndex];
+        if ((pagination.currentPage - 1) * itemsPerPage > pagination.totalItems) {
+            pagination.currentPage = 1;
+        }
+        startIndex = startIndex || (pagination.currentPage - 1) * itemsPerPage;
+        var endIndex = startIndex + itemsPerPage;
+        for (var i = 0; i < pagination.totalItems; i++) {
+            // Save ticking task by defining activeItemIndex
+            if (items[i].TaskStarted) {
+                activeItemIndex = i;
             }
 
             if (i >= startIndex && i < endIndex) {
-                var taskName = tasks[i].Name;
-                // Adjust task name length
-                if (taskName.length > maxTaskNameLength) {
-                    taskName = taskName.substring(0, maxTaskNameLength - 3) + '...';
-                }
-                taskList.push({ index: tasks.length - i, Id: i, Name: taskName, SpentTime: secondsToHms(tasks[i].SpentTime) });
+                itemList.push({
+                    index: pagination.totalItems - i,
+                    Id: i,
+                    Name: items[i].Name,
+                    SpentTime: secondsToHms(items[i].SpentTime)
+                });
             }
         }
-        $taskList.empty();
-        $taskList.html(Mustache.render(taskListTemplate, { listItems: taskList }));
+        $itemList.empty();
+        $itemList.html(Mustache.render(taskListTemplate, { listItems: itemList }));
 
         // Render Pagination
-        var numOfPaginationItems = Math.ceil(tasks.length / pagination.tasksPerPage);
+        var numOfPaginationItems = Math.ceil(pagination.totalItems / itemsPerPage);
         if (numOfPaginationItems > 1) {
             var paginationItems = [];
             var active = '';
@@ -152,20 +168,41 @@ var Counter = function() {
             }
             $pagination.empty();
             $pagination.html(Mustache.render(paginationTpl, { paginationItems: paginationItems }));
+
+            // Select box for items/page
+            var options = [];
+            var selected = '';
+            for (i = 0; i < pagination.itemsPerPage.length; i++) {
+                if (i == pagination.itemsPerPageIndex) {
+                    selected = 'selected';
+                }
+                if (pagination.totalItems >= pagination.itemsPerPage[i]) {
+                    options.push({ index: i, number: pagination.itemsPerPage[i], selected: selected });
+                }
+                selected = '';
+            }
+            $paginationItemsPerPage.empty().show();
+            $paginationItemsPerPage.html(Mustache.render(paginationIPPTpl, { options: options }));
+        }
+        else {
+            $paginationItemsPerPage.hide();
         }
 
         // Set active task list item
-        if (activeTaskIndex != null) {
-            $activeTaskListItem = $taskList.find('li[data-id="' + activeTaskIndex + '"]');
+        if (activeItemIndex != null) {
+            $activeListItem = $itemList.find('li[data-id="' + activeItemIndex + '"]');
             setActiveTaskListItem();
         }
     }
-    function _renderTablePage(event) {
+
+    function _changeTablePage(event) {
         var pageNum = Number(event.target.dataset.page_num);
         pagination.currentPage = pageNum;
-        var startIndex = (pageNum - 1) * pagination.tasksPerPage;
+        var startIndex = (pageNum - 1) * pagination.itemsPerPage[pagination.itemsPerPageIndex];
         _renderTaskList(startIndex);
         bindCounterEvents();
+        adjustItemsNameLength();
+        _checkTickingTask();
     }
     function _renderModal(event) {
         $.get('view/modal_parts.htm', function(templates) {
@@ -185,29 +222,29 @@ var Counter = function() {
             }
             // Edit/Delete task
             else if (event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id')) {
-                var taskIndex = Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'));
+                var itemIndex = Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'));
                 var edit_delete_body = Mustache.render($templates.filter('#modal_body_edit_delete').html(), {
-                    taskName: tasks[taskIndex].Name,
-                    taskSpentTime: secondsToHms(tasks[taskIndex].SpentTime)
+                    taskName: items[itemIndex].Name,
+                    taskSpentTime: secondsToHms(items[itemIndex].SpentTime)
                 });
 
                 Helper.getModalTemplate($modal, {
                     modal_id: 'edit_task',
                     title: 'Edit task',
                     modal_body: edit_delete_body,
-                    submit_btn: $submitBtn.addClass('edit_btn').attr('data-id', taskIndex).prop('disabled', true)
+                    submit_btn: $submitBtn.addClass('edit_btn').attr('data-id', itemIndex).prop('disabled', true)
                                             .text('Edit').parent().html()
-                                + $submitBtn.addClass('delete_btn').attr('data-id', taskIndex).prop('disabled', false)
+                                + $submitBtn.addClass('delete_btn').attr('data-id', itemIndex).prop('disabled', false)
                                             .hide().text('Delete').parent().html()
                 });
             }
         });
     }
-    function _renderMenuItem($container) {
+    function renderMenuItem($container) {
         // To make sure that $menuItem is already defined
         if (typeof $menuItem == 'undefined') {
             if (!modelViewLoadSubscribedForRenderMenuItem) {    // To subscribe just one time
-                mediator.subscribe('CounterModelViewLoaded', _renderMenuItem, $container);
+                mediator.subscribe('CounterModelViewLoaded', renderMenuItem, $container);
                 modelViewLoadSubscribedForRenderMenuItem = true;
             }
         } else {
@@ -217,6 +254,32 @@ var Counter = function() {
             });
             $container.append($menuItem);
         }
+    }
+    function renderPermanentSideMenuItems($container) {
+        // To make sure that $menuItem is already defined
+        if (typeof $newItemBtn == 'undefined') {
+            if (!modelViewLoadSubscribedForRenderSideMenuItem) {    // To subscribe just one time
+                mediator.subscribe('CounterModelViewLoaded', renderPermanentSideMenuItems, $container);
+                modelViewLoadSubscribedForRenderSideMenuItem = true;
+            }
+        } else {
+            // Render items into SideMenu
+            $container.append($newItemBtn);	// Render Create Button
+        }
+    }
+    function getTickingSideMenuItem(itemIndex, items) {
+        var spentTimeHms = secondsToHms(items[itemIndex].SpentTime);
+        var storageTickingItem = _getStorageTickingItem();
+        if (storageTickingItem != null && storageTickingItem.spent_time) {
+            spentTimeHms = storageTickingItem.spent_time;
+        }
+
+        //$sideMenuItem.find('.task_index').text(items.length - itemIndex + '.');
+        $sideMenuItem.find('.name').text(items.length - itemIndex + '. ' + items[itemIndex].Name);
+        $sideMenuItem.find('.spent_time').text(spentTimeHms);
+        $sideMenuItem.attr('data-id', itemIndex);
+
+        return $sideMenuItem;
     }
 
     function secondsToHms(d) {
@@ -243,7 +306,8 @@ var Counter = function() {
         localStorage.setObject(WTC_TICKING_COUNTER + '-' + userId, storageTickingItem);
 
         // Render ticking time
-        $activeTaskListItem.find('.spent_time').text(counter_time);
+        $activeListItem.find('.spent_time').text(counter_time);
+        $sideMenuItem.find('.spent_time').text(counter_time);
     }
     function startMyTimer(task, storageSpentTime) {
         var storageTickingItem = {
@@ -267,44 +331,47 @@ var Counter = function() {
 
         return localStorage.getObject(WTC_TICKING_COUNTER + '-' + userId);
     }
-    // Checks ticking objects $activeTaskListItem, storageTickingItem to render ticking spent_time or startMyTimer
+    // Checks ticking objects $activeListItem, storageTickingItem to render ticking spent_time or startMyTimer
     function _checkTickingTask(startTicking) {
         var storageTickingItem = _getStorageTickingItem();
+        // TODO: Make sure that activeItemIndex is defined
         // Storage Ticking Item is ok
         if (storageTickingItem != null
             && storageTickingItem.spent_time
             && storageTickingItem.task_id
-            && tasks[activeTaskIndex].Id == storageTickingItem.task_id) {
+            && activeItemIndex != null && items[activeItemIndex].Id == storageTickingItem.task_id) {
             if (startTicking) {
-                startMyTimer(tasks[activeTaskIndex], storageTickingItem.spent_time);
+                startMyTimer(items[activeItemIndex], storageTickingItem.spent_time);
+                mediator.publish('AddItemToSideMenu', getTickingSideMenuItem(activeItemIndex, items));
             }
             else {  // Just render ticking time
                 myTimer(true);
             }
         }
-        else if (startTicking && activeTaskIndex != null) {    // Storage Ticking Item is missing
-            startMyTimer(tasks[activeTaskIndex]);
+        else if (startTicking && activeItemIndex != null) {    // Storage Ticking Item is missing
+            startMyTimer(items[activeItemIndex]);
+            mediator.publish('AddItemToSideMenu', getTickingSideMenuItem(activeItemIndex, items));
         }
     }
     function setActiveTaskListItem() {
-        $taskList.find('li button.start').prop('disabled', true);
-        $activeTaskListItem.addClass('active');
-        $activeTaskListItem.find('button.start').hide();
-        //$activeTaskListItem.find('button.stop').show();
-        $activeTaskListItem.find('button.stop').css({'display': 'block', 'margin-top': '-28px'});
+        $itemList.find('li button.start').prop('disabled', true);
+        $activeListItem.addClass('active');
+        $activeListItem.find('button.start').hide();
+        //$activeListItem.find('button.stop').show();
+        $activeListItem.find('button.stop').css({'display': 'block', 'margin-top': '-28px'});
     }
     function unsetActiveTaskListItem() {
-        $taskList.find('li button.start').prop('disabled', false);
-        $activeTaskListItem.removeClass('active');
-        $activeTaskListItem.find('button.start').show();
-        $activeTaskListItem.find('button.stop').hide();
-        //$activeTaskListItem.find('button.stop').css({'display': 'block', 'margin-top': '-28px'});
-        $activeTaskListItem = null;
+        $itemList.find('li button.start').prop('disabled', false);
+        $activeListItem.removeClass('active');
+        $activeListItem.find('button.start').show();
+        $activeListItem.find('button.stop').hide();
+        //$activeListItem.find('button.stop').css({'display': 'block', 'margin-top': '-28px'});
+        $activeListItem = null;
     }
     function _startTicking(event) {
-        var taskIndex = Number(event.target.parentElement.dataset.id);
+        var itemIndex = Number(event.target.parentElement.dataset.id);
         var data = {
-            task_id: tasks[taskIndex].Id,
+            task_id: items[itemIndex].Id,
             last_start: Math.round(new Date().getTime() / 1000) // We store time in seconds
         };
         Helper.ajaxCall("startTask", "POST", data, function(response) {
@@ -319,14 +386,15 @@ var Counter = function() {
             }
             else if (response.Id) {
                 // Update model
-                tasks[taskIndex].TaskStarted = 1;
-                tasks[taskIndex].LastStart = data.last_start;
+                items[itemIndex].TaskStarted = 1;
+                items[itemIndex].LastStart = data.last_start;
 
                 userId = app.getLoggedUserId();
-                $activeTaskListItem = $taskList.find('li[data-id="' + taskIndex + '"]');
+                $activeListItem = $itemList.find('li[data-id="' + itemIndex + '"]');
                 startMyTimer(response);
 
                 setActiveTaskListItem();
+                mediator.publish('AddItemToSideMenu', getTickingSideMenuItem(itemIndex, items));
                 $resultMsg.text('Started successfully!');
             }
             else {
@@ -337,10 +405,10 @@ var Counter = function() {
     }
     function _stopTicking(event) {
         var data = _getStorageTickingItem();
-        var taskIndex = Number(event.target.parentElement.dataset.id);
+        var itemIndex = Number(event.target.parentElement.dataset.id);
         if (data == null || typeof data.task_id == 'undefined' || typeof data.spent_time == 'undefined') {
             data = {
-                task_id: tasks[taskIndex].Id
+                task_id: items[itemIndex].Id
             }
         }
         Helper.ajaxCall("stopTask", "POST", data, function(response) {
@@ -358,15 +426,16 @@ var Counter = function() {
             }
             else if (response) {
                 // Update model
-                tasks[taskIndex].SpentTime = response.SpentTime || 0;
-                tasks[taskIndex].TaskStarted = 0;
+                items[itemIndex].SpentTime = response.SpentTime || 0;
+                items[itemIndex].TaskStarted = 0;
 
                 clearInterval(window.myTime);   // Stop ticking
                 deleteLocalStorage();   // Clear localStorage
                 userId = null;          // Reset user id
                 unsetActiveTaskListItem();
-                activeTaskIndex = null;
-                $resultMsg.html("<strong>" + tasks[taskIndex].Name + "</strong> stopped successfully!");
+                mediator.publish('RemoveItemFromSideMenu', $sideMenuItem.attr('id'));
+                activeItemIndex = null;
+                $resultMsg.html("<strong>" + items[itemIndex].Name + "</strong> stopped successfully!");
             }
             else $resultMsg.text('Stopping failed!');
         });
@@ -380,12 +449,12 @@ var Counter = function() {
         Helper.ajaxCall("createTask", "POST", "new_task_name=" + $newTaskName.val().trim(), function(response) {
             if (response.Name == $newTaskName.val().trim()) {
                 // Update model
-                tasks.unshift(response);    // Adds created Task to the beginning of tasks array
-                pagination.totalTasks = tasks.length;
+                items.unshift(response);    // Adds created Task to the beginning of items array
+                pagination.totalItems = items.length;
 
                 _renderTaskList();
-                //_adjustViewForNoTasks();    // Does this need to be here?
                 bindCounterEvents();
+                adjustItemsNameLength();
                 _checkTickingTask();
                 $newTaskName.val('');
                 $resultMsg.text("New task was successfully created!");
@@ -408,25 +477,26 @@ var Counter = function() {
     }
     function _editTask(event) {
         var $editResultMsg = $modal.find('#edit_result_msg');
-        var taskIndex = Number(event.target.dataset.id);
+        var itemIndex = Number(event.target.dataset.id);
         var data = {
-            task_id: tasks[taskIndex].Id,
+            task_id: items[itemIndex].Id,
             new_task_name: $modal.find('#edit_task_name').val().trim(),
             new_task_spent_time: $modal.find('#edit_task_spent_time').val().trim()
         };
         Helper.ajaxCall('editTask', 'POST', data, function (response) {
             if (response == 1) {
                 // Update model
-                tasks[taskIndex].Name = data.new_task_name;
-                tasks[taskIndex].SpentTime = hmsToSeconds(data.new_task_spent_time);
+                items[itemIndex].Name = data.new_task_name;
+                items[itemIndex].SpentTime = hmsToSeconds(data.new_task_spent_time);
 
                 _renderTaskList();
                 bindCounterEvents();
+                adjustItemsNameLength();
                 _checkTickingTask();
                 $resultMsg.text("Task was successfully edited!");
                 $modal.modal('hide');
 
-                animateEditedTask(Number(event.target.dataset.id));
+                animateEditedItem(Number(event.target.dataset.id));
             }
             else if (response == 2) {
                 $editResultMsg.text("Please input some creative task name.");
@@ -450,19 +520,20 @@ var Counter = function() {
         var task_index = Number(event.target.dataset.id);
         var $deleteResultMsg = $modal.find('#edit_result_msg');
         var data = {
-            task_id: tasks[task_index].Id,
+            task_id: items[task_index].Id,
             password: $modal.find('#delete_task_password_confirm').val().trim()
         };
         Helper.ajaxCall('deleteTask', 'POST', data, function(response) {
             if (response == false) {
                 // Update model
-                tasks.splice(task_index, 1);
-                pagination.totalTasks = tasks.length;
+                items.splice(task_index, 1);
+                pagination.totalItems = items.length;
                 $resultMsg.text("Task was deleted successfully.");
 
                 _renderTaskList();
                 _adjustViewForNoTasks();
                 bindCounterEvents();
+                adjustItemsNameLength();
                 _checkTickingTask();
                 $modal.modal('hide');
             }
@@ -483,42 +554,83 @@ var Counter = function() {
         });
     }
 
-    function _clearViewDataModel() {
+    function clearViewDataModel() {
         clearInterval(window.myTime);   // Stop ticking
         userId = null;
-        tasks = null;
-        $activeTaskListItem = null;
-        pagination.totalTasks = null;
+        items = null;
+        Item = null;
+        $activeListItem = null;
+        pagination.totalItems = null;
         pagination.currentPage = 1;
 
-        $taskList.empty();
+        $itemList.empty();
         $pagination.empty();
         $resultMsg.empty();
+
+        mediator.publish('ClearDataModel');
     }
     function _adjustViewForNoTasks() {
-        if (tasks.length == 0) {
-            $taskList.empty();
+        if (items.length == 0) {
+            $itemList.empty();
             $resultMsg.text("Please create task, by clicking on the Create button.");
         }
     }
-    function animateEditedTask(task_id) {
-        if (typeof task_id != 'undefined') {
-            $taskList.find('li[data-id="' + task_id + '"] span.edit_animation_box')
+    function animateEditedItem(item_id) {
+        if (typeof item_id != 'undefined') {
+            $itemList.find('li[data-id="' + item_id + '"] span.edit_animation_box')
                 .css('opacity', '1')
                 .animate({opacity: '0'}, 3000);
         }
     }
-
-    function _setResultMsg(text) {
+    function setResultMsg(text) {
         $resultMsg.text(text);
     }
+    function _changeNumOfItemsPerPage(event) {
+        pagination.itemsPerPageIndex = Number($(event.target).val());
 
-    mediator.subscribe('MenuReadyToImportModuleItems', _renderMenuItem);
-    mediator.subscribe('UserLogin', _loadTaskData);
-    mediator.subscribe('UserLogout', _clearViewDataModel);
-    mediator.subscribe('SetResultMessage', _setResultMsg);
-    mediator.subscribe('ReadyToBindModalEvents', _bindModalEvents);
+        _renderTaskList();
+        bindCounterEvents();
+        adjustItemsNameLength();
+        _checkTickingTask();
+    }
+    // Edit view according to SideMenu position
+    function adjustItemsListForActiveSideMenu() {
+        // To make sure that $itemList is already defined
+        if (typeof $itemList == 'undefined') {
+            mediator.subscribe('CounterModelViewLoaded', adjustItemsListForActiveSideMenu);
+        } else {
+            $itemList.parent()
+                .removeClass('col-md-8 col-md-offset-2')
+                .addClass('col-md-10 col-md-offset-1');
+            //.addClass('col-md-12')
+
+            adjustItemsNameLength();
+        }
+    }
+    function adjustItemsNameLength() {
+        var itemNames = $itemList.find('span.name');
+        var maxHeight = $itemList.find('span.task_index').height();
+        for (var i = 0; i < itemNames.length; i++) {
+            var $itemName = $(itemNames[i]);
+            while ($itemName.height() > maxHeight + 5) {	// + 5 for variability
+                var name = $itemName.text();
+                var lastIndexOfSpace = name.lastIndexOf(" ");
+                $itemName.text(name.substring(0, lastIndexOfSpace) + '...');
+            }
+        }
+    }
+
+    mediator.subscribe('MenuReadyToImportModuleItems', renderMenuItem);
+    mediator.subscribe('PageReadyToImportModuleItems', renderCounter);
+    mediator.subscribe('PageReadyToImportSideMenuItems', renderPermanentSideMenuItems);
+    mediator.subscribe('CounterMenuItemClick', renderCounter);
+    mediator.subscribe('UserLogin', loadItemModel);
+    mediator.subscribe('UserLogout', clearViewDataModel);
+    mediator.subscribe('SetResultMessage', setResultMsg);
+    mediator.subscribe('ReadyToBindModalEvents', bindModalEvents);
+    mediator.subscribe('ActiveSideMenu', adjustItemsListForActiveSideMenu);
+
     return {
-        renderCounter: renderCounter
+        //renderCounter: renderCounter
     };
 };

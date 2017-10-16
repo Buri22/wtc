@@ -1,0 +1,21 @@
+Bugy:
+- po odhlaseni a prihlaseni jineho uzivatele, se nevycisti vsechna pamet pravdepodobne
+
+Ukoly:
+- vytvorit postranni panel pro tikajici task (stop button, nazev tasku, tikajici cas) + pro Create btn
+- do Account settings vlozit tab App settings (pro nastaveni barev, zvyrazneni tasku, pozice sideMenu...)
+- task se da priradit do kategorie (Praca, volny cas...), ktere budou mit statistiky dle tydnu, mesicu...
+- TODO tasks per day, per week
+- synchronize with TFS
+- nastaveni casu po kterem me WTC upozorni ze bych mel task dokoncit
+
+Refactoring:
+- Doporuceni od Miska Nezerku: 
+PHROUTE - na routovani v Php, nahrada za ten tvuj switch
+https://github.com/mrjgreen/phroute
+PHPMAILER - pro posilani posty
+https://github.com/PHPMailer/PHPMailer
+DOCTRINE - object relation mapper - to je ta vrstva mezi databazi a Php kodem
+http://www.doctrine-project.org/
+vse instaluji pres composer (podopne jako pouzivam npm pro node.js)
+https://getcomposer.org/
