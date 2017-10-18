@@ -1,4 +1,5 @@
 /************** Color palette ***************/
+/************** Mixins ***************/
 /************** Styles ***************/
 body {
   background: #fff;
@@ -14,7 +15,14 @@ body {
   -o-font-smoothing: antialiased;
 }
 /*========== Counter Page ==========*/
-#main_menu > li > a:hover {
+#main_menu > li > a {
+  background-color: transparent;
+  -moz-box-shadow: inset 0 0 25px #5cb85c;
+  -webkit-box-shadow: inset 0 0 25px #5cb85c;
+  box-shadow: inset 0 0 25px #5cb85c;
+}
+#main_menu > li > a:hover,
+#main_menu > li > a:focus {
   background-color: #5cb85c;
   color: #fff;
 }
@@ -31,27 +39,37 @@ body {
   margin: 2px 5px;
   padding: 8px;
   border-radius: 4px;
-  background-color: #e5e5e5;
+  background-color: #e7e7e7;
 }
 #taskList > li:nth-child(2n) {
   background-color: #f8f8f8;
 }
 #taskList > li:not(:first-child):hover {
-  background-color: #5cb85c;
+  background-color: #6ec06e;
   color: #fff;
 }
 #taskList > li.active {
   background-color: #fff;
-  -moz-box-shadow: inset 0 0 25px #f0ad4e;
-  -webkit-box-shadow: inset 0 0 25px #f0ad4e;
-  box-shadow: inset 0 0 25px #f0ad4e;
-  /*color: @white;*/
+  -moz-box-shadow: inset 0 0 25px #5cb85c;
+  -webkit-box-shadow: inset 0 0 25px #5cb85c;
+  box-shadow: inset 0 0 25px #5cb85c;
 }
 #taskList > li.header {
   background-color: transparent;
 }
 #taskList > li > span {
   display: inline-block;
+}
+#taskList > li > span.edit_animation_box {
+  position: absolute;
+  width: 100%;
+  height: 36px;
+  margin: -8px;
+  padding: 0 20px;
+  left: 8px;
+  background-color: #337ab7;
+  border-radius: 4px;
+  opacity: 0;
 }
 #taskList > li > .task_index {
   width: 3%;
@@ -79,19 +97,17 @@ body {
 #taskList > li > button.stop {
   display: none;
 }
-#taskList span.edit_animation_box {
-  position: absolute;
-  width: 95%;
-  height: 36px;
-  margin-top: -8px;
-  left: 20px;
-  background-color: #337ab7;
-  border-radius: 4px;
-  opacity: 0;
-}
 #page .pagination {
   margin-bottom: 0;
   margin-top: 10px;
+}
+#page .pagination > li.active a {
+  background-color: transparent;
+  border-color: #e7e7e7;
+  color: #337ab7;
+  -moz-box-shadow: inset 0 0 15px #5cb85c;
+  -webkit-box-shadow: inset 0 0 15px #5cb85c;
+  box-shadow: inset 0 0 15px #5cb85c;
 }
 #page .paginationItemsPerPage {
   display: inline-block;
@@ -128,22 +144,22 @@ button#register {
 #counter_side_menu_active_item {
   background-color: transparent;
   border-radius: 6px;
-  -moz-box-shadow: inset 0 0 50px #f0ad4e;
-  -webkit-box-shadow: inset 0 0 50px #f0ad4e;
-  box-shadow: inset 0 0 50px #f0ad4e;
+  -moz-box-shadow: inset 0 0 50px #5cb85c;
+  -webkit-box-shadow: inset 0 0 50px #5cb85c;
+  box-shadow: inset 0 0 50px #5cb85c;
 }
 #counter_side_menu_active_item span {
   display: block;
   text-align: center;
-  padding: 5px 10px;
+  padding: 5px 20px;
 }
 #counter_side_menu_active_item .name {
   font-size: 20px;
-  padding-top: 10px;
+  padding-top: 20px;
 }
 #counter_side_menu_active_item .spent_time {
   font-size: 35px;
-  padding-bottom: 5px;
+  padding-bottom: 15px;
 }
 #counter_side_menu_active_item .stop {
   width: 100%;
@@ -158,7 +174,6 @@ button#register {
   margin-top: -5px;
   text-align: center;
   font-size: initial;
-  height: 25px;
 }
 #create_result_msg {
   padding-top: 10px;
@@ -187,7 +202,7 @@ button#register {
 .modal-body .modal-tabs > span {
   margin: 0 3px 10px;
   padding: 5px 8px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid #e7e7e7;
   border-top: none;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;

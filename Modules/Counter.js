@@ -47,7 +47,7 @@ var Counter = function(models) {
         $itemList.find('li').on('click', _renderModal);
         $itemList.find('li .start').on('click', _startTicking);
         $itemList.find('li .stop').on('click', _stopTicking);
-        $sideMenuItem.find('.stop').on('click', _stopTicking);
+        $sideMenuItem.find('.stop').off('click').on('click', _stopTicking);
         $pagination.find('li a').off('click').on('click', _changeTablePage);
         $paginationItemsPerPage.off('change').on('change', _changeNumOfItemsPerPage);
         $menuItem.off('click').on('click', renderCounter);
@@ -120,10 +120,10 @@ var Counter = function(models) {
             } else {
                 _renderTaskList();
                 _adjustViewForNoTasks();
-                adjustItemsNameLength();
                 _checkTickingTask(startTicking);
 
                 $($container).html($counter);
+                adjustItemsNameLength();
                 bindCounterEvents();
             }
         }
@@ -197,6 +197,8 @@ var Counter = function(models) {
             $activeListItem = $itemList.find('li[data-id="' + activeItemIndex + '"]');
             setActiveTaskListItem();
         }
+
+        adjustItemsNameLength();
     }
 
     function _changeTablePage(event) {
@@ -205,7 +207,6 @@ var Counter = function(models) {
         var startIndex = (pageNum - 1) * pagination.itemsPerPage[pagination.itemsPerPageIndex];
         _renderTaskList(startIndex);
         bindCounterEvents();
-        adjustItemsNameLength();
         _checkTickingTask();
     }
     function _renderModal(event) {
@@ -214,7 +215,7 @@ var Counter = function(models) {
             var $templates = $(templates);
             var $submitBtn = $templates.find('#submit_btn');
 
-            // Define data for modal template
+            // Define data for modal template0
             // Create new task
             if (event.target.id == 'newTask') {
                 Helper.getModalTemplate($modal, {
@@ -227,9 +228,15 @@ var Counter = function(models) {
             // Edit/Delete task
             else if (event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id')) {
                 var itemIndex = Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'));
+                var spentTime = secondsToHms(items[itemIndex].SpentTime);
+                var storageTickingItem = localStorage.getObject(WTC_TICKING_COUNTER + '-' + userId);
+                if (storageTickingItem != null && typeof storageTickingItem.spent_time != 'undefined') {
+                    spentTime = storageTickingItem.spent_time;
+                }
+
                 var edit_delete_body = Mustache.render($templates.filter('#modal_body_edit_delete').html(), {
                     taskName: items[itemIndex].Name,
-                    taskSpentTime: secondsToHms(items[itemIndex].SpentTime)
+                    taskSpentTime: spentTime
                 });
 
                 Helper.getModalTemplate($modal, {
@@ -387,6 +394,7 @@ var Counter = function(models) {
                 $activeListItem = $itemList.find('li[data-id="' + itemIndex + '"]');
                 startMyTimer(response);
 
+                $sideMenuItem.find('.stop').on('click', _stopTicking);
                 setActiveTaskListItem();
                 mediator.publish('AddItemToSideMenu', getTickingSideMenuItem(itemIndex, items));
                 $resultMsg.text('Started successfully!');
@@ -448,7 +456,6 @@ var Counter = function(models) {
 
                 _renderTaskList();
                 bindCounterEvents();
-                adjustItemsNameLength();
                 _checkTickingTask();
                 $newTaskName.val('');
                 $resultMsg.text("New task was successfully created!");
@@ -485,7 +492,6 @@ var Counter = function(models) {
 
                 _renderTaskList();
                 bindCounterEvents();
-                adjustItemsNameLength();
                 _checkTickingTask();
                 $resultMsg.text("Task was successfully edited!");
                 $modal.modal('hide');
@@ -527,7 +533,6 @@ var Counter = function(models) {
                 _renderTaskList();
                 _adjustViewForNoTasks();
                 bindCounterEvents();
-                adjustItemsNameLength();
                 _checkTickingTask();
                 $modal.modal('hide');
             }
@@ -552,7 +557,6 @@ var Counter = function(models) {
         clearInterval(window.myTime);   // Stop ticking
         userId = null;
         items = null;
-        Item.clearDataModel();
         Item = null;
         $activeListItem = null;
         pagination.totalItems = null;
@@ -585,7 +589,6 @@ var Counter = function(models) {
 
         _renderTaskList();
         bindCounterEvents();
-        adjustItemsNameLength();
         _checkTickingTask();
     }
     // Edit view according to SideMenu position

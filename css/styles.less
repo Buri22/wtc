@@ -1,12 +1,20 @@
 /************** Color palette ***************/
 @white: #fff;
 @light_grey: #f8f8f8;
-@grey: #e5e5e5;
+@grey: #e7e7e7;
 
-@orange: #f0ad4e;
+//@orange: #f0ad4e;
 @green: #5cb85c;
 @blue: #337ab7;
+
 @red: #d9534f;
+
+/************** Mixins ***************/
+.highlight-item (@shadow_width, @color: @green) {
+    -moz-box-shadow:    inset 0 0 @shadow_width @color;
+    -webkit-box-shadow: inset 0 0 @shadow_width @color;
+    box-shadow:         inset 0 0 @shadow_width @color;
+}
 
 /************** Styles ***************/
 body {
@@ -24,9 +32,16 @@ body {
 }
 
 /*========== Counter Page ==========*/
-#main_menu > li > a:hover {
-    background-color: @green;
-    color: @white;
+#main_menu > li > a {
+    background-color: transparent;
+    .highlight-item(25px);
+
+    &:hover, &:focus {
+        background-color: @green;
+        color: @white;
+    }
+}
+#menu .navbar-default .navbar-nav > .active {
 }
 #newTask {
     display: block;
@@ -48,15 +63,12 @@ body {
             background-color: @light_grey;
         }
         &:not(:first-child):hover {
-            background-color: @green;
+            background-color: lighten(@green, 5%);
             color: @white;
         }
         &.active {
             background-color: @white;
-            -moz-box-shadow:    inset 0 0 25px @orange;
-            -webkit-box-shadow: inset 0 0 25px @orange;
-            box-shadow:         inset 0 0 25px @orange;
-            /*color: @white;*/
+            .highlight-item (25px);
         }
         &.header {
             background-color: transparent;
@@ -64,6 +76,18 @@ body {
 
         > span {
             display:inline-block;
+
+            &.edit_animation_box {
+                position: absolute;
+                width: 100%;
+                height: 36px;
+                margin: -8px;
+                padding: 0 20px;
+                left: 8px;
+                background-color: @blue;
+                border-radius: 4px;
+                opacity: 0;
+            }
         }
         > .task_index {
             width: 3%;
@@ -91,16 +115,6 @@ body {
             display: none;
         }
     }
-    span.edit_animation_box {
-        position: absolute;
-        width: 95%;
-        height: 36px;
-        margin-top: -8px;
-        left: 20px;
-        background-color: @blue;
-        border-radius: 4px;
-        opacity: 0;
-    }
 }
 
 #page {
@@ -108,6 +122,13 @@ body {
     .pagination {
         margin-bottom: 0;
         margin-top: 10px;
+
+        > li.active a {
+            background-color: transparent;
+            border-color: @grey;
+            color: @blue;
+            .highlight-item (15px);
+        }
     }
     .paginationItemsPerPage {
         display: inline-block;
@@ -146,22 +167,20 @@ button#login, button#register {
 #counter_side_menu_active_item {
     background-color: transparent;
     border-radius: 6px;
-    -moz-box-shadow:    inset 0 0 50px @orange;
-    -webkit-box-shadow: inset 0 0 50px @orange;
-    box-shadow:         inset 0 0 50px @orange;
+    .highlight-item (50px);
 
     span {
         display: block;
         text-align: center;
-        padding: 5px 10px;
+        padding: 5px 20px;
     }
     .name {
         font-size: 20px;
-        padding-top: 10px;
+        padding-top: 20px;
     }
     .spent_time {
         font-size: 35px;
-        padding-bottom: 5px;
+        padding-bottom: 15px;
     }
     .stop {
         width: 100%;
@@ -178,7 +197,7 @@ button#login, button#register {
     margin-top: -5px;
     text-align: center;
     font-size: initial;
-    height: 25px;
+    //height: 25px;
 }
 #create_result_msg {
     padding-top: 10px;

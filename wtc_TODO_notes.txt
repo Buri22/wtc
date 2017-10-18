@@ -1,7 +1,7 @@
 Bugy:
-- po odhlaseni a prihlaseni jineho uzivatele, se nevycisti vsechna pamet pravdepodobne
 
 Ukoly:
+- Create a Edit tasku umoznuje zadat i spent time i date created - aby bylo mozno tasky vytvorit i dodatocne
 - vytvorit novou menu polozku App settings (pro nastaveni barev, zvyrazneni tasku, pozice sideMenu...)
 - task se da priradit do kategorie (Praca, volny cas...), ktere budou mit statistiky dle tydnu, mesicu...
 - kalendar v sideMenu
@@ -19,3 +19,8 @@ DOCTRINE - object relation mapper - to je ta vrstva mezi databazi a Php kodem
 http://www.doctrine-project.org/
 vse instaluji pres composer (podopne jako pouzivam npm pro node.js)
 https://getcomposer.org/
+
+Eria:
+- vytvorit projekt v .NET Core 2
+- namapovat na db-vm.eria.cz (pristupy od Martina)
+- prepsat PHP do .NETu

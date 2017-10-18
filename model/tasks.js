@@ -28,8 +28,8 @@ var Tasks = function() {
     }
 
     mediator.subscribe('UserLogin', _loadTaskData);
+    mediator.subscribe('UserLogout', clearDataModel);
     return {
-        getItems: getTasks,
-        clearDataModel: clearDataModel
+        getItems: getTasks
     };
 };

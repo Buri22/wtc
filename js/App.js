@@ -18,7 +18,6 @@ var App = function() {
         $pageContent = $layout.filter('#page');
 
         mediator.publish('AppLayoutLoaded');
-        //bindEventsForMenuItems();
     });
 
     function run() {
