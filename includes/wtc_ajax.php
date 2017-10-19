@@ -33,9 +33,9 @@ if (is_ajax($headers) && $action != null) {
             echo json_encode(editAccount());
             break;
 
-        case "getTaskById":
-            echo json_encode(getTask());
-            break;
+//        case "getTaskById":
+//            echo json_encode(getTask());
+//            break;
 
         case "getTaskList":
             echo json_encode(getTaskList());

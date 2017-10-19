@@ -1,7 +1,27 @@
 <!-- Create modal body -->
 <script id="modal_body_create" type="text/html">
 
-    <input type="text" id="new_task_name" placeholder="Enter new task name..." class="form-control" autofocus />
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="new_task_name">Name</label>
+            <div class="col-md-8">
+                <input type="text" id="new_task_name" value="" class="form-control" name="new_task_name" placeholder="Enter some creative name..." autofocus />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="new_task_spent_time">Spent Time</label>
+            <div class="col-md-8">
+                <input type="text" id="new_task_spent_time" value="{{taskSpentTime}}" class="form-control" name="new_task_spent_time"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="new_task_date_created">Date Created</label>
+            <div class="col-md-8">
+                <input type="text" id="new_task_date_created" value="{{taskDateCreated}}" class="form-control" name="new_task_date_created"/>
+            </div>
+        </div>
+    </div>
+
     <div id="create_result_msg" class="red"></div>
 
 </script>
@@ -15,32 +35,38 @@
     </div>
 
     <section id="edit_body">
-        <form class="form-horizontal">
-            <fieldset>
-                <div class="form-group">
-                    <label class="col-md-3 control-label" for="edit_task_name">Name</label>
-                    <div class="col-md-8">
-                        <input type="text" id="edit_task_name" value="{{taskName}}" class="form-control" name="edit_task_name" autofocus />
-                    </div>
+        <div class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="edit_name">Name</label>
+                <div class="col-md-8">
+                    <input type="text" id="edit_name" value="{{taskName}}" class="form-control" name="edit_name" autofocus />
                 </div>
-                <div class="form-group">
-                    <label class="col-md-3 control-label" for="edit_task_spent_time">Spent Time</label>
-                    <div class="col-md-8">
-                        <input type="text" id="edit_task_spent_time" value="{{taskSpentTime}}" class="form-control" name="edit_task_spent_time"/>
-                    </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="edit_spent_time">Spent Time</label>
+                <div class="col-md-8">
+                    <input type="text" id="edit_spent_time" value="{{taskSpentTime}}" class="form-control" name="edit_spent_time"/>
                 </div>
-            </fieldset>
-        </form>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="edit_date_created">Date Created</label>
+                <div class="col-md-8">
+                    <input type="text" id="edit_date_created" value="{{taskDateCreated}}" class="form-control" name="edit_date_created"/>
+                </div>
+            </div>
+        </div>
     </section>
 
     <section id="delete_body">
-        <div class="">Do you really want to delete task: <strong>{{taskName}}</strong>?</div>
-        <input
-            type="password"
-            id="delete_task_password_confirm"
-            class="form-control"
-            placeholder="Enter your password for confirmation"
-            autofocus />
+        <div class="form-horizontal">
+            <span class="info">If you really want to delete task: <strong>{{taskName}}</strong>, enter password.</span>
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="delete_task_password_confirm">Confirm password</label>
+                <div class="col-md-7">
+                    <input type="password" id="delete_task_password_confirm" name="delete_task_password_confirm" class="form-control" autofocus />
+                </div>
+            </div>
+        </div>
     </section>
 
     <div id="edit_result_msg" class="red"></div>
@@ -51,54 +77,52 @@
 <script id="modal_body_account" type="text/html">
 
     <div id="edit_account_result_msg" class="red"></div>
-    <form class="form-horizontal">
-        <fieldset>
-            <!-- Text input-->
+    <div class="form-horizontal">
+        <!-- Text input-->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="userName">User Name</label>
+            <div class="col-md-6">
+                <input value="{{userName}}" id="userName" name="userName" type="text" placeholder="Enter your User Name" class="form-control input-md" autofocus>
+            </div>
+        </div>
+        <!-- Text input-->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="email">Email</label>
+            <div class="col-md-6">
+                <input value="{{email}}" id="email" name="email" type="email" placeholder="Enter your Email" class="form-control input-md">
+            </div>
+        </div>
+        <!-- Checkbox -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="change_password">Change Password</label>
+            <div class="col-md-6">
+                <input type="checkbox" name="change_password" id="change_password" onclick="$('section.password_section').toggle();">
+            </div>
+        </div>
+        <section class="password_section">
+            <!-- Password old input-->
             <div class="form-group">
-                <label class="col-md-4 control-label" for="userName">User Name</label>
+                <label class="col-md-4 control-label" for="password_old">Current Password *</label>
                 <div class="col-md-6">
-                    <input value="{{userName}}" id="userName" name="userName" type="text" placeholder="Enter your User Name" class="form-control input-md" autofocus>
+                    <input id="password_old" name="password_old" type="password" class="form-control input-md">
                 </div>
             </div>
-            <!-- Text input-->
+            <!-- Password new input-->
             <div class="form-group">
-                <label class="col-md-4 control-label" for="email">Email</label>
+                <label class="col-md-4 control-label" for="password_new">New Password *</label>
                 <div class="col-md-6">
-                    <input value="{{email}}" id="email" name="email" type="email" placeholder="Enter your Email" class="form-control input-md">
+                    <input id="password_new" name="password_new" type="password" class="form-control input-md">
                 </div>
             </div>
-            <!-- Checkbox -->
+            <!-- Password confirm input-->
             <div class="form-group">
-                <label class="col-md-4 control-label" for="change_password">Change Password</label>
+                <label class="col-md-4 control-label" for="password_confirm">Confirm New Password *</label>
                 <div class="col-md-6">
-                    <input type="checkbox" name="change_password" id="change_password" onclick="$('section.password_section').toggle();">
+                    <input id="password_confirm" name="password_confirm" type="password" class="form-control input-md">
                 </div>
             </div>
-            <section class="password_section">
-                <!-- Password old input-->
-                <div class="form-group">
-                    <label class="col-md-4 control-label" for="password_old">Current Password *</label>
-                    <div class="col-md-6">
-                        <input id="password_old" name="password_old" type="password" class="form-control input-md">
-                    </div>
-                </div>
-                <!-- Password new input-->
-                <div class="form-group">
-                    <label class="col-md-4 control-label" for="password_new">New Password *</label>
-                    <div class="col-md-6">
-                        <input id="password_new" name="password_new" type="password" class="form-control input-md">
-                    </div>
-                </div>
-                <!-- Password confirm input-->
-                <div class="form-group">
-                    <label class="col-md-4 control-label" for="password_confirm">Confirm New Password *</label>
-                    <div class="col-md-6">
-                        <input id="password_confirm" name="password_confirm" type="password" class="form-control input-md">
-                    </div>
-                </div>
-            </section>
-        </fieldset>
-    </form>
+        </section>
+    </div>
 
 </script>
 

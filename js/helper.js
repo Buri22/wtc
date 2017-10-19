@@ -31,12 +31,25 @@ var Helper = {
         return Math.round(new Date().getTime() / 1000);
     },
 
-    checkFormToDisableSubmitBtn: function($form, $submitBtn) {
+    getFormatedDate: function(d) {
+        d = typeof d == 'string' ? new Date(this.switchDayMonth(d)) : new Date();
+        var curr_date = d.getDate();
+        var curr_month = d.getMonth() + 1; //Months are zero based
+        var curr_year = d.getFullYear();
+        return curr_date + "." + curr_month + "." + curr_year;
+    },
+
+    switchDayMonth: function(stringDate) {
+        var result = stringDate.split(' ')[0].split('-');
+        return result[1] + '.' + result[2] + '.' + result[0] ;
+    },
+
+    checkFormToDisableSubmitBtn: function($formData, $submitBtn) {
         // Handle submit button according to changed form data
-        var origForm = $form.serialize();
+        var origFormData = $formData.serialize();
         // Bind event to toggle disabled submit button
-        $form.find(':input').on('change input', function() {
-            $submitBtn.prop('disabled', $form.serialize() == origForm);
+        $formData.on('change input', function() {
+            $submitBtn.prop('disabled', $formData.serialize() == origFormData);
         });
     },
 

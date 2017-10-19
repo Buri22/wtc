@@ -1,7 +1,6 @@
 Bugy:
 
 Ukoly:
-- Create a Edit tasku umoznuje zadat i spent time i date created - aby bylo mozno tasky vytvorit i dodatocne
 - vytvorit novou menu polozku App settings (pro nastaveni barev, zvyrazneni tasku, pozice sideMenu...)
 - task se da priradit do kategorie (Praca, volny cas...), ktere budou mit statistiky dle tydnu, mesicu...
 - kalendar v sideMenu

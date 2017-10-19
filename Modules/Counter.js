@@ -56,6 +56,7 @@ var Counter = function(models) {
         switch ($container.find('.modal-dialog').attr('id')) {
             case 'create_new_task':
                 $container.find('#submit_btn').off('click').on('click', _createTask);
+                $container.find('#new_task_date_created').datepicker(DATEPICKER_OPTIONS);
                 break;
             case 'edit_task':
                 // Submit btn actions
@@ -70,7 +71,7 @@ var Counter = function(models) {
                     $container.find('#edit_body, #submit_btn.edit_btn').show();
                     $container.find('#delete_body, #submit_btn.delete_btn').hide();
 
-                    $container.find('#edit_task_name').get(0).focus();
+                    $container.find('#edit_name').get(0).focus();
                     $container.find('#edit_result_msg').empty();
 
                     Helper.bindKeyShortcutEvent($container, '#submit_btn.edit_btn');
@@ -88,8 +89,9 @@ var Counter = function(models) {
                     Helper.bindKeyShortcutEvent($container, '#submit_btn.delete_btn');
                 });
 
+                $container.find('#edit_date_created').datepicker(DATEPICKER_OPTIONS);
                 // Handle submit button according to changed form data
-                Helper.checkFormToDisableSubmitBtn($container.find('form'), $container.find('#submit_btn'));
+                Helper.checkFormToDisableSubmitBtn($container.find('.form-horizontal input'), $container.find('#submit_btn'));
                 break;
 
             default:
@@ -218,10 +220,14 @@ var Counter = function(models) {
             // Define data for modal template0
             // Create new task
             if (event.target.id == 'newTask') {
+                var create_body = Mustache.render($templates.filter('#modal_body_create').html(), {
+                    taskSpentTime: '00:00:00',
+                    taskDateCreated: Helper.getFormatedDate()
+                });
                 Helper.getModalTemplate($modal, {
                     modal_id: 'create_new_task',
                     title: 'Create new task',
-                    modal_body: $templates.filter('#modal_body_create').html(),
+                    modal_body: create_body,
                     submit_btn: $submitBtn.text('Create').parent().html()
                 });
             }
@@ -236,7 +242,8 @@ var Counter = function(models) {
 
                 var edit_delete_body = Mustache.render($templates.filter('#modal_body_edit_delete').html(), {
                     taskName: items[itemIndex].Name,
-                    taskSpentTime: spentTime
+                    taskSpentTime: spentTime,
+                    taskDateCreated: Helper.getFormatedDate(items[itemIndex].DateCreated)
                 });
 
                 Helper.getModalTemplate($modal, {
@@ -445,11 +452,15 @@ var Counter = function(models) {
     }
 
     function _createTask() {
-        var $newTaskName = $modal.find('#new_task_name');
         var $createResultMsg = $modal.find('#create_result_msg');
+        var data = {
+            new_name:         $modal.find('#new_task_name').val().trim(),
+            new_spent_time:   $modal.find('#new_task_spent_time').val().trim(),
+            new_date_created: $modal.find('#new_task_date_created').val().trim()
+        };
 
-        Helper.ajaxCall("createTask", "POST", "new_task_name=" + $newTaskName.val().trim(), function(response) {
-            if (response.Name == $newTaskName.val().trim()) {
+        Helper.ajaxCall("createTask", "POST", data, function(response) {
+            if (response.Name == data.new_name) {
                 // Update model
                 items.unshift(response);    // Adds created Task to the beginning of items array
                 pagination.totalItems = items.length;
@@ -457,7 +468,7 @@ var Counter = function(models) {
                 _renderTaskList();
                 bindCounterEvents();
                 _checkTickingTask();
-                $newTaskName.val('');
+                //$newTaskName.val('');
                 $resultMsg.text("New task was successfully created!");
                 $modal.modal('hide');
             }
@@ -480,15 +491,17 @@ var Counter = function(models) {
         var $editResultMsg = $modal.find('#edit_result_msg');
         var itemIndex = Number(event.target.dataset.id);
         var data = {
-            task_id: items[itemIndex].Id,
-            new_task_name: $modal.find('#edit_task_name').val().trim(),
-            new_task_spent_time: $modal.find('#edit_task_spent_time').val().trim()
+            item_id:          items[itemIndex].Id,
+            new_name:         $modal.find('#edit_name').val().trim(),
+            new_spent_time:   $modal.find('#edit_spent_time').val().trim(),
+            new_date_created: $modal.find('#edit_date_created').val().trim()
         };
         Helper.ajaxCall('editTask', 'POST', data, function (response) {
-            if (response == 1) {
+            if (response.Name == data.new_name) {
                 // Update model
-                items[itemIndex].Name = data.new_task_name;
-                items[itemIndex].SpentTime = hmsToSeconds(data.new_task_spent_time);
+                items[itemIndex].Name        = response.Name;
+                items[itemIndex].SpentTime   = response.SpentTime;
+                items[itemIndex].DateCreated = response.DateCreated;
 
                 _renderTaskList();
                 bindCounterEvents();
@@ -499,16 +512,19 @@ var Counter = function(models) {
                 animateEditedItem(Number(event.target.dataset.id));
             }
             else if (response == 2) {
-                $editResultMsg.text("Please input some creative task name.");
+                $editResultMsg.text("Please input some creative Name.");
             }
             else if (response == 3) {
                 mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
             else if (response == 4) {
-                $editResultMsg.text("This task name already exists, try something different.");
+                $editResultMsg.text("This Name already exists, try something different.");
             }
             else if (response == 5) {
-                $editResultMsg.text("Please insert Spent time in a valid format (hh:mm:ss).");
+                $editResultMsg.text("Please insert Spent Time in a valid time and format (hh:mm:ss).");
+            }
+            else if (response == 6) {
+                $editResultMsg.text("Please insert Date Created as a valid date and format (dd.mm.yyyy).");
             }
             else {
                 $resultMsg.text("Edit task name failed!");

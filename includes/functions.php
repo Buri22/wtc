@@ -249,6 +249,7 @@ function editAccount() {
     return $result;
 }
 
+// Unused function... Deprecated?
 function getTask() {
     if (!isset($_POST['task_id']) || empty($_POST['task_id'])) {
         return 2;
@@ -278,7 +279,9 @@ function getTaskList() {
 }
 
 function createTask() {
-    if (!isset($_POST['new_task_name']) || empty($_POST['new_task_name'])) {
+    if (!isset($_POST['new_name']) || empty($_POST['new_name'])
+        || !isset($_POST['new_spent_time']) || empty($_POST['new_spent_time'])
+        || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])) {
         return 2;
     }
     $user = checkLogin();
@@ -289,14 +292,30 @@ function createTask() {
                     SELECT *
                     FROM task
                     WHERE UserId = ? AND Name = ?
-                ', $user['Id'], $_POST['new_task_name']);
-    if ($result) { return 4; }
+                ', $user['Id'], $_POST['new_name']);
 
-    $data = [
-        'Name'        => $_POST['new_task_name'],
-        'DateCreated' => date("Y-m-d H:i:s"),
-        'UserId'      => $user['Id']
-    ];
+    // New task name is already used by another task
+    if ($result) {
+        return 4;
+    }
+
+    // Validate task spent time format
+    if (!validateSpentTime($_POST['new_spent_time'])) {
+        return 5;
+    }
+    // Validate task date created format
+    $date = explode(".", $_POST['new_date_created']);
+    if (!checkdate(intval($date[1]), intval($date[0]), intval($date[2]))) {
+        return 6;
+    }
+
+    // Define data for insert query
+    $data = array();
+    $data['Name']        = trim($_POST['new_name']);
+    $data['SpentTime']   = hmsToSeconds($_POST['new_spent_time']);
+    $data['DateCreated'] = date_create($date[2] . "-" . $date[1] . "-" . $date[0])->format('Y-m-d');
+    $data['UserId']      = $user['Id'];
+
     $newTask = Db::insert('task', $data);
 
     if ($newTask == 1) {
@@ -304,7 +323,7 @@ function createTask() {
                     SELECT *
                     FROM task
                     WHERE UserId = ? AND Name = ?
-                ', $user['Id'], $_POST['new_task_name']);
+                ', $user['Id'], $_POST['new_name']);
         return $insertedTask;
     }
     return $newTask;
@@ -312,9 +331,10 @@ function createTask() {
 
 function editTask() {
     // Check if all inputs were entered
-    if (!isset($_POST['new_task_name']) || empty($_POST['new_task_name'])
-        || !isset($_POST['new_task_spent_time']) || empty($_POST['new_task_spent_time'])
-        || !isset($_POST['task_id']) || empty($_POST['task_id'])) {
+    if (!isset($_POST['new_name']) || empty($_POST['new_name'])
+        || !isset($_POST['new_spent_time']) || empty($_POST['new_spent_time'])
+        || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])
+        || !isset($_POST['item_id']) || empty($_POST['item_id'])) {
         return 2;
     }
     $user = checkLogin();
@@ -325,26 +345,36 @@ function editTask() {
                     SELECT *
                     FROM task
                     WHERE Name = ? AND UserId = ?
-                ', trim($_POST['new_task_name']), $user['Id']);
+                ', trim($_POST['new_name']), $user['Id']);
 
     // New task name is already used by another task
-    if ($result && $result['Id'] != $_POST['task_id']) {
+    if ($result && $result['Id'] != $_POST['item_id']) {
         return 4;
     }
 
     // Validate task spent time format
-    if (!preg_match('/[0-9]+:[0-9]{1,2}:[0-9]{1,2}/', $_POST['new_task_spent_time'])) {
+    if (!validateSpentTime($_POST['new_spent_time'])) {
         return 5;
+    }
+    // Validate task date created format
+    $date = explode(".", $_POST['new_date_created']);
+    if (!checkdate(intval($date[1]), intval($date[0]), intval($date[2]))) {
+        return 6;
     }
 
     // Define data for update query
     $data = array();
-    $data['Name'] = trim($_POST['new_task_name']);
-    $data['SpentTime'] = hmsToSeconds($_POST['new_task_spent_time']);
+    $data['Name'] = trim($_POST['new_name']);
+    $data['SpentTime'] = hmsToSeconds($_POST['new_spent_time']);
+    $data['DateCreated'] = date_create($date[2] . "-" . $date[1] . "-" . $date[0])->format('Y-m-d');
 
-    $condition = 'WHERE Id = ' . intval($_POST['task_id']);
+    $condition = 'WHERE Id = ' . intval($_POST['item_id']);
 
     $result = Db::update('task', $data, $condition);
+
+    if ($result == 1) {
+        return $data;
+    }
 
     return $result;
 }
@@ -454,7 +484,12 @@ function hmsToSeconds($text) {
     $spentTime = explode(':', $text);
     return intval($spentTime[0]) * 60 * 60 + intval($spentTime[1]) * 60 + intval($spentTime[2]);
 }
-
+function validateSpentTime($spentTime) {
+    if (preg_match('/^[0-9]+:[0-5]\d:[0-5]\d$/', $spentTime)) {
+        return true;
+    }
+    return false;
+}
 
 
 
