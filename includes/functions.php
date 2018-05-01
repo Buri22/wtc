@@ -55,7 +55,7 @@ function checkLogin() {
     }
     // Try to get user from db
     $user =  Db::queryOne('
-              SELECT Id, UserName, Password, Email
+              SELECT *
               FROM user
               WHERE Id = ?
             ', $_SESSION['user_id']);
@@ -92,14 +92,16 @@ function checkTaskStarted() {
 function getUserForJS($user) {
     $result = [];
 
-    $result['Id']       = $user['Id'];
-    $result['UserName'] = $user['UserName'];
-    $result['Email']    = $user['Email'];
+    $result['Id']          = $user['Id'];
+    $result['UserName']    = $user['UserName'];
+    $result['Email']       = $user['Email'];
+    $result['AppSettings'] = $user['AppSettings'];
 
     return $result;
 }
 
 function register() {
+    // TODO: registration creates default AppSettings
     // Check if all inputs were entered
     if (!isset($_POST['user_name']) || empty($_POST['user_name'])
         || !isset($_POST['email']) || empty($_POST['email'])
@@ -247,6 +249,25 @@ function editAccount() {
     $result = Db::update('user', $data, $condition);
 
     return $result;
+}
+function editAppSettings() {
+    // Check if all inputs were entered
+    if (!isset($_POST['app_settings']) || empty($_POST['app_settings'])) {
+        return 2;
+    }
+	
+    $user = checkLogin();
+    if (!$user) {
+        return 3;   // User is not logged in
+    }
+	
+	$data = array(
+		'AppSettings' => json_encode($_POST['app_settings'])
+	);
+    $condition = 'WHERE Id = ' . $user['Id'];
+    $result = Db::update('user', $data, $condition);
+	
+	return $result;
 }
 
 // Unused function... Deprecated?

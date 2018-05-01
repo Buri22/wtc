@@ -1,33 +1,32 @@
 /**
- * Created by Uživatel on 22.9.2017.
+ * Created by Uï¿½ivatel on 22.9.2017.
  */
 var Page = function() {
-    var $page, $sideMenu, $pageContent;
+    var $pageContent = $('<div></div>', { id: 'pageContent' }),
+    	$sideMenu    = $('<div></div>', { id: 'sideMenu' });
 
-    // Load View & Cache DOM
-    $.get('view/page.html', function(template) {
-        $page        = $(template);
-        $sideMenu    = $page.filter('#sideMenu');
-        $pageContent = $page.filter('#pageContent');
+    function renderPage($container, appSettings) {
+		// Define Page layout
+		if (appSettings.sideMenu.active) {
+			$sideMenu.empty().addClass('col-md-3');
+			$pageContent.empty().addClass('col-md-9');
 
-        mediator.publish('PageLoaded');
-    });
+			if (appSettings.sideMenu.position == 'left') {
+				$container.append($sideMenu, $pageContent);
+			}
+			else if (appSettings.sideMenu.position == 'right') {
+				$container.append($pageContent, $sideMenu);
+			}
 
-    function renderPage($container) {
-        if (typeof $page == 'undefined') {
-            mediator.subscribe('PageLoaded', renderPage, $container);
-        } else {
-            // TODO: App setting will able to switch sideMenu from left to right or no sideMenu
-            // Define Page layout
-            $sideMenu.empty().addClass('col-md-3');
-            $pageContent.empty().addClass('col-md-9');
-            $($container).html($page);
+			mediator.publish('PageReadyToImportSideMenuItems', $sideMenu);
+			mediator.publish('ActiveSideMenu');
+		}
+		else {
+			$container.append($pageContent.empty());
+		}
 
-            // All Moules which want to be in page have to subscribe for "PageReadyToImportModuleItems" event
-            mediator.publish('PageReadyToImportSideMenuItems', $sideMenu);
-            mediator.publish('PageReadyToImportModuleItems', $pageContent);
-            mediator.publish('ActiveSideMenu');
-        }
+		// All Moules which want to be in page have to subscribe for "PageReadyToImportModuleItems" event
+		mediator.publish('PageReadyToImportModuleItems', $pageContent);
     }
 
     function addItemToSideMenu(item) {

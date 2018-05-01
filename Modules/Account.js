@@ -1,5 +1,5 @@
 /**
- * Created by Uživatel on 18.9.2017.
+ * Created by Uï¿½ivatel on 18.9.2017.
  */
 var Account = function() {
     var user = {};
@@ -40,7 +40,8 @@ var Account = function() {
         user = {
             id: userData.Id,
             userName: userData.UserName,
-            email: userData.Email
+            email: userData.Email,
+			appSettings: JSON.parse(userData.AppSettings)
         };
     }
     function getUserName() {
@@ -49,6 +50,9 @@ var Account = function() {
     function getUserId() {
         return user.id || false;
     }
+	function getUserAppSettings() {
+		return user.appSettings;
+	}
 
     function renderLogin(msg) {
         if (typeof $loginPage == 'undefined') {
@@ -85,16 +89,44 @@ var Account = function() {
     }
     function _renderModal() {
         $.get('view/modal_parts.htm', function(templates) {
-            var account_body = Mustache.render($(templates).filter('#modal_body_account').html(), {
+			var $templates = $(templates);
+            var checked, selected = '';
+            var sectionDisplay = 'none';
+            if (user.appSettings.sideMenu.active == true || user.appSettings.sideMenu.active == 'true') {
+                checked = 'checked';
+                sectionDisplay = 'block';
+            }
+            var appOptions = app.getAppOptions();
+            var themeColorOptions = [], sideMenuPositions = [];
+            // Set Theme colors and set selected one
+            for (var i = 0; i < appOptions.themeColors.length; i++) {
+                if (appOptions.themeColors[i] == user.appSettings.theme.color) selected = 'selected';
+                themeColorOptions.push({color: appOptions.themeColors[i], selected: selected});
+                selected = '';
+            }
+            // Set SideMenu positions and set selected one
+            for (i = 0; i < appOptions.sideMenuPositions.length; i++) {
+                if (appOptions.sideMenuPositions[i] == user.appSettings.sideMenu.position) selected = 'selected';
+                sideMenuPositions.push({position: appOptions.sideMenuPositions[i], selected: selected});
+                selected = '';
+            }
+            var account_app_body = Mustache.render($templates.filter('#modal_body_account_app').html(), {
                 userName: user.userName,
-                email: user.email
+                email: user.email,
+                appSettings: {
+                    themeColorOptions: themeColorOptions,
+                    checked: checked,
+                    sectionDisplay: sectionDisplay,
+                    sideMenuPositions: sideMenuPositions
+                }
             });
-            var $modalSubmitBtn = $(templates).find('#submit_btn').text('Edit').prop('disabled', true);
+            var $submitBtn = $templates.find('.submit_btn').text('Edit').prop('disabled', true);
             var data = {
                 modal_id: 'user_account',
                 title: 'Account settings',
-                modal_body: account_body,
-                submit_btn: $modalSubmitBtn.parent().html()
+                modal_body: account_app_body,
+                submit_btn: $submitBtn.addClass('account_btn').parent().html()
+							+ $submitBtn.hide().removeClass('account_btn').addClass('app_btn').parent().html()
             };
 
             Helper.getModalTemplate($modal, data);
@@ -118,11 +150,36 @@ var Account = function() {
     function _bindModalEvents($container) {
         // Check to handle just account modal
         if ($container.find('.modal-dialog').attr('id') == 'user_account') {
-            // Bind submit event
-            $container.find('#submit_btn').off('click').on('click', _editAccount);
+            // Submit btn actions
+            $container.find('.submit_btn.account_btn').off('click').on('click', _editAccount);
+            $container.find('.submit_btn.app_btn').off('click').on('click', _editAppSettings);
 
+			// Edit/Delete tab click event
+			$container.find('#account_page').off('click').on('click', function() {
+				$container.find('#account_page').addClass('active');
+				$container.find('#app_page').removeClass('active');
+				$container.find('.modal-header .modal-title').text('Account settings');
+				$container.find('#account_settings_body, .submit_btn.account_btn').show();
+				$container.find('#app_settings_body, .submit_btn.app_btn').hide();
+				$container.find('#edit_account_result_msg').empty();
+
+				Helper.bindKeyShortcutEvent($container, '.submit_btn.account_btn');
+                Helper.checkFormToDisableSubmitBtn($container.find('input, select'), $container.find('.submit_btn.account_btn'));
+			});
+			$container.find('#app_page').off('click').on('click', function() {
+				$container.find('#account_page').removeClass('active');
+				$container.find('#app_page').addClass('active');
+				$container.find('.modal-header .modal-title').text('App settings');
+				$container.find('#account_settings_body, .submit_btn.account_btn').hide();
+				$container.find('#app_settings_body, .submit_btn.app_btn').show();
+				$container.find('#edit_account_result_msg').empty();
+
+				Helper.bindKeyShortcutEvent($container, '.submit_btn.app_btn');
+                Helper.checkFormToDisableSubmitBtn($container.find('input, select'), $container.find('.submit_btn.app_btn'));
+			});
+			
             // Handle submit button according to changed form data
-            Helper.checkFormToDisableSubmitBtn($container.find('.form-horizontal input'), $container.find('#submit_btn'));
+            Helper.checkFormToDisableSubmitBtn($container.find('input, select'), $container.find('.submit_btn.account_btn'));
         }
     }
 
@@ -248,6 +305,56 @@ var Account = function() {
             }
         });
     }
+	function _editAppSettings() {
+        var themeColor = $modal.find('#themeColor').val();
+        var sideMenuActive = $modal.find('#sideMenuActive').is(':checked');
+		var data = {
+			app_settings: {
+				theme: { color: themeColor },
+				sideMenu: { active: sideMenuActive }
+			}
+		};
+		if (sideMenuActive) {
+			data.app_settings.sideMenu.position = $modal.find('#sideMenuPosition').val();
+		}
+		
+        Helper.ajaxCall('editAppSettings', 'POST', data, function(response) {
+            var $resultMsg = $modal.find('#edit_account_result_msg');
+            if (response == 1) {
+                // Update Account Model
+                user.appSettings = {
+                    theme: { color: themeColor },
+                    sideMenu: {
+                        active: sideMenuActive,
+                        position: data.app_settings.sideMenu.position
+                    }
+                };
+
+                _renderMenuItem();
+                mediator.publish('SetResultMessage', 'Your account info was successfully edited.');
+                $modal.modal('hide');
+            }
+            else if (response == 2) {
+                $resultMsg.text('Some required form data are missing.');
+            }
+            else if (response == 3) {
+                $modal.modal('hide');
+                _logOut('You were unexpectedly logged out.');
+            }
+            else if (response == 4) {
+                $resultMsg.text('Email has a wrong format (example@host.com).');
+            }
+            else if (response == 5) {
+                $resultMsg.text('You can not use this email, please try something else.');
+            }
+            else if (response == 6) {
+                $resultMsg.text('Current password is wrong.');
+            }
+            else if (response == 7) {
+                $resultMsg.text('New passwords do not equal.');
+            }
+        });
+	}
 
     // Subscribe to listen for calls from outside
     mediator.subscribe('RenderLogin', renderLogin);
@@ -259,6 +366,7 @@ var Account = function() {
         setUser: setUser,
         getUserId: getUserId,
         getUserName: getUserName,
+        getUserAppSettings: getUserAppSettings,
         renderLogin: renderLogin
     }
 };

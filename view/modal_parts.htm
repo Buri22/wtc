@@ -26,7 +26,7 @@
 
 </script>
 
-<!-- Edit modal body -->
+<!-- Edit / Delete modal body -->
 <script id="modal_body_edit_delete" type="text/html">
 
     <div class="modal-tabs">
@@ -73,60 +73,104 @@
 
 </script>
 
-<!-- Account modal body -->
-<script id="modal_body_account" type="text/html">
-
-    <div id="edit_account_result_msg" class="red"></div>
-    <div class="form-horizontal">
-        <!-- Text input-->
-        <div class="form-group">
-            <label class="col-md-4 control-label" for="userName">User Name</label>
-            <div class="col-md-6">
-                <input value="{{userName}}" id="userName" name="userName" type="text" placeholder="Enter your User Name" class="form-control input-md" autofocus>
-            </div>
-        </div>
-        <!-- Text input-->
-        <div class="form-group">
-            <label class="col-md-4 control-label" for="email">Email</label>
-            <div class="col-md-6">
-                <input value="{{email}}" id="email" name="email" type="email" placeholder="Enter your Email" class="form-control input-md">
-            </div>
-        </div>
-        <!-- Checkbox -->
-        <div class="form-group">
-            <label class="col-md-4 control-label" for="change_password">Change Password</label>
-            <div class="col-md-6">
-                <input type="checkbox" name="change_password" id="change_password" onclick="$('section.password_section').toggle();">
-            </div>
-        </div>
-        <section class="password_section">
-            <!-- Password old input-->
-            <div class="form-group">
-                <label class="col-md-4 control-label" for="password_old">Current Password *</label>
-                <div class="col-md-6">
-                    <input id="password_old" name="password_old" type="password" class="form-control input-md">
-                </div>
-            </div>
-            <!-- Password new input-->
-            <div class="form-group">
-                <label class="col-md-4 control-label" for="password_new">New Password *</label>
-                <div class="col-md-6">
-                    <input id="password_new" name="password_new" type="password" class="form-control input-md">
-                </div>
-            </div>
-            <!-- Password confirm input-->
-            <div class="form-group">
-                <label class="col-md-4 control-label" for="password_confirm">Confirm New Password *</label>
-                <div class="col-md-6">
-                    <input id="password_confirm" name="password_confirm" type="password" class="form-control input-md">
-                </div>
-            </div>
-        </section>
+<!-- Account / App settings modal body -->
+<script id="modal_body_account_app" type="text/template">
+	
+    <div class="modal-tabs">
+        <span id="account_page" class="active">Account</span>
+        <span id="app_page">Application</span>
     </div>
+	
+	<section id="account_settings_body">
+		<div class="form-horizontal">
+			<!-- Text input-->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="userName">User Name</label>
+				<div class="col-md-6">
+					<input value="{{userName}}" id="userName" name="userName" type="text" placeholder="Enter your User Name" class="form-control input-md" autofocus>
+				</div>
+			</div>
+			<!-- Text input-->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="email">Email</label>
+				<div class="col-md-6">
+					<input value="{{email}}" id="email" name="email" type="email" placeholder="Enter your Email" class="form-control input-md">
+				</div>
+			</div>
+			<!-- Checkbox -->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="change_password">Change Password</label>
+				<div class="col-md-6">
+					<input type="checkbox" name="change_password" id="change_password" onclick="$('section.password_section').toggle();">
+				</div>
+			</div>
+			<section class="password_section">
+				<!-- Password old input-->
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="password_old">Current Password *</label>
+					<div class="col-md-6">
+						<input id="password_old" name="password_old" type="password" class="form-control input-md">
+					</div>
+				</div>
+				<!-- Password new input-->
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="password_new">New Password *</label>
+					<div class="col-md-6">
+						<input id="password_new" name="password_new" type="password" class="form-control input-md">
+					</div>
+				</div>
+				<!-- Password confirm input-->
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="password_confirm">Confirm New Password *</label>
+					<div class="col-md-6">
+						<input id="password_confirm" name="password_confirm" type="password" class="form-control input-md">
+					</div>
+				</div>
+			</section>
+		</div>
+	</section>
+	
+	<section id="app_settings_body">
+		<div class="form-horizontal">
+			<!-- Text input-->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="themeColor">Theme color</label>
+				<div class="col-md-6">
+					<select id="themeColor" name="themeColor" class="form-control">
+						{{#appSettings.themeColorOptions}}
+						<option value="{{color}}" {{selected}}>{{color}}</option>
+						{{/appSettings.themeColorOptions}}
+					</select>
+				</div>
+			</div>
+			<!-- Checkbox -->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="sideMenuActive">Side Menu active</label>
+				<div class="col-md-6">
+					<input type="checkbox" name="sideMenuActive" id="sideMenuActive" onclick="$('section.side_menu_position').toggle();" {{appSettings.checked}}>
+				</div>
+			</div>
+			<section class="side_menu_position" style="display:{{appSettings.sectionDisplay}};">
+				<!-- Select box -->
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="sideMenuPosition">Side Menu position</label>
+					<div class="col-md-6">
+						<select id="sideMenuPosition" name="sideMenuPosition" class="form-control">
+							{{#appSettings.sideMenuPositions}}
+							<option value="{{position}}" {{selected}}>{{position}}</option>
+							{{/appSettings.sideMenuPositions}}
+						</select>
+					</div>
+				</div>
+			</section>
+		</div>
+	</section>
+	
+    <div id="edit_account_result_msg" class="red"></div>
 
 </script>
 
 <!-- Modal Submit Button -->
 <div id="modal_submit_btn">
-    <button type="button" class="btn btn-primary" id="submit_btn"></button>
+    <button type="button" class="btn btn-primary submit_btn"></button>
 </div>

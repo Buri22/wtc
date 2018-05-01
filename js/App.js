@@ -1,24 +1,21 @@
 /**
- * Created by Uživatel on 18.9.2017.
+ * Created by Uï¿½ivatel on 18.9.2017.
  */
 var App = function() {
     // Initialize Modules
     var account = new Account();
-    var menu = new Menu();
-    var page = new Page();
+    var menu    = new Menu();
+    var page    = new Page();
     var counter = new Counter([new Tasks()]);
 
-    var $content = $('#content');
-    var $layout, $menu, $pageContent;
-
-    // Load Views & Cache DOM
-    $.get('view/layout.html', function(template) {
-        $layout      = $(template);
-        $menu        = $layout.filter('#menu');
-        $pageContent = $layout.filter('#page');
-
-        mediator.publish('AppLayoutLoaded');
-    });
+	var appSettings,
+        $content     = $('#content'),
+        $menu        = $('<div></div>', { id: 'menu' }),
+		$pageContent = $('<div></div>', { id: 'page' });
+    var appOptions = {
+        themeColors: ['green', 'blue', 'purple'],
+        sideMenuPositions: ['left', 'right']
+    };
 
     function run() {
         // Check if user is logged in
@@ -26,6 +23,7 @@ var App = function() {
             if (result){
                 // Define user model
                 account.setUser(result);
+				appSettings = account.getUserAppSettings();
 
                 renderAppLayout();
             }
@@ -38,7 +36,7 @@ var App = function() {
             // Every time a modal is shown, if it has an autofocus attribute, focus on it.
             .on('shown.bs.modal','.modal', function () {
                 $(this).find('[autofocus]').focus();
-                Helper.bindKeyShortcutEvent(this, '#submit_btn');
+                Helper.bindKeyShortcutEvent(this, '.submit_btn:visible');
             })
             // Clear .modal after close
             .on('hidden.bs.modal', '.modal', function () {
@@ -56,21 +54,21 @@ var App = function() {
     }
 
     function renderAppLayout() {
-        if (typeof $layout == 'undefined') {
-            mediator.subscribe('AppLayoutLoaded', renderAppLayout);
-        } else {
-            $content.html($layout);
+        $content.append($menu, $pageContent);
 
-            // Load Menu
-            menu.renderMenu($menu);
+		// Load Menu
+		menu.renderMenu($menu);
 
-            // Load page layout
-            page.renderPage($pageContent);
-        }
+		// Load page layout
+		page.renderPage($pageContent, appSettings);
+
     }
 
     function getLoggedUserId() {
         return account.getUserId();
+    }
+    function getAppOptions() {
+        return appOptions;
     }
 
     // Subscribe to listen for calls from outside
@@ -78,6 +76,7 @@ var App = function() {
 
     return {
         run: run,
-        getLoggedUserId: getLoggedUserId
+        getLoggedUserId: getLoggedUserId,
+        getAppOptions: getAppOptions
     }
 };

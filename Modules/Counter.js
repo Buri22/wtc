@@ -1,5 +1,5 @@
 /**
- * Created by Uživatel on 11.9.2017.
+ * Created by Uï¿½ivatel on 11.9.2017.
  */
 var Counter = function(models) {
     var Item = null;
@@ -55,43 +55,43 @@ var Counter = function(models) {
     function bindModalEvents($container) {
         switch ($container.find('.modal-dialog').attr('id')) {
             case 'create_new_task':
-                $container.find('#submit_btn').off('click').on('click', _createTask);
+                $container.find('.submit_btn').off('click').on('click', _createTask);
                 $container.find('#new_task_date_created').datepicker(DATEPICKER_OPTIONS);
                 break;
             case 'edit_task':
                 // Submit btn actions
-                $container.find('#submit_btn.edit_btn').off('click').on('click', _editTask);
-                $container.find('#submit_btn.delete_btn').off('click').on('click', _deleteTask);
+                $container.find('.submit_btn.edit_btn').off('click').on('click', _editTask);
+                $container.find('.submit_btn.delete_btn').off('click').on('click', _deleteTask);
 
                 // Edit/Delete tab click event
                 $container.find('#edit_page').off('click').on('click', function() {
                     $container.find('#edit_page').addClass('active');
                     $container.find('#delete_page').removeClass('active');
                     $container.find('.modal-header .modal-title').text('Edit task');
-                    $container.find('#edit_body, #submit_btn.edit_btn').show();
-                    $container.find('#delete_body, #submit_btn.delete_btn').hide();
+                    $container.find('#edit_body, .submit_btn.edit_btn').show();
+                    $container.find('#delete_body, .submit_btn.delete_btn').hide();
 
                     $container.find('#edit_name').get(0).focus();
                     $container.find('#edit_result_msg').empty();
 
-                    Helper.bindKeyShortcutEvent($container, '#submit_btn.edit_btn');
+                    Helper.bindKeyShortcutEvent($container, '.submit_btn.edit_btn');
                 });
                 $container.find('#delete_page').off('click').on('click', function() {
                     $container.find('#edit_page').removeClass('active');
                     $container.find('#delete_page').addClass('active');
                     $container.find('.modal-header .modal-title').text('Delete task');
-                    $container.find('#edit_body, #submit_btn.edit_btn').hide();
-                    $container.find('#delete_body, #submit_btn.delete_btn').show();
+                    $container.find('#edit_body, .submit_btn.edit_btn').hide();
+                    $container.find('#delete_body, .submit_btn.delete_btn').show();
 
                     $container.find('#delete_task_password_confirm').get(0).focus();
                     $container.find('#edit_result_msg').empty();
 
-                    Helper.bindKeyShortcutEvent($container, '#submit_btn.delete_btn');
+                    Helper.bindKeyShortcutEvent($container, '.submit_btn.delete_btn');
                 });
 
                 $container.find('#edit_date_created').datepicker(DATEPICKER_OPTIONS);
                 // Handle submit button according to changed form data
-                Helper.checkFormToDisableSubmitBtn($container.find('.form-horizontal input'), $container.find('#submit_btn'));
+                Helper.checkFormToDisableSubmitBtn($container.find('#edit_body input'), $container.find('.submit_btn.edit_btn'));
                 break;
 
             default:
@@ -215,7 +215,7 @@ var Counter = function(models) {
         $.get('view/modal_parts.htm', function(templates) {
             var data = {};
             var $templates = $(templates);
-            var $submitBtn = $templates.find('#submit_btn');
+            var $submitBtn = $templates.find('.submit_btn');
 
             // Define data for modal template0
             // Create new task
@@ -252,7 +252,7 @@ var Counter = function(models) {
                     modal_body: edit_delete_body,
                     submit_btn: $submitBtn.addClass('edit_btn').attr('data-id', itemIndex).prop('disabled', true)
                                             .text('Edit').parent().html()
-                                + $submitBtn.addClass('delete_btn').attr('data-id', itemIndex).prop('disabled', false)
+                                + $submitBtn.removeClass('edit_btn').addClass('delete_btn').attr('data-id', itemIndex).prop('disabled', false)
                                             .hide().text('Delete').parent().html()
                 });
             }
@@ -616,7 +616,6 @@ var Counter = function(models) {
             $itemList.parent()
                 .removeClass('col-md-8 col-md-offset-2')
                 .addClass('col-md-10 col-md-offset-1');
-            //.addClass('col-md-12')
 
             adjustItemsNameLength();
         }
@@ -624,12 +623,14 @@ var Counter = function(models) {
     function adjustItemsNameLength() {
         var itemNames = $itemList.find('span.name');
         var maxHeight = $itemList.find('span.task_index').height();
-        for (var i = 0; i < itemNames.length; i++) {
-            var $itemName = $(itemNames[i]);
-            while ($itemName.height() > maxHeight + 5) {	// + 5 for variability
-                var name = $itemName.text();
-                var lastIndexOfSpace = name.lastIndexOf(" ");
-                $itemName.text(name.substring(0, lastIndexOfSpace) + '...');
+        if (itemNames.length != 0 && typeof maxHeight != 'undefined' && maxHeight > 0) {
+            for (var i = 0; i < itemNames.length; i++) {
+                var $itemName = $(itemNames[i]);
+                while ($itemName.height() > maxHeight + 5) {	// + 5 for variability
+                    var name = $itemName.text();
+                    var lastIndexOfSpace = name.lastIndexOf(" ");
+                    $itemName.text(name.substring(0, lastIndexOfSpace) + '...');
+                }
             }
         }
     }

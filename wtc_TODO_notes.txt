@@ -1,7 +1,10 @@
 Bugy:
 
 Ukoly:
+-razeni tasku dle DateCreated, ktery se da menit!!
 - vytvorit novou menu polozku App settings (pro nastaveni barev, zvyrazneni tasku, pozice sideMenu...)
+	- do tabulky user vytvorit stlpec Settings kam se bude vkladat JSON string
+	- pri nacteni uzivatele se aplikuji settings do view
 - task se da priradit do kategorie (Praca, volny cas...), ktere budou mit statistiky dle tydnu, mesicu...
 - kalendar v sideMenu
 - TODO tasks per day, per week
