@@ -44,6 +44,8 @@ var Account = function() {
 			appSettings: JSON.parse(userData.AppSettings)
         };
     }
+    // Obsolete function, it is exposed to public but never used
+    // TODO: refactor
     function getUserName() {
         return user.userName || 'User name is missing.';
     }
@@ -330,8 +332,9 @@ var Account = function() {
                     }
                 };
 
-                _renderMenuItem();
-                mediator.publish('SetResultMessage', 'Your account info was successfully edited.');
+                //_renderMenuItem();
+                mediator.publish('ReloadPageLayout', user.appSettings);
+                mediator.publish('SetResultMessage', 'Your app settings were successfully edited.');
                 $modal.modal('hide');
             }
             else if (response == 2) {
@@ -340,18 +343,6 @@ var Account = function() {
             else if (response == 3) {
                 $modal.modal('hide');
                 _logOut('You were unexpectedly logged out.');
-            }
-            else if (response == 4) {
-                $resultMsg.text('Email has a wrong format (example@host.com).');
-            }
-            else if (response == 5) {
-                $resultMsg.text('You can not use this email, please try something else.');
-            }
-            else if (response == 6) {
-                $resultMsg.text('Current password is wrong.');
-            }
-            else if (response == 7) {
-                $resultMsg.text('New passwords do not equal.');
             }
         });
 	}

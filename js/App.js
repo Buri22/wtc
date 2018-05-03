@@ -2,20 +2,20 @@
  * Created by U�ivatel on 18.9.2017.
  */
 var App = function() {
-    // Initialize Modules
-    var account = new Account();
-    var menu    = new Menu();
-    var page    = new Page();
-    var counter = new Counter([new Tasks()]);
-
-	var appSettings,
+    var appSettings,
         $content     = $('#content'),
         $menu        = $('<div></div>', { id: 'menu' }),
-		$pageContent = $('<div></div>', { id: 'page' });
+        $pageContent = $('<div></div>', { id: 'page' });
     var appOptions = {
         themeColors: ['green', 'blue', 'purple'],
         sideMenuPositions: ['left', 'right']
     };
+
+    // Initialize Modules
+    var account = new Account();
+    var menu    = new Menu();
+    var page    = new Page($pageContent);
+    var counter = new Counter([new Tasks()]);
 
     function run() {
         // Check if user is logged in
@@ -60,7 +60,7 @@ var App = function() {
 		menu.renderMenu($menu);
 
 		// Load page layout
-		page.renderPage($pageContent, appSettings);
+		page.renderPage(appSettings);
 
     }
 

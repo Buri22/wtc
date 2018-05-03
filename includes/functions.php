@@ -88,7 +88,7 @@ function checkTaskStarted() {
     }
 }
 
-// Define User object form JS manipulation
+// Define User object for JS manipulation
 function getUserForJS($user) {
     $result = [];
 
@@ -260,7 +260,9 @@ function editAppSettings() {
     if (!$user) {
         return 3;   // User is not logged in
     }
-	
+
+    // Convert boolean value as string to boolean
+    $_POST['app_settings']['sideMenu']['active'] = filter_var($_POST['app_settings']['sideMenu']['active'], FILTER_VALIDATE_BOOLEAN);
 	$data = array(
 		'AppSettings' => json_encode($_POST['app_settings'])
 	);

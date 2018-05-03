@@ -1,5 +1,5 @@
 /**
- * Created by Uživatel on 15.8.2017.
+ * Created by UÅ¾ivatel on 15.8.2017.
  * Helper contains all functions that helps to manipulate with:
  * HTML DOM tree, localStorage, time variables...
  */

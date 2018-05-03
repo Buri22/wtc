@@ -1,11 +1,12 @@
 /**
  * Created by U�ivatel on 22.9.2017.
  */
-var Page = function() {
-    var $pageContent = $('<div></div>', { id: 'pageContent' }),
+var Page = function($pageContainer) {
+    var $container   = $pageContainer,
+		$pageContent = $('<div></div>', { id: 'pageContent' }),
     	$sideMenu    = $('<div></div>', { id: 'sideMenu' });
 
-    function renderPage($container, appSettings) {
+    function renderPage(appSettings) {
 		// Define Page layout
 		if (appSettings.sideMenu.active) {
 			$sideMenu.empty().addClass('col-md-3');
@@ -36,6 +37,7 @@ var Page = function() {
         $sideMenu.find('#' + selector).remove();
     }
 
+    mediator.subscribe('ReloadPageLayout', renderPage);
     mediator.subscribe('AddItemToSideMenu', addItemToSideMenu);
     mediator.subscribe('RemoveItemFromSideMenu', removeItemFromSideMenu);
     return {

@@ -4,8 +4,8 @@
  */
 define("HOST", "127.0.0.1");                // The host you want to connect to.
 define("DATABASE", "work_time_counter");    // The database name.
-define("USER", "sec_user");                 // The database username.
-define("PASSWORD", "ILY<3wtc_MyFiend89");   // The database password.
+define("USER", "root");                 // The database username.
+define("PASSWORD", "");   // The database password.
 
 define("CAN_REGISTER", "any");
 define("DEFAULT_ROLE", "user");
