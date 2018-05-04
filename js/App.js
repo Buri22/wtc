@@ -54,7 +54,7 @@ var App = function() {
     }
 
     function renderAppLayout() {
-        $content.append($menu, $pageContent);
+        $content.empty().append($menu, $pageContent);
 
 		// Load Menu
 		menu.renderMenu($menu);

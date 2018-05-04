@@ -332,7 +332,6 @@ var Account = function() {
                     }
                 };
 
-                //_renderMenuItem();
                 mediator.publish('ReloadPageLayout', user.appSettings);
                 mediator.publish('SetResultMessage', 'Your app settings were successfully edited.');
                 $modal.modal('hide');

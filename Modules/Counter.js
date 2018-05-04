@@ -37,7 +37,7 @@ var Counter = function(models) {
     // Load Item Model
     function loadItemModel() {
         Item = models[0];
-        items = null;
+        //items = null;
     }
     loadItemModel();
 
@@ -134,7 +134,10 @@ var Counter = function(models) {
     function _renderTaskList(startIndex) {
         // Render TaskList table
         var itemList = [];
-        // TODO: Make sure that items are defined
+        // Make sure that items are defined
+        if (!items) {
+            items = Item.getItems();
+        }
         pagination.totalItems = items.length;
         var itemsPerPage = pagination.itemsPerPage[pagination.itemsPerPageIndex];
         if ((pagination.currentPage - 1) * itemsPerPage > pagination.totalItems) {
@@ -161,6 +164,7 @@ var Counter = function(models) {
         $itemList.html(Mustache.render(taskListTemplate, { listItems: itemList }));
 
         // Render Pagination
+        // TODO: adjust pagination for too much items
         var numOfPaginationItems = Math.ceil(pagination.totalItems / itemsPerPage);
         if (numOfPaginationItems > 1) {
             var paginationItems = [];
@@ -342,7 +346,6 @@ var Counter = function(models) {
     // Checks ticking objects $activeListItem, storageTickingItem to render ticking spent_time or startMyTimer
     function _checkTickingTask(startTicking) {
         var storageTickingItem = _getStorageTickingItem();
-        // TODO: Make sure that activeItemIndex is defined
         // Storage Ticking Item is ok
         if (storageTickingItem != null
             && storageTickingItem.spent_time

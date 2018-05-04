@@ -7,6 +7,7 @@ var Page = function($pageContainer) {
     	$sideMenu    = $('<div></div>', { id: 'sideMenu' });
 
     function renderPage(appSettings) {
+    	// TODO: implement change of theme color
 		// Define Page layout
 		if (appSettings.sideMenu.active) {
 			$sideMenu.empty().addClass('col-md-3');

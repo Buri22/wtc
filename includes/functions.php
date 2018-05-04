@@ -101,7 +101,6 @@ function getUserForJS($user) {
 }
 
 function register() {
-    // TODO: registration creates default AppSettings
     // Check if all inputs were entered
     if (!isset($_POST['user_name']) || empty($_POST['user_name'])
         || !isset($_POST['email']) || empty($_POST['email'])
@@ -125,10 +124,11 @@ function register() {
     if ($registered) { return 5; }
 
     $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
+    $app_settings = json_encode(unserialize(DEFAULT_APP_SETTINGS));
     $new_user = Db::query('
-                    INSERT INTO user (UserName, Password, Email)
-                    VALUES (?, ?, ?)
-                ', trim($_POST['user_name']), $password, trim($_POST['email']));
+                    INSERT INTO user (UserName, Password, Email, AppSettings)
+                    VALUES (?, ?, ?, ?)
+                ', trim($_POST['user_name']), $password, trim($_POST['email']), $app_settings);
     return $new_user;
 }
 
