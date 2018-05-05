@@ -1,12 +1,12 @@
 /**
- * Created by Uživatel on 12.10.2017.
+ * Model of the task item
  */
 var Tasks = function() {
     var tasks = null;
 
     // Load Task data
     function _loadTaskData() {
-        Helper.ajaxCall("getTaskList", "POST", undefined, function(taskListData) {
+        DataProvider.provide('getTaskList').done(function (taskListData) {
             if (taskListData) {
                 // Define task model
                 tasks = taskListData;

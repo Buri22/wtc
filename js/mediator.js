@@ -1,7 +1,6 @@
 /**
- * Created by Uživatel on 11.9.2017.
+ * Mediator provides communication stream among modules
  */
-
 var mediator = (function(){
 
     // Storage of events that can be broadcast or listened to
@@ -25,14 +24,11 @@ var mediator = (function(){
     };
 
     // Publish/broadcast an event to the rest of the application subscribers
-    var publish = function(event) {
+    var publish = function(event, ...args) {
         // If event doesn't exist, return false
         if (!events[event]) {
             return false;
         }
-
-        // Retrieve arguments of calling publish
-        var args = Array.prototype.slice.call(arguments, 1);
 
         // All subscribers executes their function subscribed to current event
         for (var i = 0; i < events[event].length; i++) {

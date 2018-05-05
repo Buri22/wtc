@@ -44,11 +44,6 @@ var Account = function() {
 			appSettings: JSON.parse(userData.AppSettings)
         };
     }
-    // Obsolete function, it is exposed to public but never used
-    // TODO: refactor
-    function getUserName() {
-        return user.userName || 'User name is missing.';
-    }
     function getUserId() {
         return user.id || false;
     }
@@ -191,7 +186,7 @@ var Account = function() {
             password: $loginPassword.val()
         };
 
-        Helper.ajaxCall('login', 'POST', data, function (response) {
+        DataProvider.provide('login', data).done(function(response) {
             if (response.Id && response.UserName) {
                 setUser(response);
                 mediator.publish('UserLogin');
@@ -218,7 +213,7 @@ var Account = function() {
     }
     function _logOut(msg) {
         msg = typeof msg == 'string' ? msg : 'You have been successfully logged out.';
-        Helper.ajaxCall('logout', 'POST', undefined, function(response) {
+        DataProvider.provide('logout').done(function(response) {
             if (response) {
                 renderLogin(msg);
             }
@@ -236,7 +231,7 @@ var Account = function() {
             password_confirm: $regPasswordConfirm.val()
         };
 
-        Helper.ajaxCall('register', 'POST', data, function (response) {
+        DataProvider.provide('register', data).done(function(response) {
             if (response == 1) {  // new user was created successfully
                 renderLogin('You were successfully registered, please login with your credentials.');
             }
@@ -275,7 +270,7 @@ var Account = function() {
             data['password_confirm'] = $modal.find('#password_confirm').val().trim();
         }
 
-        Helper.ajaxCall('editAccount', 'POST', data, function(response) {
+        DataProvider.provide('editAccount', data).done(function(response) {
             var $resultMsg = $modal.find('#edit_account_result_msg');
             if (response == 1) {
                 // Update Account Model
@@ -320,7 +315,7 @@ var Account = function() {
 			data.app_settings.sideMenu.position = $modal.find('#sideMenuPosition').val();
 		}
 		
-        Helper.ajaxCall('editAppSettings', 'POST', data, function(response) {
+        DataProvider.provide('editAppSettings', data).done(function(response) {
             var $resultMsg = $modal.find('#edit_account_result_msg');
             if (response == 1) {
                 // Update Account Model
@@ -355,7 +350,6 @@ var Account = function() {
     return {
         setUser: setUser,
         getUserId: getUserId,
-        getUserName: getUserName,
         getUserAppSettings: getUserAppSettings,
         renderLogin: renderLogin
     }

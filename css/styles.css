@@ -9,10 +9,10 @@ body {
   font-family: 'Open Sans', sans-serif;
   font-weight: normal;
   line-height: 2.3rem;
-  font-smoothing: antialiased;
-  -webkit-font-smoothing: antialiased;
-  -moz-font-smoothing: antialiased;
-  -o-font-smoothing: antialiased;
+  /*font-smoothing: antialiased;
+   -webkit-font-smoothing: antialiased;
+   -moz-font-smoothing: antialiased;
+   -o-font-smoothing: antialiased;*/
 }
 /*========== Counter Page ==========*/
 #main_menu > li > a {
@@ -62,11 +62,10 @@ body {
 }
 #taskList > li > span.edit_animation_box {
   position: absolute;
-  width: 100%;
+  width: 94%;
   height: 36px;
   margin: -8px;
-  padding: 0 20px;
-  left: 8px;
+  left: 0px;
   background-color: #337ab7;
   border-radius: 4px;
   opacity: 0;
@@ -127,7 +126,7 @@ body {
 }
 #login_msg,
 #register_msg {
-  height: 20px;
+  height: auto;
   display: block;
   margin-bottom: 5px;
   text-align: center;

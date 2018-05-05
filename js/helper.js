@@ -6,26 +6,24 @@
 
 var Helper = {
 
-    ajaxCall: function(action, type, data, callback) {
-        callback = callback || {};
+    // ajaxCall: function(action, type, data, callback) {
+    //     // Define request headers
+    //     var headers = {
+    //         'Ajax-Action': action
+    //     };
+    //     if (type == 'POST') {
+    //         headers['Content-type'] = 'application/x-www-form-urlencoded';
+    //     }
 
-        // Define request headers
-        var headers = {
-            'Ajax-Action': action
-        };
-        if (type == 'POST') {
-            headers['Content-type'] = 'application/x-www-form-urlencoded';
-        }
-
-        $.ajax({
-            url: 'includes/wtc_ajax.php',
-            headers: headers,
-            type: type,
-            data: data,
-            dataType: 'json',
-            success: callback
-        });
-    },
+    //     $.ajax({
+    //         url: 'includes/wtc_ajax.php',
+    //         headers: headers,
+    //         type: type,
+    //         data: data,
+    //         dataType: 'json',
+    //         success: callback || {}
+    //     });
+    // },
 
     getCurrentTime: function() { // in seconds
         return Math.round(new Date().getTime() / 1000);

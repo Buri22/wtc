@@ -385,7 +385,7 @@ var Counter = function(models) {
             task_id: items[itemIndex].Id,
             last_start: Math.round(new Date().getTime() / 1000) // We store time in seconds
         };
-        Helper.ajaxCall("startTask", "POST", data, function(response) {
+        DataProvider.provide("startTask", data).done(function(response) {
             if (response == 'logOut') {    // User isn`t logged in
                 mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
@@ -423,7 +423,7 @@ var Counter = function(models) {
                 task_id: items[itemIndex].Id
             }
         }
-        Helper.ajaxCall("stopTask", "POST", data, function(response) {
+        DataProvider.provide("stopTask", data).done(function(response) {
             if (response == 'logOut') {    // User isn`t logged in
                 mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
@@ -462,7 +462,7 @@ var Counter = function(models) {
             new_date_created: $modal.find('#new_task_date_created').val().trim()
         };
 
-        Helper.ajaxCall("createTask", "POST", data, function(response) {
+        DataProvider.provide("createTask", data).done(function(response) {
             if (response.Name == data.new_name) {
                 // Update model
                 items.unshift(response);    // Adds created Task to the beginning of items array
@@ -499,7 +499,7 @@ var Counter = function(models) {
             new_spent_time:   $modal.find('#edit_spent_time').val().trim(),
             new_date_created: $modal.find('#edit_date_created').val().trim()
         };
-        Helper.ajaxCall('editTask', 'POST', data, function (response) {
+        DataProvider.provide('editTask', data).done(function (response) {
             if (response.Name == data.new_name) {
                 // Update model
                 items[itemIndex].Name        = response.Name;
@@ -542,7 +542,7 @@ var Counter = function(models) {
             task_id: items[task_index].Id,
             password: $modal.find('#delete_task_password_confirm').val().trim()
         };
-        Helper.ajaxCall('deleteTask', 'POST', data, function(response) {
+        DataProvider.provide('deleteTask', data).done(function(response) {
             if (response == false) {
                 // Update model
                 items.splice(task_index, 1);

@@ -25,10 +25,10 @@ body {
    font-family: 'Open Sans', sans-serif;
    font-weight: normal;
    line-height: 2.3rem;
-   font-smoothing: antialiased;
+   /*font-smoothing: antialiased;
    -webkit-font-smoothing: antialiased;
    -moz-font-smoothing: antialiased;
-   -o-font-smoothing: antialiased;
+   -o-font-smoothing: antialiased;*/
 }
 
 /*========== Counter Page ==========*/
@@ -40,8 +40,6 @@ body {
         background-color: @green;
         color: @white;
     }
-}
-#menu .navbar-default .navbar-nav > .active {
 }
 #newTask {
     display: block;
@@ -68,7 +66,7 @@ body {
         }
         &.active {
             background-color: @white;
-            .highlight-item (25px);
+            .highlight-item(25px);
         }
         &.header {
             background-color: transparent;
@@ -82,7 +80,6 @@ body {
                 width: 94%;
                 height: 36px;
                 margin: -8px;
-                /*padding: 0 20px;*/
                 left: 0px;
                 background-color: @blue;
                 border-radius: 4px;
@@ -127,7 +124,7 @@ body {
             background-color: transparent;
             border-color: @grey;
             color: @blue;
-            .highlight-item (15px);
+            .highlight-item(15px);
         }
     }
     .paginationItemsPerPage {
@@ -167,7 +164,7 @@ button#login, button#register {
 #counter_side_menu_active_item {
     background-color: transparent;
     border-radius: 6px;
-    .highlight-item (50px);
+    .highlight-item(50px);
 
     span {
         display: block;
@@ -197,7 +194,6 @@ button#login, button#register {
     margin-top: -5px;
     text-align: center;
     font-size: initial;
-    //height: 25px;
 }
 #create_result_msg , #edit_result_msg {
     text-align: right;
