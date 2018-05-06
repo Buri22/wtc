@@ -33,3 +33,9 @@ var Tasks = function() {
         getItems: getTasks
     };
 };
+
+// class Task {
+//     constructor() {
+
+//     }
+// }

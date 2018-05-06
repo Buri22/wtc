@@ -2,9 +2,9 @@
  * Created by U�ivatel on 18.9.2017.
  */
 var Account = function() {
-    var user = {};
-    var $content = $('#content');
-    var $account, $loginPage, $loginMsg, $loginEmail, $loginPassword, $loginBtn, $registrationLink,
+    let user = {},
+        $content = $('#content'),
+        $account, $loginPage, $loginMsg, $loginEmail, $loginPassword, $loginBtn, $registrationLink,
         $regPage, $regMsg, $userName, $regEmail, $regPassword, $regPasswordConfirm, $registerBtn, $loginLink,
         $accountMenuItems, $accountMenuItem, $logoutMenuItem, $menuItemContainer, $modal;
 
@@ -74,6 +74,7 @@ var Account = function() {
             mediator.subscribe('AccountTemplatesReady', _renderMenuItem, $container);
         }
         else {
+            // Define menuItemContainer or use already defined one
             $menuItemContainer = typeof $menuItemContainer == 'undefined' ? $($container) : $menuItemContainer;
             // Bind onclick events for menuItems
             _bindMenuItemsEvents();
@@ -86,28 +87,32 @@ var Account = function() {
     }
     function _renderModal() {
         $.get('view/modal_parts.htm', function(templates) {
-			var $templates = $(templates);
-            var checked, selected = '';
-            var sectionDisplay = 'none';
-            if (user.appSettings.sideMenu.active == true || user.appSettings.sideMenu.active == 'true') {
+			let $templates = $(templates),
+                appOptions = app.getAppOptions(),
+                themeColorOptions = [], sideMenuPositions = [],
+                checked, selected = '',
+                sectionDisplay = 'none';
+            if (user.appSettings.sideMenu.active) {
                 checked = 'checked';
                 sectionDisplay = 'block';
             }
-            var appOptions = app.getAppOptions();
-            var themeColorOptions = [], sideMenuPositions = [];
-            // Set Theme colors and set selected one
-            for (var i = 0; i < appOptions.themeColors.length; i++) {
-                if (appOptions.themeColors[i] == user.appSettings.theme.color) selected = 'selected';
-                themeColorOptions.push({color: appOptions.themeColors[i], selected: selected});
-                selected = '';
+            // Set Theme color options and set selected one
+            for (let color of appOptions.themeColors) {
+                selected = color == user.appSettings.theme.color ? 'selected' : '';
+                themeColorOptions.push({
+                    color: color, 
+                    selected: selected
+                });
             }
-            // Set SideMenu positions and set selected one
-            for (i = 0; i < appOptions.sideMenuPositions.length; i++) {
-                if (appOptions.sideMenuPositions[i] == user.appSettings.sideMenu.position) selected = 'selected';
-                sideMenuPositions.push({position: appOptions.sideMenuPositions[i], selected: selected});
-                selected = '';
+            // Set SideMenu position options and set selected one
+            for (let position of appOptions.sideMenuPositions) {
+                selected = position == user.appSettings.sideMenu.position ? 'selected' : '';
+                sideMenuPositions.push({
+                    position: position, 
+                    selected: selected
+                });
             }
-            var account_app_body = Mustache.render($templates.filter('#modal_body_account_app').html(), {
+            let account_app_body = Mustache.render($templates.filter('#modal_body_account_app').html(), {
                 userName: user.userName,
                 email: user.email,
                 appSettings: {
@@ -116,14 +121,14 @@ var Account = function() {
                     sectionDisplay: sectionDisplay,
                     sideMenuPositions: sideMenuPositions
                 }
-            });
-            var $submitBtn = $templates.find('.submit_btn').text('Edit').prop('disabled', true);
-            var data = {
+            }),
+            $submitBtn = $templates.find('.submit_btn').text('Edit').prop('disabled', true),
+            data = {
                 modal_id: 'user_account',
                 title: 'Account settings',
                 modal_body: account_app_body,
                 submit_btn: $submitBtn.addClass('account_btn').parent().html()
-							+ $submitBtn.hide().removeClass('account_btn').addClass('app_btn').parent().html()
+                            + $submitBtn.hide().removeClass('account_btn').addClass('app_btn').parent().html()
             };
 
             Helper.getModalTemplate($modal, data);
@@ -181,7 +186,7 @@ var Account = function() {
     }
 
     function login() {
-        var data = {
+        let data = {
             email: $loginEmail.val(),
             password: $loginPassword.val()
         };
@@ -224,7 +229,7 @@ var Account = function() {
     }
     function register() {
         // TODO: Show password strength
-        var data = {
+        let data = {
             user_name: $userName.val(),
             email: $regEmail.val(),
             password: $regPassword.val(),
@@ -255,15 +260,14 @@ var Account = function() {
     }
 
     function _editAccount() {
-        var userName = $modal.find('#userName').val().trim();
-        var email = $modal.find('#email').val().trim();
-        var changePassword = $modal.find('#change_password').is(':checked');
-
-        var data = {
-            user_name: userName,
-            email: email,
-            change_password: changePassword
-        };
+        let userName = $modal.find('#userName').val().trim(),
+            email = $modal.find('#email').val().trim(),
+            changePassword = $modal.find('#change_password').is(':checked'),
+            data = {
+                user_name: userName,
+                email: email,
+                change_password: changePassword
+            };
         if (changePassword) {
             data['password_old']     = $modal.find('#password_old').val().trim();
             data['password_new']     = $modal.find('#password_new').val().trim();
@@ -271,7 +275,7 @@ var Account = function() {
         }
 
         DataProvider.provide('editAccount', data).done(function(response) {
-            var $resultMsg = $modal.find('#edit_account_result_msg');
+            let $resultMsg = $modal.find('#edit_account_result_msg');
             if (response == 1) {
                 // Update Account Model
                 user.userName = userName;
@@ -303,20 +307,20 @@ var Account = function() {
         });
     }
 	function _editAppSettings() {
-        var themeColor = $modal.find('#themeColor').val();
-        var sideMenuActive = $modal.find('#sideMenuActive').is(':checked');
-		var data = {
-			app_settings: {
-				theme: { color: themeColor },
-				sideMenu: { active: sideMenuActive }
-			}
-		};
+        let themeColor = $modal.find('#themeColor').val(),
+            sideMenuActive = $modal.find('#sideMenuActive').is(':checked'),
+		    data = {
+                app_settings: {
+                    theme: { color: themeColor },
+                    sideMenu: { active: sideMenuActive }
+                }
+            };
 		if (sideMenuActive) {
 			data.app_settings.sideMenu.position = $modal.find('#sideMenuPosition').val();
 		}
 		
         DataProvider.provide('editAppSettings', data).done(function(response) {
-            var $resultMsg = $modal.find('#edit_account_result_msg');
+            let $resultMsg = $modal.find('#edit_account_result_msg');
             if (response == 1) {
                 // Update Account Model
                 user.appSettings = {

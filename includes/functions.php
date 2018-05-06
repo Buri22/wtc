@@ -1,6 +1,17 @@
 <?php
 include_once 'config.php';
 
+// Check if the request is an AJAX request
+function is_ajax($headers) {
+    return isset($headers['X-Requested-With']) && strtolower($headers['X-Requested-With']) == 'xmlhttprequest';
+}
+
+// Validate email
+function isValidEmail($email) {
+    return filter_var($email, FILTER_VALIDATE_EMAIL)
+            && preg_match('/[0-9A-z]+@[A-z]+\.[A-z]+/', $email);
+}
+
 function sec_session_start() {
     $session_name = 'sec_session_id';   // Set a custom session name
     $secure = SECURE;
