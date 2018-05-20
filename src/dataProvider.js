@@ -26,4 +26,6 @@ class DataProvider {
             dataType: 'json'
         });
     }
+
+    // TODO: create method to provide data from one module to other module that need it
 }

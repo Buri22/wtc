@@ -1,5 +1,5 @@
 /**
- * Created by Uživatel on 22.9.2017.
+ * Created by Uï¿½ivatel on 22.9.2017.
  */
 var Menu = function() {
     //var modules = [];

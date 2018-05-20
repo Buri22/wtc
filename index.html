@@ -22,25 +22,22 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
-    <script type="text/javascript" src="js/constants.js"></script>
-    <script type="text/javascript" src="js/mediator.js"></script>
-    <script type="text/javascript" src="js/dataProvider.js"></script>
-    <script type="text/javascript" src="js/helper.js"></script>
-    <script type="text/javascript" src="model/Tasks.js"></script>
-    <script type="text/javascript" src="Modules/Account.js"></script>
+    <script type="text/javascript" src="src/constants.js"></script>
+    <script type="text/javascript" src="src/mediator.js"></script>
+    <script type="text/javascript" src="src/dataProvider.js"></script>
+    <script type="text/javascript" src="src/helper.js"></script>
+    <script type="text/javascript" src="model/tasks.js"></script>
+    <!-- <script type="text/javascript" src="Modules/Account.js"></script> -->
     <script type="text/javascript" src="Modules/Menu.js"></script>
     <script type="text/javascript" src="Modules/Page.js"></script>
     <script type="text/javascript" src="Modules/Counter.js"></script>
-    <script type="text/javascript" src="js/App.js"></script>
+    <!-- <script type="text/javascript" src="src/app.js"></script> -->
 </head>
 <body>
 
     <div class="container" id="content"></div>
 
-    <script type="text/javascript">
-        var app = new App();
-        app.run();
-    </script>
+    <script src="dist/bundle.js"></script>
 
 </body>
 </html>

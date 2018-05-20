@@ -74,7 +74,7 @@ var Counter = function(models) {
                     $container.find('#edit_name').get(0).focus();
                     $container.find('#edit_result_msg').empty();
 
-                    Helper.bindKeyShortcutEvent($container, '.submit_btn.edit_btn');
+                    Helper2.bindKeyShortcutEvent($container, '.submit_btn.edit_btn');
                 });
                 $container.find('#delete_page').off('click').on('click', function() {
                     $container.find('#edit_page').removeClass('active');
@@ -86,12 +86,12 @@ var Counter = function(models) {
                     $container.find('#delete_task_password_confirm').get(0).focus();
                     $container.find('#edit_result_msg').empty();
 
-                    Helper.bindKeyShortcutEvent($container, '.submit_btn.delete_btn');
+                    Helper2.bindKeyShortcutEvent($container, '.submit_btn.delete_btn');
                 });
 
                 $container.find('#edit_date_created').datepicker(DATEPICKER_OPTIONS);
                 // Handle submit button according to changed form data
-                Helper.checkFormToDisableSubmitBtn($container.find('#edit_body input'), $container.find('.submit_btn.edit_btn'));
+                Helper2.checkFormToDisableSubmitBtn($container.find('#edit_body input'), $container.find('.submit_btn.edit_btn'));
                 break;
 
             default:
@@ -226,9 +226,9 @@ var Counter = function(models) {
             if (event.target.id == 'newTask') {
                 var create_body = Mustache.render($templates.filter('#modal_body_create').html(), {
                     taskSpentTime: '00:00:00',
-                    taskDateCreated: Helper.getFormatedDate()
+                    taskDateCreated: Helper2.getFormatedDate()
                 });
-                Helper.getModalTemplate($modal, {
+                Helper2.getModalTemplate($modal, {
                     modal_id: 'create_new_task',
                     title: 'Create new task',
                     modal_body: create_body,
@@ -247,10 +247,10 @@ var Counter = function(models) {
                 var edit_delete_body = Mustache.render($templates.filter('#modal_body_edit_delete').html(), {
                     taskName: items[itemIndex].Name,
                     taskSpentTime: spentTime,
-                    taskDateCreated: Helper.getFormatedDate(items[itemIndex].DateCreated)
+                    taskDateCreated: Helper2.getFormatedDate(items[itemIndex].DateCreated)
                 });
 
-                Helper.getModalTemplate($modal, {
+                Helper2.getModalTemplate($modal, {
                     modal_id: 'edit_task',
                     title: 'Edit task',
                     modal_body: edit_delete_body,
@@ -338,7 +338,8 @@ var Counter = function(models) {
     }
     function _getStorageTickingItem() {
         if (userId == null) {
-            userId = app.getLoggedUserId();
+            //userId = app.getLoggedUserId();
+            userId = mediator.publish('GetLoggedUserId')
         }
 
         return localStorage.getObject(WTC_TICKING_COUNTER + '-' + userId);
@@ -400,7 +401,8 @@ var Counter = function(models) {
                 items[itemIndex].TaskStarted = 1;
                 items[itemIndex].LastStart = data.last_start;
 
-                userId = app.getLoggedUserId();
+                //userId = app.getLoggedUserId();
+                userId = mediator.publish('GetLoggedUserId')
                 $activeListItem = $itemList.find('li[data-id="' + itemIndex + '"]');
                 startMyTimer(response);
 
