@@ -338,6 +338,7 @@ var Counter = function(models) {
     }
     function _getStorageTickingItem() {
         if (userId == null) {
+            // TODO: This isn't working => DataProvider should serve this data
             //userId = app.getLoggedUserId();
             userId = mediator.publish('GetLoggedUserId')
         }
@@ -401,6 +402,7 @@ var Counter = function(models) {
                 items[itemIndex].TaskStarted = 1;
                 items[itemIndex].LastStart = data.last_start;
 
+                // TODO: This isn't working => DataProvider should serve this data
                 //userId = app.getLoggedUserId();
                 userId = mediator.publish('GetLoggedUserId')
                 $activeListItem = $itemList.find('li[data-id="' + itemIndex + '"]');

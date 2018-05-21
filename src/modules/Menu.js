@@ -1,5 +1,5 @@
 /**
- * Created by U�ivatel on 22.9.2017.
+ * WTC core module that renders menu + all modules that want to be in the menu
  */
 var Menu = function() {
     //var modules = [];

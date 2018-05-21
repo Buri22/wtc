@@ -1,4 +1,5 @@
-import {Account} from '../Modules/Account';
+import $ from 'jquery';
+import {Account} from './modules/Account';
 
 /**
  * Initiates the modules and application render

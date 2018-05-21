@@ -1,8 +1,8 @@
 # Created by .ignore support plugin (hsz.mobi)
 .gitignore
-package.json
 package-lock.json
 
 .idea/
 .vscode/
+dist/
 node_modules/

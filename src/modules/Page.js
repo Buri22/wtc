@@ -1,5 +1,5 @@
 /**
- * Created by U�ivatel on 22.9.2017.
+ * WTC core module that renders page layout based on appSettings + the default module page
  */
 var Page = function($pageContainer) {
     var $container   = $pageContainer,

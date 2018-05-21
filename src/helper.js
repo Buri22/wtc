@@ -58,6 +58,11 @@ var Helper = {
 
 class Helper2 {
 
+    static switchDayMonth(stringDate) {
+        let result = stringDate.split(' ')[0].split('-');
+        return result[1] + '.' + result[2] + '.' + result[0] ;
+    }
+
     static getFormatedDate(d) {
         d = typeof d == 'string' ? new Date(this.switchDayMonth(d)) : new Date();
         var curr_date = d.getDate();
