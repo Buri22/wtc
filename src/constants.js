@@ -12,3 +12,5 @@ const APP_SETTINGS_OPTIONS = {
     themeColors: ['green', 'blue', 'purple'],
     sideMenuPositions: ['left', 'right']
 };
+
+export {WTC_TICKING_COUNTER, DATEPICKER_OPTIONS, APP_SETTINGS_OPTIONS};

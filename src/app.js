@@ -1,21 +1,20 @@
 import $ from 'jquery';
-import {Account} from './modules/Account';
+
+import {mediator} from './mediator';
+import {dataProvider} from './dataProvider';
+//import {APP_SETTINGS_OPTIONS} from './constants';
+
+import Helper from './helper';
+import Menu from './modules/Menu';
+import Page from './modules/Page';
+import Account from './modules/Account';
+import Counter from './modules/Counter';
 
 /**
  * Initiates the modules and application render
  */
 class App {
     constructor() {
-        /**
-         * App settings
-         * @type JSON
-         */
-        this.appSettings = null
-        /**
-         * App settings options
-         */
-        this.appOptions = APP_SETTINGS_OPTIONS
-
         /**
          * Container for the whole app
          * @type jQuery object
@@ -36,11 +35,10 @@ class App {
         this.account = new Account()
         this.menu    = new Menu()
         this.page    = new Page(this.$pageContent)
-        this.counter = new Counter([new Tasks()])
+        this.counter = new Counter()
 
         // Subscribe to listen for calls from outside
         mediator.subscribe('UserLogin', this.renderAppLayout.bind(this))
-        mediator.subscribe('GetAppOptions', this.getAppOptions)
     }
 
     /**
@@ -48,24 +46,25 @@ class App {
      */
     run() {
         // Check if user is logged in
-       DataProvider.provide('checkLogin').done((result) => {
-           if (result){
-               // Define user model
-               this.account.setUser(result);
-               this.appSettings = this.account.getUserAppSettings();
+        dataProvider.provide('checkLogin').done((result) => {
+            if (result){
+                // Define user model
+                // TODO: refactor this code to use new User model
+                this.account.setUser(result);
+                //this.appSettings = this.account.getUserAppSettings();
 
-               this.renderAppLayout();
-           }
-           else {
-               this.account.renderLogin();
-           }
-       });
+                this.renderAppLayout();
+            }
+            else {
+                this.account.renderLogin();
+            }
+        });
 
         $(document)
             // Every time a modal is shown, if it has an autofocus attribute, focus on it.
             .on('shown.bs.modal','.modal', function () {
                 $(this).find('[autofocus]').focus();
-                Helper2.bindKeyShortcutEvent(this, '.submit_btn:visible');
+                Helper.bindKeyShortcutEvent(this, '.submit_btn:visible');
             })
             // Clear .modal after close
             .on('hidden.bs.modal', '.modal', function () {
@@ -77,7 +76,7 @@ class App {
             this.setItem(key, JSON.stringify(value));
         };
         Storage.prototype.getObject = function(key) {
-            return this.getItem(key) && JSON.parse(value);
+            return this.getItem(key) && JSON.parse(this.getItem(key));
         };
     }
 
@@ -88,12 +87,8 @@ class App {
         this.menu.renderMenu(this.$menu);
 
         // Load page layout
-        this.page.renderPage(this.appSettings);
+        this.page.renderPage(this.account.user.appSettings);
 
-    }
-
-    getAppOptions() {
-        return this.appOptions;
     }
 }
 

@@ -1,11 +1,17 @@
 import $ from 'jquery';
+
+import {mediator} from '../mediator';
+import {dataProvider} from '../dataProvider';
+import {APP_SETTINGS_OPTIONS} from '../constants';
+
+import Helper from '../helper';
 import User from '../model/user';
 
 /**
  * Account module object.
  * Handles Login and Register pages and logged in user account
  */
-class Account {
+export default class Account {
     constructor() {
         this.user = null;
         this.$content = $('#content')
@@ -46,24 +52,21 @@ class Account {
         mediator.subscribe('LogOut', this._logOut.bind(this));
         mediator.subscribe('MenuReadyToImportModuleItems', this._renderMenuItem.bind(this));
         mediator.subscribe('ReadyToBindModalEvents', this._bindModalEvents.bind(this));
-        mediator.subscribe('GetLoggedUserId', this.getUserId.bind(this))
+        // TODO: this code is not working, solve sending data from one module to another one
+        //mediator.subscribe('GetLoggedUserId', this.getUserId.bind(this))
+        dataProvider.register('GetLoggedUserId', this, this.getUserId);
     }
 
-    
     setUser(userData) {
-        this.user = {
-            id: userData.Id,
-            userName: userData.UserName,
-            email: userData.Email,
-			appSettings: JSON.parse(userData.AppSettings)
-        };
+        this.user = new User(userData);
     }
     getUserId() {
-        return this.user.id || false;
+        //return this.user.id || false;
+        return this.user.getId() || false;
     }
-	getUserAppSettings() {
-		return this.user.appSettings;
-	}
+	// getUserAppSettings() {
+	// 	return this.user.appSettings;
+	// }
 
     renderLogin(msg) {
         if (typeof this.$loginPage == 'undefined') {
@@ -107,7 +110,8 @@ class Account {
                 themeColorOptions = [], sideMenuPositions = [],
                 checked, selected = '',
                 sectionDisplay = 'none';
-            if (this.user.appSettings.sideMenu.active) {
+            // if (this.user.appSettings.sideMenu.active) {
+            if (this.user.isSideMenuActive()) {
                 checked = 'checked';
                 sectionDisplay = 'block';
             }
@@ -146,19 +150,19 @@ class Account {
                             + $submitBtn.hide().removeClass('account_btn').addClass('app_btn').parent().html()
             };
 
-            Helper2.getModalTemplate(this.$modal, data);
+            Helper.getModalTemplate(this.$modal, data);
         });
     }
 
     _bindLoginEvents() {
         this.$loginBtn.on('click', this.login.bind(this));
         this.$registrationLink.on('click', this.renderRegister.bind(this));
-        Helper2.bindKeyShortcutEvent(this.$loginPage, '#login');
+        Helper.bindKeyShortcutEvent(this.$loginPage, '#login');
     }
     _bindRegitrationEvents() {
         this.$registerBtn.on('click', this.register.bind(this));
         this.$loginLink.on('click', this.renderLogin.bind(this));
-        Helper2.bindKeyShortcutEvent(this.$regPage, '#register');
+        Helper.bindKeyShortcutEvent(this.$regPage, '#register');
     }
     _bindMenuItemsEvents() {
         this.$logoutMenuItem.off('click').on('click', this._logOut.bind(this));
@@ -180,8 +184,8 @@ class Account {
 				$container.find('#app_settings_body, .submit_btn.app_btn').hide();
 				$container.find('#edit_account_result_msg').empty();
 
-				Helper2.bindKeyShortcutEvent($container, '.submit_btn.account_btn');
-                Helper2.checkFormToDisableSubmitBtn($container.find('#account_settings_body input, #account_settings_body select'), $container.find('.submit_btn.account_btn'));
+				Helper.bindKeyShortcutEvent($container, '.submit_btn.account_btn');
+                Helper.checkFormToDisableSubmitBtn($container.find('#account_settings_body input, #account_settings_body select'), $container.find('.submit_btn.account_btn'));
 			});
 			$container.find('#app_page').off('click').on('click', () => {
 				$container.find('#account_page').removeClass('active');
@@ -191,13 +195,13 @@ class Account {
 				$container.find('#app_settings_body, .submit_btn.app_btn').show();
 				$container.find('#edit_account_result_msg').empty();
 
-				Helper2.bindKeyShortcutEvent($container, '.submit_btn.app_btn');
-                Helper2.checkFormToDisableSubmitBtn($container.find('#app_settings_body input, #app_settings_body select'), $container.find('.submit_btn.app_btn'));
+				Helper.bindKeyShortcutEvent($container, '.submit_btn.app_btn');
+                Helper.checkFormToDisableSubmitBtn($container.find('#app_settings_body input, #app_settings_body select'), $container.find('.submit_btn.app_btn'));
 			});
 			
             // Handle submit button according to changed form data in default Account settings page
-            Helper2.bindKeyShortcutEvent($container, '.submit_btn.account_btn');
-            Helper2.checkFormToDisableSubmitBtn($container.find('#account_settings_body input, #account_settings_body select'), $container.find('.submit_btn.account_btn'));
+            Helper.bindKeyShortcutEvent($container, '.submit_btn.account_btn');
+            Helper.checkFormToDisableSubmitBtn($container.find('#account_settings_body input, #account_settings_body select'), $container.find('.submit_btn.account_btn'));
         }
     }
 
@@ -207,10 +211,10 @@ class Account {
             password: this.$loginPassword.val()
         };
 
-        DataProvider.provide('login', data).done((response) => {
+        dataProvider.provide('login', data).done((response) => {
             if (response.Id && response.UserName) {
-                this.user = new User(response);
                 //this.setUser(response);
+                this.user = new User(response);
                 mediator.publish('UserLogin');
             }
             else if (response == 2) {
@@ -235,7 +239,7 @@ class Account {
     }
     _logOut(msg) {
         msg = typeof msg == 'string' ? msg : 'You have been successfully logged out.';
-        DataProvider.provide('logout').done((response) => {
+        dataProvider.provide('logout').done((response) => {
             if (response) {
                 this.renderLogin(msg);
             }
@@ -253,7 +257,7 @@ class Account {
             password_confirm: this.$regPasswordConfirm.val()
         };
 
-        DataProvider.provide('register', data).done((response) => {
+        dataProvider.provide('register', data).done((response) => {
             if (response == 1) {  // new user was created successfully
                 renderLogin('You were successfully registered, please login with your credentials.');
             }
@@ -291,7 +295,7 @@ class Account {
             data['password_confirm'] = this.$modal.find('#password_confirm').val().trim();
         }
 
-        DataProvider.provide('editAccount', data).done((response) => {
+        dataProvider.provide('editAccount', data).done((response) => {
             let $resultMsg = this.$modal.find('#edit_account_result_msg');
             if (response == 1) {
                 // Update Account Model
@@ -336,7 +340,7 @@ class Account {
 			data.app_settings.sideMenu.position = this.$modal.find('#sideMenuPosition').val();
 		}
 		
-        DataProvider.provide('editAppSettings', data).done((response) => {
+        dataProvider.provide('editAppSettings', data).done((response) => {
             let $resultMsg = this.$modal.find('#edit_account_result_msg');
             if (response == 1) {
                 // Update Account Model
@@ -363,5 +367,3 @@ class Account {
 	}
 
 }
-
-export {Account};

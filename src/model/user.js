@@ -1,8 +1,8 @@
 export default class User {
     constructor(userData) {
-        this.id = userData.Id;
-        this.userName = userData.UserName;
-        this.email = userData.Email;
+        this.id          = userData.Id;
+        this.userName    = userData.UserName;
+        this.email       = userData.Email;
         this.appSettings = JSON.parse(userData.AppSettings);
     }
 
@@ -10,7 +10,7 @@ export default class User {
     getId() {
         return this.id || false;
     }
-	getAppSettings() {
-		return this.appSettings;
-	}
+	isSideMenuActive() {
+        return this.appSettings.sideMenu.active;
+    }
 }

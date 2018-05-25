@@ -1,47 +1,93 @@
+import {mediator} from '../mediator';
+
 /**
  * WTC core module that renders page layout based on appSettings + the default module page
  */
-var Page = function($pageContainer) {
-    var $container   = $pageContainer,
-		$pageContent = $('<div></div>', { id: 'pageContent' }),
-    	$sideMenu    = $('<div></div>', { id: 'sideMenu' });
+// var Page = function($pageContainer) {
+//     var $container   = $pageContainer,
+// 		$pageContent = $('<div></div>', { id: 'pageContent' }),
+//     	$sideMenu    = $('<div></div>', { id: 'sideMenu' });
 
-    function renderPage(appSettings) {
+//     function renderPage(appSettings) {
+//     	// TODO: implement change of theme color
+// 		// Define Page layout
+// 		if (appSettings.sideMenu.active) {
+// 			$sideMenu.empty().addClass('col-md-3');
+// 			$pageContent.empty().addClass('col-md-9');
+
+// 			if (appSettings.sideMenu.position == 'left') {
+// 				$container.append($sideMenu, $pageContent);
+// 			}
+// 			else if (appSettings.sideMenu.position == 'right') {
+// 				$container.append($pageContent, $sideMenu);
+// 			}
+
+// 			mediator.publish('PageReadyToImportSideMenuItems', $sideMenu);
+// 			mediator.publish('ActiveSideMenu');
+// 		}
+// 		else {
+// 			$container.append($pageContent.empty());
+// 		}
+
+// 		// All Moules which want to be in page have to subscribe for "PageReadyToImportModuleItems" event
+// 		mediator.publish('PageReadyToImportModuleItems', $pageContent);
+//     }
+
+//     function addItemToSideMenu(item) {
+//         $sideMenu.append($(item));
+//     }
+//     function removeItemFromSideMenu(selector) {
+//         $sideMenu.find('#' + selector).remove();
+//     }
+
+//     mediator.subscribe('ReloadPageLayout', renderPage);
+//     mediator.subscribe('AddItemToSideMenu', addItemToSideMenu);
+//     mediator.subscribe('RemoveItemFromSideMenu', removeItemFromSideMenu);
+//     return {
+//         renderPage: renderPage
+//     }
+// };
+
+export default class Page {
+	constructor($pageContainer) {
+		this.$container   = $pageContainer;
+		this.$pageContent = $('<div></div>', { id: 'pageContent' });
+		this.$sideMenu    = $('<div></div>', { id: 'sideMenu' });
+
+		mediator.subscribe('ReloadPageLayout', this.renderPage.bind(this));
+		mediator.subscribe('AddItemToSideMenu', this.addItemToSideMenu.bind(this));
+		mediator.subscribe('RemoveItemFromSideMenu', this.removeItemFromSideMenu.bind(this));
+	}
+
+	renderPage(appSettings) {
     	// TODO: implement change of theme color
 		// Define Page layout
 		if (appSettings.sideMenu.active) {
-			$sideMenu.empty().addClass('col-md-3');
-			$pageContent.empty().addClass('col-md-9');
+			this.$sideMenu.empty().addClass('col-md-3');
+			this.$pageContent.empty().addClass('col-md-9');
 
 			if (appSettings.sideMenu.position == 'left') {
-				$container.append($sideMenu, $pageContent);
+				this.$container.append(this.$sideMenu, this.$pageContent);
 			}
 			else if (appSettings.sideMenu.position == 'right') {
-				$container.append($pageContent, $sideMenu);
+				this.$container.append(this.$pageContent, this.$sideMenu);
 			}
 
-			mediator.publish('PageReadyToImportSideMenuItems', $sideMenu);
+			mediator.publish('PageReadyToImportSideMenuItems', this.$sideMenu);
 			mediator.publish('ActiveSideMenu');
 		}
 		else {
-			$container.append($pageContent.empty());
+			$container.append(this.$pageContent.empty());
 		}
 
 		// All Moules which want to be in page have to subscribe for "PageReadyToImportModuleItems" event
-		mediator.publish('PageReadyToImportModuleItems', $pageContent);
+		mediator.publish('PageReadyToImportModuleItems', this.$pageContent);
     }
 
-    function addItemToSideMenu(item) {
-        $sideMenu.append($(item));
+    addItemToSideMenu(item) {
+        this.$sideMenu.append($(item));
     }
-    function removeItemFromSideMenu(selector) {
-        $sideMenu.find('#' + selector).remove();
+    removeItemFromSideMenu(selector) {
+        this.$sideMenu.find('#' + selector).remove();
     }
-
-    mediator.subscribe('ReloadPageLayout', renderPage);
-    mediator.subscribe('AddItemToSideMenu', addItemToSideMenu);
-    mediator.subscribe('RemoveItemFromSideMenu', removeItemFromSideMenu);
-    return {
-        renderPage: renderPage
-    }
-};
+}
