@@ -1,4 +1,5 @@
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+var webpack = require('webpack');
 
 module.exports = {
     entry: './src/app.js',
@@ -8,7 +9,13 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin([
             {from:'css/*.css',to:'dist'} 
-        ]), 
+        ]),
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+            'window.jQuery': 'jquery',
+            Popper: ['popper.js', 'default']
+        })
     ],
     module: {
         loaders: [

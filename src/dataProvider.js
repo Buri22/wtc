@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 /**
  * Provides data from database via ajax call
  */

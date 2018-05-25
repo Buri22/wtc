@@ -2,7 +2,6 @@ import $ from 'jquery';
 
 import {mediator} from './mediator';
 import {dataProvider} from './dataProvider';
-//import {APP_SETTINGS_OPTIONS} from './constants';
 
 import Helper from './helper';
 import Menu from './modules/Menu';
@@ -62,12 +61,12 @@ class App {
 
         $(document)
             // Every time a modal is shown, if it has an autofocus attribute, focus on it.
-            .on('shown.bs.modal','.modal', function () {
+            .on('shown.bs.modal','.modal', function() {
                 $(this).find('[autofocus]').focus();
                 Helper.bindKeyShortcutEvent(this, '.submit_btn:visible');
             })
             // Clear .modal after close
-            .on('hidden.bs.modal', '.modal', function () {
+            .on('hidden.bs.modal', '.modal', function() {
                 $(this).empty();
             });
 

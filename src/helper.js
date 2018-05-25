@@ -1,3 +1,6 @@
+import $ from 'jquery';
+import 'bootstrap';
+
 import {mediator} from './mediator';
 
 /**
@@ -54,7 +57,7 @@ export default class Helper {
 
     
     static getModalTemplate($modal, data) {
-        $.get('view/modal.htm', function(template) {
+        $.get('view/modal.htm', (template) => {
             $modal.append(Mustache.render($(template).html(), data))
                 .modal('show');
 
