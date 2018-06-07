@@ -1,7 +1,3 @@
-import $ from 'jquery';
-import 'bootstrap';
-import 'bootstrap-datepicker';
-
 import {mediator} from '../mediator';
 import {dataProvider} from '../dataProvider';
 import {WTC_TICKING_COUNTER, DATEPICKER_OPTIONS} from '../constants';
@@ -375,9 +371,6 @@ export default class Counter {
     }
     _getStorageTickingItem() {
         if (this.userId == null) {
-            // TODO: This isn't working => dataProvider should serve this data
-            //this.userId = app.getLoggedUserId();
-            //this.userId = mediator.publish('GetLoggedUserId')
             this.userId = dataProvider.getValue('LoggedUserId');
         }
 
@@ -440,9 +433,6 @@ export default class Counter {
                 this.itemList[itemIndex].TaskStarted = 1;
                 this.itemList[itemIndex].LastStart = data.last_start;
 
-                // TODO: This isn't working => dataProvider should serve this data
-                //this.userId = app.getLoggedUserId();
-                //this.userId = mediator.publish('GetLoggedUserId');
                 this.userId = dataProvider.getValue('LoggedUserId');
                 this.$activeListItem = this.$itemList.find('li[data-id="' + itemIndex + '"]');
                 this.startMyTimer(response);

@@ -1,6 +1,3 @@
-import $ from 'jquery';
-import 'bootstrap';
-
 import {mediator} from './mediator';
 
 /**

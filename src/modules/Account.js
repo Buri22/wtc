@@ -1,5 +1,3 @@
-import $ from 'jquery';
-
 import {mediator} from '../mediator';
 import {dataProvider} from '../dataProvider';
 import {APP_SETTINGS_OPTIONS} from '../constants';
@@ -52,9 +50,7 @@ export default class Account {
         mediator.subscribe('LogOut', this._logOut.bind(this));
         mediator.subscribe('MenuReadyToImportModuleItems', this._renderMenuItem.bind(this));
         mediator.subscribe('ReadyToBindModalEvents', this._bindModalEvents.bind(this));
-        // TODO: this code is not working, solve sending data from one module to another one
-        //mediator.subscribe('GetLoggedUserId', this.getUserId.bind(this))
-        dataProvider.register('GetLoggedUserId', this, this.getUserId);
+        dataProvider.register('LoggedUserId', this, this.getUserId);
     }
 
     setUser(userData) {

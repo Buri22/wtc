@@ -1,4 +1,6 @@
 import $ from 'jquery';
+import 'bootstrap';
+import 'bootstrap-datepicker';
 
 import {mediator} from './mediator';
 import {dataProvider} from './dataProvider';

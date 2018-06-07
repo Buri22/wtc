@@ -1,5 +1,3 @@
-import $ from 'jquery';
-
 /**
  * Provides data from database via ajax call
  */
@@ -12,7 +10,7 @@ class DataProvider {
         this.getActions = {}
     }
     
-    // TODO: create method to provide data from one module to other module that need it
+    // Method to provide data from one module to other module that need it
     register(getAction, object, func) {
         this.getActions[getAction] = {
             context: object,
@@ -21,12 +19,12 @@ class DataProvider {
     }
 
     getValue(getAction) {
-        if (!this.getActions['Get' + getAction]) {
+        if (!this.getActions[getAction]) {
             return false;
         }
 
         // The last registered getAction is executed and its return value is returned
-        let reg = this.getActions['Get' + getAction];
+        let reg = this.getActions[getAction];
         return reg.func.apply(reg.context);
     }
 
