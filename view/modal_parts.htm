@@ -101,7 +101,7 @@
 			<div class="form-group">
 				<label class="col-md-4 control-label" for="change_password">Change Password</label>
 				<div class="col-md-6">
-					<input type="checkbox" name="change_password" id="change_password" onclick="$('section.password_section').toggle();">
+					<input type="checkbox" name="change_password" id="change_password" >
 				</div>
 			</div>
 			<section class="password_section">
@@ -147,7 +147,7 @@
 			<div class="form-group">
 				<label class="col-md-4 control-label" for="sideMenuActive">Side Menu active</label>
 				<div class="col-md-6">
-					<input type="checkbox" name="sideMenuActive" id="sideMenuActive" onclick="$('section.side_menu_position').toggle();" {{appSettings.checked}}>
+					<input type="checkbox" name="sideMenuActive" id="sideMenuActive" {{appSettings.checked}}>
 				</div>
 			</div>
 			<section class="side_menu_position" style="display:{{appSettings.sectionDisplay}};">

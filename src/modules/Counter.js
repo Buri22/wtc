@@ -65,7 +65,7 @@ export default class Counter {
     loadItemModel() {
         dataProvider.provide('getTaskList').done((taskListData) => {
             if (taskListData) {
-                this.itemList = new TaskList(taskListData).taskList;
+                this.itemList = new TaskList(taskListData);
 
                 mediator.publish('CounterModelLoaded');
             }
@@ -89,13 +89,13 @@ export default class Counter {
     bindModalEvents($container) {
         switch ($container.find('.modal-dialog').attr('id')) {
             case 'create_new_task':
-                $container.find('.submit_btn').off('click').on('click', this._createTask);
+                $container.find('.submit_btn').off('click').on('click', this._createTask.bind(this));
                 $container.find('#new_task_date_created').datepicker(DATEPICKER_OPTIONS);
                 break;
             case 'edit_task':
                 // Submit btn actions
-                $container.find('.submit_btn.edit_btn').off('click').on('click', this._editTask);
-                $container.find('.submit_btn.delete_btn').off('click').on('click', this._deleteTask);
+                $container.find('.submit_btn.edit_btn').off('click').on('click', this._editTask.bind(this));
+                $container.find('.submit_btn.delete_btn').off('click').on('click', this._deleteTask.bind(this));
 
                 // Edit/Delete tab click event
                 $container.find('#edit_page').off('click').on('click', () => {
@@ -172,7 +172,7 @@ export default class Counter {
         // if (!items) {
         //     items = this.itemList.getTasklist();
         // }
-        this.pagination.totalItems = this.itemList.length;
+        this.pagination.totalItems = this.itemList.taskList.length;
         let itemsPerPage = this.pagination.itemsPerPage[this.pagination.itemsPerPageIndex];
         if ((this.pagination.currentPage - 1) * itemsPerPage > this.pagination.totalItems) {
             this.pagination.currentPage = 1;
@@ -181,7 +181,7 @@ export default class Counter {
         var endIndex = startIndex + itemsPerPage;
         for (var i = 0; i < this.pagination.totalItems; i++) {
             // Save ticking task by defining activeItemIndex
-            if (this.itemList[i].taskStarted) {
+            if (this.itemList.taskList[i].taskStarted) {
                 this.activeItemIndex = i;
             }
 
@@ -189,8 +189,8 @@ export default class Counter {
                 itemList.push({
                     index: this.pagination.totalItems - i,
                     Id: i,
-                    Name: this.itemList[i].name,
-                    SpentTime: this.secondsToHms(this.itemList[i].spentTime)
+                    Name: this.itemList.taskList[i].name,
+                    SpentTime: this.secondsToHms(this.itemList.taskList[i].spentTime)
                 });
             }
         }
@@ -272,16 +272,16 @@ export default class Counter {
             // Edit/Delete task
             else if (event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id')) {
                 var itemIndex = Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'));
-                var spentTime = this.secondsToHms(this.itemList[itemIndex].SpentTime);
+                var spentTime = this.secondsToHms(this.itemList.taskList[itemIndex].spentTime);
                 var storageTickingItem = localStorage.getObject(WTC_TICKING_COUNTER + '-' + this.userId);
                 if (storageTickingItem != null && typeof storageTickingItem.spent_time != 'undefined') {
                     spentTime = storageTickingItem.spent_time;
                 }
 
                 var edit_delete_body = Mustache.render($templates.filter('#modal_body_edit_delete').html(), {
-                    taskName: this.itemList[itemIndex].Name,
+                    taskName: this.itemList.taskList[itemIndex].name,
                     taskSpentTime: spentTime,
-                    taskDateCreated: Helper.getFormatedDate(this.itemList[itemIndex].DateCreated)
+                    taskDateCreated: Helper.getFormatedDate(this.itemList.taskList[itemIndex].dateCreated)
                 });
 
                 Helper.getModalTemplate(this.$modal, {
@@ -314,14 +314,14 @@ export default class Counter {
         }
     }
     getTickingSideMenuItem(itemIndex) {
-        var spentTimeHms = this.secondsToHms(this.itemList[itemIndex].SpentTime);
+        var spentTimeHms = this.secondsToHms(this.itemList.taskList[itemIndex].spentTime);
         var storageTickingItem = this._getStorageTickingItem();
         if (storageTickingItem != null && storageTickingItem.spent_time) {
             spentTimeHms = storageTickingItem.spent_time;
         }
 
-        //this.$sideMenuItem.find('.task_index').text(this.itemList.length - itemIndex + '.');
-        this.$sideMenuItem.find('.name').text(this.itemList.length - itemIndex + '. ' + this.itemList[itemIndex].Name);
+        //this.$sideMenuItem.find('.task_index').text(this.itemList.taskList.length - itemIndex + '.');
+        this.$sideMenuItem.find('.name').text(this.itemList.taskList.length - itemIndex + '. ' + this.itemList.taskList[itemIndex].name);
         this.$sideMenuItem.find('.spent_time').text(spentTimeHms);
         this.$sideMenuItem.attr('data-id', itemIndex);
 
@@ -384,9 +384,9 @@ export default class Counter {
         if (storageTickingItem != null
             && storageTickingItem.spent_time
             && storageTickingItem.task_id
-            && this.activeItemIndex != null && this.itemList[this.activeItemIndex].Id == storageTickingItem.task_id) {
+            && this.activeItemIndex != null && this.itemList.taskList[this.activeItemIndex].Id == storageTickingItem.task_id) {
             if (startTicking) {
-                this.startMyTimer(this.itemList[this.activeItemIndex], storageTickingItem.spent_time);
+                this.startMyTimer(this.itemList.taskList[this.activeItemIndex], storageTickingItem.spent_time);
                 mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(this.activeItemIndex));
             }
             else {  // Just render ticking time
@@ -394,7 +394,7 @@ export default class Counter {
             }
         }
         else if (startTicking && this.activeItemIndex != null) {    // Storage Ticking Item is missing
-            this.startMyTimer(this.itemList[this.activeItemIndex]);
+            this.startMyTimer(this.itemList.taskList[this.activeItemIndex]);
             mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(this.activeItemIndex));
         }
     }
@@ -416,7 +416,7 @@ export default class Counter {
     _startTicking(event) {
         var itemIndex = Number(event.target.parentElement.dataset.id);
         var data = {
-            task_id: this.itemList[itemIndex].Id,
+            task_id: this.itemList.taskList[itemIndex].id,
             last_start: Math.round(new Date().getTime() / 1000) // We store time in seconds
         };
         dataProvider.provide("startTask", data).done((response) => {
@@ -431,8 +431,8 @@ export default class Counter {
             }
             else if (response.Id) {
                 // Update model
-                this.itemList[itemIndex].TaskStarted = 1;
-                this.itemList[itemIndex].LastStart = data.last_start;
+                this.itemList.taskList[itemIndex].taskStarted = 1;
+                this.itemList.taskList[itemIndex].lastStart = data.last_start;
 
                 this.userId = dataProvider.getValue('LoggedUserId');
                 this.$activeListItem = this.$itemList.find('li[data-id="' + itemIndex + '"]');
@@ -440,7 +440,7 @@ export default class Counter {
 
                 this.$sideMenuItem.find('.stop').on('click', this._stopTicking);
                 this.setActiveTaskListItem();
-                mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(itemIndex, this.itemList));
+                mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(itemIndex, this.itemList.taskList));
                 this.$resultMsg.text('Started successfully!');
             }
             else {
@@ -454,7 +454,7 @@ export default class Counter {
         var itemIndex = Number(event.target.parentElement.dataset.id);
         if (data == null || typeof data.task_id == 'undefined' || typeof data.spent_time == 'undefined') {
             data = {
-                task_id: this.itemList[itemIndex].Id
+                task_id: this.itemList.taskList[itemIndex].id
             }
         }
         dataProvider.provide("stopTask", data).done((response) => {
@@ -472,8 +472,8 @@ export default class Counter {
             }
             else if (response) {
                 // Update model
-                this.itemList[itemIndex].SpentTime = response.SpentTime || 0;
-                this.itemList[itemIndex].TaskStarted = 0;
+                this.itemList.taskList[itemIndex].spentTime = response.SpentTime || 0;
+                this.itemList.taskList[itemIndex].taskStarted = 0;
 
                 clearInterval(window.myTime);   // Stop ticking
                 this.deleteLocalStorage();   // Clear localStorage
@@ -481,7 +481,7 @@ export default class Counter {
                 this.unsetActiveTaskListItem();
                 mediator.publish('RemoveItemFromSideMenu', this.$sideMenuItem.attr('id'));
                 this.activeItemIndex = null;
-                this.$resultMsg.html("<strong>" + this.itemList[itemIndex].Name + "</strong> stopped successfully!");
+                this.$resultMsg.html("<strong>" + this.itemList.taskList[itemIndex].name + "</strong> stopped successfully!");
             }
             else this.$resultMsg.text('Stopping failed!');
         });
@@ -499,8 +499,8 @@ export default class Counter {
         dataProvider.provide("createTask", data).done((response) => {
             if (response.Name == data.new_name) {
                 // Update model
-                this.itemList.unshift(response);    // Adds created Task to the beginning of this.itemList array
-                this.pagination.totalItems = this.itemList.length;
+                this.itemList.addTask(response);    // Adds created Task to the beginning of this.itemList.taskList array
+                this.pagination.totalItems = this.itemList.taskList.length;
 
                 this._renderTaskList();
                 this.bindCounterEvents();
@@ -528,7 +528,7 @@ export default class Counter {
         var $editResultMsg = this.$modal.find('#edit_result_msg');
         var itemIndex = Number(event.target.dataset.id);
         var data = {
-            item_id:          this.itemList[itemIndex].Id,
+            item_id:          this.itemList.taskList[itemIndex].id,
             new_name:         this.$modal.find('#edit_name').val().trim(),
             new_spent_time:   this.$modal.find('#edit_spent_time').val().trim(),
             new_date_created: this.$modal.find('#edit_date_created').val().trim()
@@ -536,9 +536,9 @@ export default class Counter {
         dataProvider.provide('editTask', data).done((response) => {
             if (response.Name == data.new_name) {
                 // Update model
-                this.itemList[itemIndex].Name        = response.Name;
-                this.itemList[itemIndex].SpentTime   = response.SpentTime;
-                this.itemList[itemIndex].DateCreated = response.DateCreated;
+                this.itemList.taskList[itemIndex].name        = response.Name;
+                this.itemList.taskList[itemIndex].spentTime   = response.SpentTime;
+                this.itemList.taskList[itemIndex].dateCreated = response.DateCreated;
 
                 this._renderTaskList();
                 this.bindCounterEvents();
@@ -573,14 +573,14 @@ export default class Counter {
         var task_index = Number(event.target.dataset.id);
         var $deleteResultMsg = this.$modal.find('#edit_result_msg');
         var data = {
-            task_id: this.itemList[task_index].Id,
+            task_id: this.itemList.taskList[task_index].id,
             password: this.$modal.find('#delete_task_password_confirm').val().trim()
         };
         dataProvider.provide('deleteTask', data).done((response) => {
             if (response == false) {
                 // Update model
-                this.itemList.splice(task_index, 1);
-                this.pagination.totalItems = this.itemList.length;
+                this.itemList.removeTask(task_index);
+                this.pagination.totalItems = this.itemList.taskList.length;
                 this.$resultMsg.text("Task was deleted successfully.");
 
                 this._renderTaskList();
@@ -621,7 +621,7 @@ export default class Counter {
         //mediator.publish('ClearDataModel');
     }
     _adjustViewForNoTasks() {
-        if (this.itemList.length == 0) {
+        if (this.itemList.taskList.length == 0) {
             this.$itemList.empty();
             this.$resultMsg.text("Please create task, by clicking on the Create button.");
         }

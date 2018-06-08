@@ -194,8 +194,14 @@ export default class Account {
 
 				Helper.bindKeyShortcutEvent($container, '.submit_btn.app_btn');
                 Helper.checkFormToDisableSubmitBtn($container.find('#app_settings_body input, #app_settings_body select'), $container.find('.submit_btn.app_btn'));
-			});
-			
+            });
+            $container.find('#change_password').off('click').on('click', () => {
+                $container.find('section.password_section').toggle();
+            });
+            $container.find('#sideMenuActive').off('click').on('click', () => {
+                $container.find('section.side_menu_position').toggle();
+            });
+            
             // Handle submit button according to changed form data in default Account settings page
             Helper.bindKeyShortcutEvent($container, '.submit_btn.account_btn');
             Helper.checkFormToDisableSubmitBtn($container.find('#account_settings_body input, #account_settings_body select'), $container.find('.submit_btn.account_btn'));

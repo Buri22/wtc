@@ -65,23 +65,20 @@ body {
   width: 94%;
   height: 36px;
   margin: -8px;
-  left: 0px;
+  left: 28px;
   background-color: #337ab7;
   border-radius: 4px;
   opacity: 0;
 }
-#taskList > li > .task_index {
-  width: 3%;
-}
 #taskList > li > .name {
-  width: 75%;
   overflow: hidden;
   margin-bottom: -5px;
 }
 #taskList > li > .spent_time {
-  width: 10%;
   min-width: 70px;
   text-align: right;
+  float: right;
+  margin-right: 65px;
 }
 #taskList > li > button.start,
 #taskList > li > button.stop {

@@ -24,11 +24,16 @@ export default class TaskList {
         mediator.subscribe('UserLogout', this.clearDataModel.bind(this));
     }
 
-
+    addTask(task) {
+        this.taskList.unshift(new Task(task));
+    }
+    removeTask(taskIndex) {
+        this.taskList.splice(taskIndex, 1);
+    }
     getTasklist() {
         return this.taskList;
     }
-    clearDataModel () {
+    clearDataModel() {
         this.taskList = null;
     }
 }
