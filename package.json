@@ -11,6 +11,7 @@
         "bootstrap": "3.3.7",
         "bootstrap-datepicker": "^1.8.0",
         "jquery": "^3.3.1",
+        "mustache": "^2.3.0",
         "popper.js": "^1.14.3",
         "webpack": "^3.12.0"
     },

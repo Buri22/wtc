@@ -2,6 +2,7 @@ import {mediator} from '../mediator';
 import {dataProvider} from '../dataProvider';
 import {WTC_TICKING_COUNTER, DATEPICKER_OPTIONS} from '../constants';
 
+import Mustache from 'mustache';
 import Helper from '../helper';
 import TaskList from '../model/task';
 

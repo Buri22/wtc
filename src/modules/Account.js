@@ -2,6 +2,7 @@ import {mediator} from '../mediator';
 import {dataProvider} from '../dataProvider';
 import {APP_SETTINGS_OPTIONS} from '../constants';
 
+import Mustache from 'mustache';
 import Helper from '../helper';
 import User from '../model/user';
 

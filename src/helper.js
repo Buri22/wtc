@@ -1,4 +1,5 @@
 import {mediator} from './mediator';
+import Mustache from 'mustache';
 
 /**
  * Created by Uživatel on 15.8.2017.
