@@ -654,15 +654,14 @@ export default class Counter {
         }
     }
     adjustItemsNameLength() {
-        var itemNames = this.$itemList.find('span.name');
-        var maxHeight = this.$itemList.find('span.task_index').height();
+        let itemNames = this.$itemList.find('span.name');
+        let maxHeight = this.$itemList.find('span.task_index').height();
         if (itemNames.length != 0 && typeof maxHeight != 'undefined' && maxHeight > 0) {
-            for (var i = 0; i < itemNames.length; i++) {
-                var $itemName = $(itemNames[i]);
-                while ($itemName.height() > maxHeight + 5) {	// + 5 for variability
-                    var name = $itemName.text();
-                    var lastIndexOfSpace = name.lastIndexOf(" ");
-                    $itemName.text(name.substring(0, lastIndexOfSpace) + '...');
+            for (let itemName of itemNames) {
+                let $itemName = $(itemName);
+                while ($itemName.width() > $itemName.parent().innerWidth() * 0.73) {
+                    let name = $itemName.text();
+                    $itemName.text(name.substring(0, name.lastIndexOf(" ")) + '...');
                 }
             }
         }
