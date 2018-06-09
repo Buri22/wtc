@@ -168,10 +168,7 @@ export default class Counter {
     _renderTaskList(startIndex) {
         // Render TaskList table
         let itemList = [];
-        // Make sure that items are defined
-        // if (!items) {
-        //     items = this.itemList.getTasklist();
-        // }
+        
         this.pagination.totalItems = this.itemList.taskList.length;
         let itemsPerPage = this.pagination.itemsPerPage[this.pagination.itemsPerPageIndex];
         if ((this.pagination.currentPage - 1) * itemsPerPage > this.pagination.totalItems) {
@@ -438,7 +435,7 @@ export default class Counter {
                 this.$activeListItem = this.$itemList.find('li[data-id="' + itemIndex + '"]');
                 this.startMyTimer(response);
 
-                this.$sideMenuItem.find('.stop').on('click', this._stopTicking);
+                this.$sideMenuItem.find('.stop').on('click', this._stopTicking.bind(this));
                 this.setActiveTaskListItem();
                 mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(itemIndex, this.itemList.taskList));
                 this.$resultMsg.text('Started successfully!');

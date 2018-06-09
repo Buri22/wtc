@@ -1,6 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 .gitignore
 package-lock.json
+css/styles.css
 
 .idea/
 .vscode/
