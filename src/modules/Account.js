@@ -85,7 +85,7 @@ export default class Account {
     _renderMenuItem($container) {
         // TO make sure that templates are defined
         if (typeof this.$accountMenuItem == 'undefined') {
-            mediator.subscribe('AccountTemplatesReady', this._renderMenuItem, $container);
+            mediator.subscribe('AccountTemplatesReady', this._renderMenuItem.bind(this), $container);
         }
         else {
             // Define menuItemContainer or use already defined one

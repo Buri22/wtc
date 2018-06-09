@@ -149,10 +149,10 @@ export default class Counter {
             //items = this.itemList.getTasklist();
             // To make sure that items and $counter are already defined
             if (this.itemList == null) {
-                mediator.subscribe('CounterModelLoaded', this.renderCounter, $container);
+                mediator.subscribe('CounterModelLoaded', this.renderCounter.bind(this), $container);
             }
             else if (typeof this.$counter == 'undefined') {
-                mediator.subscribe('CounterViewLoaded', this.renderCounter, $container);
+                mediator.subscribe('CounterViewLoaded', this.renderCounter.bind(this), $container);
             } else {
                 this._renderTaskList();
                 this._adjustViewForNoTasks();
@@ -296,7 +296,7 @@ export default class Counter {
     renderMenuItem($container) {
         // To make sure that this.$menuItem is already defined
         if (typeof this.$menuItem == 'undefined') {
-            mediator.subscribe('CounterViewLoaded', this.renderMenuItem, $container);
+            mediator.subscribe('CounterViewLoaded', this.renderMenuItem.bind(this), $container);
         } else {
             $container.append(this.$menuItem);
         }
@@ -304,7 +304,7 @@ export default class Counter {
     renderPermanentSideMenuItems($container) {
         // To make sure that this.$menuItem is already defined
         if (typeof this.$newItemBtn == 'undefined') {
-            mediator.subscribe('CounterViewLoaded', this.renderPermanentSideMenuItems, $container);
+            mediator.subscribe('CounterViewLoaded', this.renderPermanentSideMenuItems.bind(this), $container);
         } else {
             // Render items into SideMenu
             //$container.append(this.$newItemBtn);	// Render Create Button
@@ -644,7 +644,7 @@ export default class Counter {
     adjustItemsListForActiveSideMenu() {
         // To make sure that $itemList is already defined
         if (typeof this.$itemList == 'undefined') {
-            mediator.subscribe('CounterViewLoaded', this.adjustItemsListForActiveSideMenu);
+            mediator.subscribe('CounterViewLoaded', this.adjustItemsListForActiveSideMenu.bind(this));
         } else {
             this.$itemList.parent()
                 .removeClass('col-md-8 col-md-offset-2')
