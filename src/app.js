@@ -33,9 +33,9 @@ class App {
         this.$pageContent = $('<div></div>', { id: 'page' })
 
         // Initialize Modules
-        this.account = new Account()
         this.menu    = new Menu()
         this.page    = new Page(this.$pageContent)
+        this.account = new Account()
         this.counter = new Counter()
 
         // Subscribe to listen for calls from outside

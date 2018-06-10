@@ -3,23 +3,24 @@ const WTC_TICKING_COUNTER = 'wtc_ticking_counter';
 
 const ERROR = Object.freeze({
     OK: 1,
-    
+
     Input: 2,
     Email: 3,
     Password: 4,
-    Registered: 5,
-    Brute: 5,
-    Unregistered: 6,
-    EqualPasswords: 6,
-    Login: 7,
-    Logout: 8,
+    EqualPasswords: 5,
 
-    TaskName: 9,
-    TaskSpentTime: 10,
-    TaskDateCreated: 11,
-    TaskRunning: 12,
-    TaskStarted: 13,
-    TaskMissing: 14
+    Registered: 10,
+    Unregistered: 11,
+    Login: 12,
+    Logout: 13,
+    Brute: 14,
+
+    TaskName: 20,
+    TaskSpentTime: 21,
+    TaskDateCreated: 22,
+    TaskRunning: 23,
+    TaskStarted: 24,
+    TaskMissing: 25
 });
 
 const DATEPICKER_OPTIONS = {

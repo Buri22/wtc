@@ -444,9 +444,7 @@ export default class Counter {
         let data = this._getStorageTickingItem();
         let itemIndex = Number(event.target.parentElement.dataset.id);
         if (data == null || typeof data.task_id == 'undefined' || typeof data.spent_time == 'undefined') {
-            data = {
-                task_id: this.itemList.taskList[itemIndex].id
-            }
+            data.task_id = this.itemList.taskList[itemIndex].id;
         }
         dataProvider.provide("stopTask", data).done((response) => {
             if (response == ERROR.LogOut) {    // User isn`t logged in

@@ -16,22 +16,23 @@ define("SECURE", FALSE);    // FOR DEVELOPMENT ONLY!!!!
  * Error types
  */
 abstract class Error {
-    const Input = 2;
-    const Email = 3;
-    const Password = 4;
-    const Registered = 5;
-    const Brute = 5;
-    const Unregistered = 6;
-    const EqualPasswords = 6;
-    const Login = 7;
-    const Logout = 8
+    const Input          = 2;
+    const Email          = 3;
+    const Password       = 4;
+    const EqualPasswords = 5;
 
-    const TaskName = 9;
-    const TaskSpentTime = 10;
-    const TaskDateCreated = 11;
-    const TaskRunning = 12;
-    const TaskStarted = 13,
-    const TaskMissing = 14;
+    const Registered   = 10;
+    const Unregistered = 11;
+    const Login        = 12;
+    const Logout       = 13;
+    const Brute        = 14;
+
+    const TaskName        = 20;
+    const TaskSpentTime   = 21;
+    const TaskDateCreated = 22;
+    const TaskRunning     = 23;
+    const TaskStarted     = 24;
+    const TaskMissing     = 25;
 }
 
 /**

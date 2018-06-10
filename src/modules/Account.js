@@ -58,7 +58,6 @@ export default class Account {
         this.user = new User(userData);
     }
     getUserId() {
-        //return this.user.id || false;
         return this.user.getId() || false;
     }
 	// getUserAppSettings() {

@@ -32,7 +32,7 @@ export default class Page {
 			mediator.publish('ActiveSideMenu');
 		}
 		else {
-			$container.append(this.$pageContent.empty());
+			this.$container.append(this.$pageContent.empty());
 		}
 
 		// All Moules which want to be in page have to subscribe for "PageReadyToImportModuleItems" event
