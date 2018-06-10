@@ -1,6 +1,6 @@
 import {mediator} from '../mediator';
 import {dataProvider} from '../dataProvider';
-import {APP_SETTINGS_OPTIONS} from '../constants';
+import {APP_SETTINGS_OPTIONS, ERROR} from '../constants';
 
 import Mustache from 'mustache';
 import Helper from '../helper';
@@ -216,23 +216,22 @@ export default class Account {
 
         dataProvider.provide('login', data).done((response) => {
             if (response.Id && response.UserName) {
-                //this.setUser(response);
                 this.user = new User(response);
                 mediator.publish('UserLogin');
             }
-            else if (response == 2) {
+            else if (response == ERROR.Input) {
                 this.$loginMsg.text('Please, enter all information.');
             }
-            else if (response == 3) {
+            else if (response == ERROR.Email) {
                 this.$loginMsg.text('Email format is not valid.');
             }
-            else if (response == 4) {
+            else if (response == ERROR.Unregistered) {
                 this.$loginMsg.text('You are not registered yet.');
             }
-            else if (response == 5) {
+            else if (response == ERROR.Brute) {
                 this.$loginMsg.text('Your account is blocked.');
             }
-            else if (response == 6) {
+            else if (response == ERROR.Password) {
                 this.$loginMsg.text('Wrong password, please try it again.');
             }
             else {
@@ -261,19 +260,19 @@ export default class Account {
         };
 
         dataProvider.provide('register', data).done((response) => {
-            if (response == 1) {  // new user was created successfully
+            if (response == ERROR.OK) {  // new user was created successfully
                 renderLogin('You were successfully registered, please login with your credentials.');
             }
-            else if (response == 2) {
+            else if (response == ERROR.Input) {
                 this.$regMsg.text('Please, enter all information.');
             }
-            else if (response == 3) {
+            else if (response == ERROR.Email) {
                 this.$regMsg.text('Email format is not valid.');
             }
-            else if (response == 4) {
+            else if (response == ERROR.EqualPasswords) {
                 this.$regMsg.text('Passwords don`t match, please, enter them again.');
             }
-            else if (response == 5) {
+            else if (response == ERROR.Registered) {
                 this.$regMsg.text('You are already registered. Please login with this email.');
             }
             else {
@@ -300,7 +299,7 @@ export default class Account {
 
         dataProvider.provide('editAccount', data).done((response) => {
             let $resultMsg = this.$modal.find('#edit_account_result_msg');
-            if (response == 1) {
+            if (response == ERROR.OK) {
                 // Update Account Model
                 this.user.userName = userName;
                 this.user.email = email;
@@ -309,23 +308,23 @@ export default class Account {
                 mediator.publish('SetResultMessage', 'Your account info was successfully edited.');
                 this.$modal.modal('hide');
             }
-            else if (response == 2) {
+            else if (response == ERROR.Input) {
                 $resultMsg.text('Some required form data are missing.');
             }
-            else if (response == 3) {
+            else if (response == ERROR.Login) {
                 this.$modal.modal('hide');
                 this._logOut('You were unexpectedly logged out.');
             }
-            else if (response == 4) {
+            else if (response == ERROR.Email) {
                 $resultMsg.text('Email has a wrong format (example@host.com).');
             }
-            else if (response == 5) {
+            else if (response == ERROR.Registered) {
                 $resultMsg.text('You can not use this email, please try something else.');
             }
-            else if (response == 6) {
+            else if (response == ERROR.Password) {
                 $resultMsg.text('Current password is wrong.');
             }
-            else if (response == 7) {
+            else if (response == ERROR.EqualPasswords) {
                 $resultMsg.text('New passwords do not equal.');
             }
         });
@@ -345,7 +344,7 @@ export default class Account {
 		
         dataProvider.provide('editAppSettings', data).done((response) => {
             let $resultMsg = this.$modal.find('#edit_account_result_msg');
-            if (response == 1) {
+            if (response == ERROR.OK) {
                 // Update Account Model
                 this.user.appSettings = {
                     theme: { color: themeColor },
@@ -359,10 +358,10 @@ export default class Account {
                 mediator.publish('SetResultMessage', 'Your app settings were successfully edited.');
                 this.$modal.modal('hide');
             }
-            else if (response == 2) {
+            else if (response == ERROR.Input) {
                 $resultMsg.text('Some required form data are missing.');
             }
-            else if (response == 3) {
+            else if (response == ERROR.Login) {
                 this.$modal.modal('hide');
                 this._logOut('You were unexpectedly logged out.');
             }

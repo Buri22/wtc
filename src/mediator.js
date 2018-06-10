@@ -39,10 +39,6 @@ class Mediator {
         }
 
         // All subscribers executes their function subscribed to current event
-        // for (let i = 0, eventStackLength = this.events[event].length; i < eventStackLength; i++) {
-        //     let sub = this.events[event][i];
-        //     sub.func.apply(sub.context, sub.args || args);
-        // }
         for (let eventSubscriber of this.events[event]) {
             let sub = eventSubscriber;
             sub.func.apply(sub.context, sub.args || args);

@@ -13,6 +13,28 @@ define("DEFAULT_ROLE", "user");
 define("SECURE", FALSE);    // FOR DEVELOPMENT ONLY!!!!
 
 /**
+ * Error types
+ */
+abstract class Error {
+    const Input = 2;
+    const Email = 3;
+    const Password = 4;
+    const Registered = 5;
+    const Brute = 5;
+    const Unregistered = 6;
+    const EqualPasswords = 6;
+    const Login = 7;
+    const Logout = 8
+
+    const TaskName = 9;
+    const TaskSpentTime = 10;
+    const TaskDateCreated = 11;
+    const TaskRunning = 12;
+    const TaskStarted = 13,
+    const TaskMissing = 14;
+}
+
+/**
  * Login constants
  */
 // Max login attempts in less than last attempt min time

@@ -1,6 +1,6 @@
 import {mediator} from '../mediator';
 import {dataProvider} from '../dataProvider';
-import {WTC_TICKING_COUNTER, DATEPICKER_OPTIONS} from '../constants';
+import {WTC_TICKING_COUNTER, ERROR, DATEPICKER_OPTIONS} from '../constants';
 
 import Mustache from 'mustache';
 import Helper from '../helper';
@@ -14,7 +14,6 @@ export default class Counter {
 
     constructor() {
         this.itemList = null;
-        //this.items = null;
         this.userId = null;
         this.activeItemIndex = null;
         this.$parentContainer, this.$counter, this.$itemList, this.$activeListItem, this.taskListTemplate, 
@@ -145,8 +144,6 @@ export default class Counter {
             if (!this.$parentContainer) {
                 this.$parentContainer = $container;
             }
-            // Load model items for counting
-            //items = this.itemList.getTasklist();
             // To make sure that items and $counter are already defined
             if (this.itemList == null) {
                 mediator.subscribe('CounterModelLoaded', this.renderCounter.bind(this), $container);
@@ -175,8 +172,8 @@ export default class Counter {
             this.pagination.currentPage = 1;
         }
         startIndex = startIndex || (this.pagination.currentPage - 1) * itemsPerPage;
-        var endIndex = startIndex + itemsPerPage;
-        for (var i = 0; i < this.pagination.totalItems; i++) {
+        let endIndex = startIndex + itemsPerPage;
+        for (let i in this.itemList.taskList) {
             // Save ticking task by defining activeItemIndex
             if (this.itemList.taskList[i].taskStarted) {
                 this.activeItemIndex = i;
@@ -196,31 +193,28 @@ export default class Counter {
 
         // Render Pagination
         // TODO: adjust pagination for too much items
-        var numOfPaginationItems = Math.ceil(this.pagination.totalItems / itemsPerPage);
+        let numOfPaginationItems = Math.ceil(this.pagination.totalItems / itemsPerPage);
         if (numOfPaginationItems > 1) {
-            var paginationItems = [];
-            var active = '';
-            for (i = 0; i < numOfPaginationItems; i++) {
-                if (i == this.pagination.currentPage - 1) {
-                    active = ' active';
-                }
-                paginationItems.push({ pageNum: i + 1, active: active });
-                active = '';
+            let paginationItems = [];
+            for (let i = 0; i < numOfPaginationItems; i++) {
+                paginationItems.push({ 
+                    pageNum: i + 1, 
+                    active: (i == this.pagination.currentPage - 1) ? ' active' : ''
+                });
             }
             this.$pagination.empty();
             this.$pagination.html(Mustache.render(this.paginationTpl, { paginationItems: paginationItems }));
 
             // Select box for items/page
             var options = [];
-            var selected = '';
-            for (i = 0; i < this.pagination.itemsPerPage.length; i++) {
-                if (i == this.pagination.itemsPerPageIndex) {
-                    selected = 'selected';
-                }
+            for (let i in this.pagination.itemsPerPage) {
                 if (this.pagination.totalItems >= this.pagination.itemsPerPage[i]) {
-                    options.push({ index: i, number: this.pagination.itemsPerPage[i], selected: selected });
+                    options.push({ 
+                        index: i, 
+                        number: this.pagination.itemsPerPage[i], 
+                        selected: (i == this.pagination.itemsPerPageIndex) ? 'selected' : ''
+                    });
                 }
-                selected = '';
             }
             this.$paginationItemsPerPage.empty().show();
             this.$paginationItemsPerPage.html(Mustache.render(this.paginationIPPTpl, { options: options }));
@@ -417,16 +411,7 @@ export default class Counter {
             last_start: Math.round(new Date().getTime() / 1000) // We store time in seconds
         };
         dataProvider.provide("startTask", data).done((response) => {
-            if (response == 'logOut') {    // User isn`t logged in
-                mediator.publish('LogOut', 'You were unexpectedly logged out.');
-            }
-            else if (response.someTaskAlreadyStarted) {
-                this.$resultMsg.html("You are already working on <strong>" + response.Name + "</strong>");
-            }
-            else if (response == 2) {
-                this.$resultMsg.text('Parameters to start the task are missing.');
-            }
-            else if (response.Id) {
+            if (response.Id) {
                 // Update model
                 this.itemList.taskList[itemIndex].taskStarted = 1;
                 this.itemList.taskList[itemIndex].lastStart = data.last_start;
@@ -439,6 +424,15 @@ export default class Counter {
                 this.setActiveTaskListItem();
                 mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(itemIndex, this.itemList.taskList));
                 this.$resultMsg.text('Started successfully!');
+            }
+            else if (response == ERROR.Input) {
+                this.$resultMsg.text('Parameters to start the task are missing.');
+            }
+            else if (response == ERROR.Logout) {    // User isn`t logged in
+                mediator.publish('LogOut', 'You were unexpectedly logged out.');
+            }
+            else if (response.someTaskAlreadyStarted) {
+                this.$resultMsg.html("You are already working on <strong>" + response.Name + "</strong>");
             }
             else {
                 this.$resultMsg.text('Failed to start this task.');
@@ -455,13 +449,13 @@ export default class Counter {
             }
         }
         dataProvider.provide("stopTask", data).done((response) => {
-            if (response == 'logOut') {    // User isn`t logged in
+            if (response == ERROR.LogOut) {    // User isn`t logged in
                 mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
-            else if (response == 'noTaskStarted') {
+            else if (response == ERROR.TaskStarted) {
                 this.$resultMsg.text("You have to start some task first.");
             }
-            else if (response == 2) {
+            else if (response == ERROR.Input) {
                 this.$resultMsg.text("Parameters to stop the task are missing.");
             }
             else if(response.otherTaskStarted) {
@@ -480,7 +474,9 @@ export default class Counter {
                 this.activeItemIndex = null;
                 this.$resultMsg.html("<strong>" + this.itemList.taskList[itemIndex].name + "</strong> stopped successfully!");
             }
-            else this.$resultMsg.text('Stopping failed!');
+            else {
+                this.$resultMsg.text('Stopping failed!');
+            }
         });
         event.stopPropagation();
     }
@@ -502,18 +498,23 @@ export default class Counter {
                 this._renderTaskList();
                 this.bindCounterEvents();
                 this._checkTickingTask();
-                //$newTaskName.val('');
                 this.$resultMsg.text("New task was successfully created!");
                 this.$modal.modal('hide');
             }
-            else if (response == 2) {
+            else if (response == ERROR.Input) {
                 $createResultMsg.text("Please input some creative task name.");
             }
-            else if (response == 3) {
+            else if (response == ERROR.Login) {
                 mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
-            else if (response == 4) {
+            else if (response == ERROR.Logout) {
                 $createResultMsg.text("This task name already exists, try something different.");
+            }
+            else if (response == ERROR.TaskSpentTime) {
+                $createResultMsg.text("Please insert Spent Time in as valid time format (hh:mm:ss).");
+            }
+            else if (response == ERROR.TaskDateCreated) {
+                $createResultMsg.text("Please insert Date Created as as valid date format (dd.mm.yyyy).");
             }
             else {
                 this.$resultMsg.text("New task name failed to create!");
@@ -545,20 +546,20 @@ export default class Counter {
 
                 this.animateEditedItem(Number(event.target.dataset.id));
             }
-            else if (response == 2) {
+            else if (response == ERROR.Input) {
                 $editResultMsg.text("Please input some creative Name.");
             }
-            else if (response == 3) {
+            else if (response == ERROR.Login) {
                 mediator.publish('LogOut', 'You were unexpectedly logged out.');
             }
-            else if (response == 4) {
+            else if (response == ERROR.TaskName) {
                 $editResultMsg.text("This Name already exists, try something different.");
             }
-            else if (response == 5) {
-                $editResultMsg.text("Please insert Spent Time in a valid time and format (hh:mm:ss).");
+            else if (response == ERROR.TaskSpentTime) {
+                $editResultMsg.text("Please insert Spent Time in as valid time format (hh:mm:ss).");
             }
-            else if (response == 6) {
-                $editResultMsg.text("Please insert Date Created as a valid date and format (dd.mm.yyyy).");
+            else if (response == ERROR.TaskDateCreated) {
+                $editResultMsg.text("Please insert Date Created as as valid date format (dd.mm.yyyy).");
             }
             else {
                 this.$resultMsg.text("Edit task name failed!");
@@ -586,17 +587,17 @@ export default class Counter {
                 this._checkTickingTask();
                 this.$modal.modal('hide');
             }
-            else if(response == 2) {
+            else if(response == ERROR.Input) {
                 $deleteResultMsg.text("Some information is missing.");
             }
-            else if(response == 3) {
+            else if(response == ERROR.TaskMissing) {
                 this.$resultMsg.text("Record of current task is missing in database.");
                 this.$modal.modal('hide');
             }
-            else if(response == 4) {
+            else if(response == ERROR.Password) {
                 $deleteResultMsg.text("You entered wrong password.");
             }
-            else if(response == 5) {
+            else if(response == ERROR.TaskRunning) {
                 this.$resultMsg.text("You have to stop current task, to delete it.");
                 this.$modal.modal('hide');
             }

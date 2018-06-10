@@ -95,7 +95,7 @@ function checkTaskStarted() {
         return $task;   // returns task that started or false
     }
     else {
-        return 'logOut';
+        return Error::Logout;
     }
 }
 
@@ -117,13 +117,13 @@ function register() {
         || !isset($_POST['email']) || empty($_POST['email'])
         || !isset($_POST['password']) || empty($_POST['password'])
         || !isset($_POST['password_confirm']) || empty($_POST['password_confirm'])
-    ) { return 2; }
+    ) { return Error::Input; }
 
     // Email validation
-    if (!isValidEmail(trim($_POST['email']))) { return 3; }
+    if (!isValidEmail(trim($_POST['email']))) { return Error::Email; }
 
     // Password validation
-    if (trim($_POST['password']) != trim($_POST['password_confirm'])) { return 4; }
+    if (trim($_POST['password']) != trim($_POST['password_confirm'])) { return Error::EqualPasswords; }
 
     // Check if user is already registered
     $registered = Db::queryOne('
@@ -132,7 +132,7 @@ function register() {
                           WHERE Email = ?
                     ', $_POST['email']);
 
-    if ($registered) { return 5; }
+    if ($registered) { return Error::Registered; }
 
     $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
     $app_settings = json_encode(unserialize(DEFAULT_APP_SETTINGS));
@@ -149,11 +149,11 @@ function login() {
     // Check if all inputs were entered
     if (!isset($_POST['email']) || empty($_POST['email'])
         || !isset($_POST['password']) || empty($_POST['password'])) {
-        return 2;
+        return Error::Input;
     }
     // Email validation
     if (!isValidEmail(trim($_POST['email']))) {
-        return 3;
+        return Error::Email;
     }
     // Try to find user
     $user =  Db::queryOne('
@@ -163,13 +163,13 @@ function login() {
                     ', trim($_POST['email']));
 
     if (!$user) {    // User has no record in DB
-        return 4;
+        return Error::Unregistered;
     }
     else if (check_brute($user)){
-        return 5;
+        return Error::Brute;
     }
     else if (!password_verify($_POST['password'], $user['Password'])) {   // Check passwords
-        return 6;
+        return Error::Password;
     }
 
     $_SESSION['user_id'] = $user['Id'];
@@ -210,17 +210,17 @@ function editAccount() {
             && (!isset($_POST['password_old']) || empty($_POST['password_old'])
             || !isset($_POST['password_new']) || empty($_POST['password_new'])
             || !isset($_POST['password_confirm']) || empty($_POST['password_confirm'])))) {
-        return 2;
+        return Error::Input;
     }
 
     $user = checkLogin();
     if (!$user) {
-        return 3;   // User is not logged in
+        return Error::Login;   // User is not logged in
     }
 
     // Email validation
     if (!isValidEmail(trim($_POST['email']))) {
-        return 4;
+        return Error::Email;
     }
     // Check that edited email isn't already registered
     $registered = Db::queryOne('
@@ -229,7 +229,7 @@ function editAccount() {
                           WHERE Email = ?
                     ', $_POST['email']);
     if ($registered && $registered['Id'] != $user['Id']) {
-        return 5;
+        return Error::Registered;
     }
 
     // Define SQL query data
@@ -244,10 +244,10 @@ function editAccount() {
         $loggedIn_user = Db::queryOne('SELECT * FROM user WHERE Id = ?', $user['Id']);
         if ($loggedIn_user) {
             // Check passwords
-            if (!password_verify($_POST['password_old'], $loggedIn_user['Password'])) { return 6; }
+            if (!password_verify($_POST['password_old'], $loggedIn_user['Password'])) { return Error::Password; }
 
             // New password validation
-            if (trim($_POST['password_new']) != trim($_POST['password_confirm'])) { return 7; }
+            if (trim($_POST['password_new']) != trim($_POST['password_confirm'])) { return Error::EqualPasswords; }
 
             // Define new password
             $data['Password'] = password_hash(trim($_POST['password_new']), PASSWORD_BCRYPT);
@@ -264,12 +264,12 @@ function editAccount() {
 function editAppSettings() {
     // Check if all inputs were entered
     if (!isset($_POST['app_settings']) || empty($_POST['app_settings'])) {
-        return 2;
+        return Error::Input;
     }
 	
     $user = checkLogin();
     if (!$user) {
-        return 3;   // User is not logged in
+        return Error::Login;   // User is not logged in
     }
 
     // Convert boolean value as string to boolean
@@ -286,7 +286,7 @@ function editAppSettings() {
 // Unused function... Deprecated?
 function getTask() {
     if (!isset($_POST['task_id']) || empty($_POST['task_id'])) {
-        return 2;
+        return Error::Input;
     }
     $result = Db::queryOne('
                     SELECT *
@@ -316,10 +316,10 @@ function createTask() {
     if (!isset($_POST['new_name']) || empty($_POST['new_name'])
         || !isset($_POST['new_spent_time']) || empty($_POST['new_spent_time'])
         || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])) {
-        return 2;
+        return Error::Input;
     }
     $user = checkLogin();
-    if (!$user) { return 3; }
+    if (!$user) { return Error::Login; }
 
     // Check if task name already exists
     $result = Db::queryOne('
@@ -330,17 +330,17 @@ function createTask() {
 
     // New task name is already used by another task
     if ($result) {
-        return 4;
+        return Error::TaskName;
     }
 
     // Validate task spent time format
     if (!validateSpentTime($_POST['new_spent_time'])) {
-        return 5;
+        return Error::TaskSpentTime;
     }
     // Validate task date created format
     $date = explode(".", $_POST['new_date_created']);
     if (!checkdate(intval($date[1]), intval($date[0]), intval($date[2]))) {
-        return 6;
+        return Error::TaskDateCreated;
     }
 
     // Define data for insert query
@@ -369,10 +369,10 @@ function editTask() {
         || !isset($_POST['new_spent_time']) || empty($_POST['new_spent_time'])
         || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])
         || !isset($_POST['item_id']) || empty($_POST['item_id'])) {
-        return 2;
+        return Error::Input;
     }
     $user = checkLogin();
-    if (!$user) { return 3; }
+    if (!$user) { return Error::Login; }
 
     // Check if task name already exists
     $result = Db::queryOne('
@@ -383,17 +383,17 @@ function editTask() {
 
     // New task name is already used by another task
     if ($result && $result['Id'] != $_POST['item_id']) {
-        return 4;
+        return Error::TaskName;
     }
 
     // Validate task spent time format
     if (!validateSpentTime($_POST['new_spent_time'])) {
-        return 5;
+        return Error::TaskSpentTime;
     }
     // Validate task date created format
     $date = explode(".", $_POST['new_date_created']);
     if (!checkdate(intval($date[1]), intval($date[0]), intval($date[2]))) {
-        return 6;
+        return Error::TaskDateCreated;
     }
 
     // Define data for update query
@@ -417,12 +417,12 @@ function deleteTask() {
     // Check if all inputs were entered
     if (!isset($_POST['password']) || empty($_POST['password'])
         || !isset($_POST['task_id']) || empty($_POST['task_id'])
-    ) { return 2; }
+    ) { return Error::Input; }
 
     // Prevent from deleting running Task
     $runningTask = checkTaskStarted();
     if ($runningTask && $runningTask['Id'] == $_POST['task_id']) {
-        return 5;
+        return Error::TaskRunning;
     }
 
     // Try to find the task
@@ -433,10 +433,10 @@ function deleteTask() {
                         WHERE task.Id = ?
                     ', $_POST['task_id']);
     if (!$password) {
-        return 3;
+        return Error::TaskMissing;
     }
     else if(!password_verify($_POST['password'], $password['Password'])) {
-        return 4;
+        return Error::Password;
     }
 
     $result = Db::queryOne('
@@ -450,7 +450,7 @@ function deleteTask() {
 function startCounting() {
     $task_started = checkTaskStarted();
 
-    if ($task_started == 'logOut') {
+    if ($task_started == ERROR::Logout) {
         return $task_started;
     }
     else if ($task_started) {
@@ -460,7 +460,7 @@ function startCounting() {
 
     if (!isset($_POST['task_id']) || empty($_POST['task_id'])
         || !isset($_POST['last_start']) || empty($_POST['last_start'])
-    ) { return 2; }
+    ) { return Error::Input; }
 
     $result = Db::query('
                      UPDATE task
@@ -482,15 +482,15 @@ function startCounting() {
 function stopCounting() {
     $task_started = checkTaskStarted();
 
-    if ($task_started == 'logOut') {
+    if ($task_started == ERROR::Logout) {
         return $task_started;
     }
     else if (!$task_started) {
-        return 'noTaskStarted';
+        return ERROR::TaskStarted;
     }
 
     if (!isset($_POST['task_id']) || empty($_POST['task_id'])) {
-        return 2;
+        return Error::Input;
     }
 
     if ($_POST['task_id'] != $task_started['Id']) { // Other task started
