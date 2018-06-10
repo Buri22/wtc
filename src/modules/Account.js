@@ -128,7 +128,7 @@ export default class Account {
                     selected: selected
                 });
             }
-            let account_app_body = Mustache.render($templates.filter('#modal_body_account_app').html(), {
+            let accountAppBody = Mustache.render($templates.filter('#modal_body_account_app').html(), {
                 userName: this.user.userName,
                 email: this.user.email,
                 appSettings: {
@@ -142,7 +142,7 @@ export default class Account {
             data = {
                 modal_id: 'user_account',
                 title: 'Account settings',
-                modal_body: account_app_body,
+                modal_body: accountAppBody,
                 submit_btn: $submitBtn.addClass('account_btn').parent().html()
                             + $submitBtn.hide().removeClass('account_btn').addClass('app_btn').parent().html()
             };

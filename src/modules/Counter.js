@@ -206,7 +206,7 @@ export default class Counter {
             this.$pagination.html(Mustache.render(this.paginationTpl, { paginationItems: paginationItems }));
 
             // Select box for items/page
-            var options = [];
+            let options = [];
             for (let i in this.pagination.itemsPerPage) {
                 if (this.pagination.totalItems >= this.pagination.itemsPerPage[i]) {
                     options.push({ 
@@ -233,23 +233,23 @@ export default class Counter {
     }
 
     _changeTablePage(event) {
-        var pageNum = Number(event.target.dataset.page_num);
+        let pageNum = Number(event.target.dataset.page_num);
+        let startIndex = (pageNum - 1) * this.pagination.itemsPerPage[this.pagination.itemsPerPageIndex];
         this.pagination.currentPage = pageNum;
-        var startIndex = (pageNum - 1) * this.pagination.itemsPerPage[this.pagination.itemsPerPageIndex];
         this._renderTaskList(startIndex);
         this.bindCounterEvents();
         this._checkTickingTask();
     }
     _renderModal(event) {
         $.get('view/modal_parts.htm', (templates) => {
-            var data = {};
-            var $templates = $(templates);
-            var $submitBtn = $templates.find('.submit_btn');
+            let data = {};
+            let $templates = $(templates);
+            let $submitBtn = $templates.find('.submit_btn');
 
             // Define data for modal template0
             // Create new task
             if (event.target.id == 'newTask') {
-                var create_body = Mustache.render($templates.filter('#modal_body_create').html(), {
+                let create_body = Mustache.render($templates.filter('#modal_body_create').html(), {
                     taskSpentTime: '00:00:00',
                     taskDateCreated: Helper.getFormatedDate()
                 });
@@ -262,14 +262,14 @@ export default class Counter {
             }
             // Edit/Delete task
             else if (event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id')) {
-                var itemIndex = Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'));
-                var spentTime = this.secondsToHms(this.itemList.taskList[itemIndex].spentTime);
-                var storageTickingItem = localStorage.getObject(WTC_TICKING_COUNTER + '-' + this.userId);
+                let itemIndex = Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'));
+                let spentTime = this.secondsToHms(this.itemList.taskList[itemIndex].spentTime);
+                let storageTickingItem = localStorage.getObject(WTC_TICKING_COUNTER + '-' + this.userId);
                 if (storageTickingItem != null && typeof storageTickingItem.spent_time != 'undefined') {
                     spentTime = storageTickingItem.spent_time;
                 }
 
-                var edit_delete_body = Mustache.render($templates.filter('#modal_body_edit_delete').html(), {
+                let edit_delete_body = Mustache.render($templates.filter('#modal_body_edit_delete').html(), {
                     taskName: this.itemList.taskList[itemIndex].name,
                     taskSpentTime: spentTime,
                     taskDateCreated: Helper.getFormatedDate(this.itemList.taskList[itemIndex].dateCreated)
@@ -305,8 +305,8 @@ export default class Counter {
         }
     }
     getTickingSideMenuItem(itemIndex) {
-        var spentTimeHms = this.secondsToHms(this.itemList.taskList[itemIndex].spentTime);
-        var storageTickingItem = this._getStorageTickingItem();
+        let spentTimeHms = this.secondsToHms(this.itemList.taskList[itemIndex].spentTime);
+        let storageTickingItem = this._getStorageTickingItem();
         if (storageTickingItem != null && storageTickingItem.spent_time) {
             spentTimeHms = storageTickingItem.spent_time;
         }
@@ -321,18 +321,18 @@ export default class Counter {
 
     secondsToHms(d) {
         d = Number(d);
-        var h = Math.floor(d / 3600);
-        var m = Math.floor(d % 3600 / 60);
-        var s = Math.floor(d % 3600 % 60);
+        let h = Math.floor(d / 3600);
+        let m = Math.floor(d % 3600 / 60);
+        let s = Math.floor(d % 3600 % 60);
         return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
     }
     hmsToSeconds(s) {
-        var hms_time = s.split(":");
+        let hms_time = s.split(":");
         return Number(hms_time[2]) + Number(hms_time[1]) * 60 + Number(hms_time[0]) * 60 * 60;
     }
     myTimer(noAdd) {
-        var storageTickingItem = localStorage.getObject(WTC_TICKING_COUNTER + '-' + this.userId);
-        var counter_time = storageTickingItem.spent_time;
+        let storageTickingItem = localStorage.getObject(WTC_TICKING_COUNTER + '-' + this.userId);
+        let counter_time = storageTickingItem.spent_time;
 
         if (noAdd !== true) {
             counter_time = this.hmsToSeconds(counter_time) + 1;
@@ -347,7 +347,7 @@ export default class Counter {
         this.$sideMenuItem.find('.spent_time').text(counter_time);
     }
     startMyTimer(task, storageSpentTime) {
-        var storageTickingItem = {
+        let storageTickingItem = {
             task_id: task.id,
             spent_time: storageSpentTime || this.secondsToHms(task.spentTime || 0)
         };
@@ -370,7 +370,7 @@ export default class Counter {
     }
     // Checks ticking objects $activeListItem, storageTickingItem to render ticking spent_time or startMyTimer
     _checkTickingTask(startTicking) {
-        var storageTickingItem = this._getStorageTickingItem();
+        let storageTickingItem = this._getStorageTickingItem();
         // Storage Ticking Item is ok
         if (storageTickingItem != null
             && storageTickingItem.spent_time
@@ -405,8 +405,8 @@ export default class Counter {
         this.$activeListItem = null;
     }
     _startTicking(event) {
-        var itemIndex = Number(event.target.parentElement.dataset.id);
-        var data = {
+        let itemIndex = Number(event.target.parentElement.dataset.id);
+        let data = {
             task_id: this.itemList.taskList[itemIndex].id,
             last_start: Math.round(new Date().getTime() / 1000) // We store time in seconds
         };
@@ -441,8 +441,8 @@ export default class Counter {
         event.stopPropagation();
     }
     _stopTicking(event) {
-        var data = this._getStorageTickingItem();
-        var itemIndex = Number(event.target.parentElement.dataset.id);
+        let data = this._getStorageTickingItem();
+        let itemIndex = Number(event.target.parentElement.dataset.id);
         if (data == null || typeof data.task_id == 'undefined' || typeof data.spent_time == 'undefined') {
             data = {
                 task_id: this.itemList.taskList[itemIndex].id
@@ -482,8 +482,8 @@ export default class Counter {
     }
 
     _createTask() {
-        var $createResultMsg = this.$modal.find('#create_result_msg');
-        var data = {
+        let $createResultMsg = this.$modal.find('#create_result_msg');
+        let data = {
             new_name:         this.$modal.find('#new_task_name').val().trim(),
             new_spent_time:   this.$modal.find('#new_task_spent_time').val().trim(),
             new_date_created: this.$modal.find('#new_task_date_created').val().trim()
@@ -523,9 +523,9 @@ export default class Counter {
         });
     }
     _editTask(event) {
-        var $editResultMsg = this.$modal.find('#edit_result_msg');
-        var itemIndex = Number(event.target.dataset.id);
-        var data = {
+        let $editResultMsg = this.$modal.find('#edit_result_msg');
+        let itemIndex = Number(event.target.dataset.id);
+        let data = {
             item_id:          this.itemList.taskList[itemIndex].id,
             new_name:         this.$modal.find('#edit_name').val().trim(),
             new_spent_time:   this.$modal.find('#edit_spent_time').val().trim(),
@@ -568,9 +568,9 @@ export default class Counter {
         });
     }
     _deleteTask(event) {
-        var task_index = Number(event.target.dataset.id);
-        var $deleteResultMsg = this.$modal.find('#edit_result_msg');
-        var data = {
+        let task_index = Number(event.target.dataset.id);
+        let $deleteResultMsg = this.$modal.find('#edit_result_msg');
+        let data = {
             task_id: this.itemList.taskList[task_index].id,
             password: this.$modal.find('#delete_task_password_confirm').val().trim()
         };
@@ -624,9 +624,9 @@ export default class Counter {
             this.$resultMsg.text("Please create task, by clicking on the Create button.");
         }
     }
-    animateEditedItem(item_id) {
-        if (typeof item_id != 'undefined') {
-            this.$itemList.find('li[data-id="' + item_id + '"] span.edit_animation_box')
+    animateEditedItem(itemId) {
+        if (typeof itemId != 'undefined') {
+            this.$itemList.find('li[data-id="' + itemId + '"] span.edit_animation_box')
                 .css('opacity', '1')
                 .animate({opacity: '0'}, 3000);
         }

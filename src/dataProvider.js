@@ -36,7 +36,7 @@ class DataProvider {
      */
     provide(action, data = {}, type = 'POST') {
         // Define request headers
-        var headers = {
+        let headers = {
             'Ajax-Action': action
         };
         if (type == 'POST') {

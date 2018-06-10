@@ -15,10 +15,10 @@ export default class Helper {
 
     static getFormatedDate(d) {
         d = typeof d == 'string' ? new Date(this.switchDayMonth(d)) : new Date();
-        var curr_date = d.getDate();
-        var curr_month = d.getMonth() + 1; //Months are zero based
-        var curr_year = d.getFullYear();
-        return curr_date + "." + curr_month + "." + curr_year;
+        let currDate = d.getDate();
+        let currMonth = d.getMonth() + 1; //Months are zero based
+        let currYear = d.getFullYear();
+        return currDate + "." + currMonth + "." + currYear;
     }
 
     /**
