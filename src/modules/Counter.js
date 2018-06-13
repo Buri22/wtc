@@ -173,17 +173,17 @@ export default class Counter {
         }
         startIndex = startIndex || (this.pagination.currentPage - 1) * itemsPerPage;
         let endIndex = startIndex + itemsPerPage;
-        for (let i in this.itemList.taskList) {
+        for (let [key, value] of this.itemList) {
             // Save ticking task by defining activeItemIndex
-            if (this.itemList.taskList[i].taskStarted) {
-                this.activeItemIndex = i;
+            if (value.taskStarted) {
+                this.activeItemIndex = key;
             }
 
             if (i >= startIndex && i < endIndex) {
                 itemList.push({
                     index: this.pagination.totalItems - i,
                     Id: i,
-                    Name: this.itemList.taskList[i].name,
+                    Name: this.itemList[i].name,
                     SpentTime: this.secondsToHms(this.itemList.taskList[i].spentTime)
                 });
             }
@@ -289,7 +289,7 @@ export default class Counter {
     }
     renderMenuItem($container) {
         // To make sure that this.$menuItem is already defined
-        if (typeof this.$menuItem == 'undefined') {
+        if (typeof this.$menuItem === undefined) {
             mediator.subscribe('CounterViewLoaded', this.renderMenuItem.bind(this), $container);
         } else {
             $container.append(this.$menuItem);
@@ -297,7 +297,7 @@ export default class Counter {
     }
     renderPermanentSideMenuItems($container) {
         // To make sure that this.$menuItem is already defined
-        if (typeof this.$newItemBtn == 'undefined') {
+        if (typeof this.$newItemBtn === undefined) {
             mediator.subscribe('CounterViewLoaded', this.renderPermanentSideMenuItems.bind(this), $container);
         } else {
             // Render items into SideMenu

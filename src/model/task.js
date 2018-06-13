@@ -21,6 +21,8 @@ export default class TaskList {
     constructor(taskListData) {
         this.taskList = Array.from(taskListData, taskData => new Task(taskData));
 
+        this[Symbol.iterator] = this.taskList[Symbol.iterator];
+
         mediator.subscribe('UserLogout', this.clearDataModel.bind(this));
     }
 
