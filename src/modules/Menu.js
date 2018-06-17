@@ -17,7 +17,7 @@ export default class Menu {
     }
 
     renderMenu($container) {
-        if (typeof this.$menu == 'undefined') {
+        if (typeof this.$menu === undefined) {
             mediator.subscribe('MenuLoaded', this.renderMenu.bind(this), $container);
         } else {
             this.$mainMenu.empty();

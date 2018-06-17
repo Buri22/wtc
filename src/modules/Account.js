@@ -65,7 +65,7 @@ export default class Account {
 	// }
 
     renderLogin(msg) {
-        if (typeof this.$loginPage == 'undefined') {
+        if (typeof this.$loginPage === undefined) {
             mediator.subscribe('AccountTemplatesReady', this.renderLogin.bind(this));
         }
         else {
@@ -83,12 +83,12 @@ export default class Account {
     }
     _renderMenuItem($container) {
         // TO make sure that templates are defined
-        if (typeof this.$accountMenuItem == 'undefined') {
+        if (typeof this.$accountMenuItem === undefined) {
             mediator.subscribe('AccountTemplatesReady', this._renderMenuItem.bind(this), $container);
         }
         else {
             // Define menuItemContainer or use already defined one
-            this.$menuItemContainer = typeof this.$menuItemContainer == 'undefined' ? $($container) : this.$menuItemContainer;
+            this.$menuItemContainer = typeof this.$menuItemContainer === undefined ? $($container) : this.$menuItemContainer;
             // Bind onclick events for menuItems
             this._bindMenuItemsEvents();
 

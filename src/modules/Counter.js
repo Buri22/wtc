@@ -133,9 +133,9 @@ export default class Counter {
     }
 
     renderCounter($container) {
-        if ($container != null && typeof $container != 'undefined' || typeof this.$parentContainer != 'undefined') {
+        if ($container != null && typeof $container !== undefined || typeof this.$parentContainer !== undefined) {
             let startTicking = true;
-            if (typeof $container.currentTarget != 'undefined' && $container.currentTarget.id == 'counter_menu_item') {
+            if (typeof $container.currentTarget !== undefined && $container.currentTarget.id == 'counter_menu_item') {
                 startTicking = false;
             }
             if (!($container instanceof jQuery)) {
@@ -150,7 +150,7 @@ export default class Counter {
             if (this.itemList == null) {
                 mediator.subscribe('CounterModelLoaded', this.renderCounter.bind(this), $container);
             }
-            else if (typeof this.$counter == 'undefined') {
+            else if (typeof this.$counter === undefined) {
                 mediator.subscribe('CounterViewLoaded', this.renderCounter.bind(this), $container);
             } else {
                 this._renderTaskList();
@@ -269,7 +269,7 @@ export default class Counter {
                 let currentItem = this.itemList.getTask(itemIndex);
                 let spentTime = this.secondsToHms(currentItem.spentTime);
                 let storageTickingItem = localStorage.getObject(WTC_TICKING_COUNTER + '-' + this.userId);
-                if (storageTickingItem != null && typeof storageTickingItem.spent_time != 'undefined') {
+                if (storageTickingItem != null && typeof storageTickingItem.spent_time !== undefined) {
                     spentTime = storageTickingItem.spent_time;
                 }
 
@@ -293,7 +293,7 @@ export default class Counter {
     }
     renderMenuItem($container) {
         // To make sure that this.$menuItem is already defined
-        if (typeof this.$menuItem == 'undefined') {
+        if (typeof this.$menuItem === undefined) {
             mediator.subscribe('CounterViewLoaded', this.renderMenuItem.bind(this), $container);
         } else {
             $container.append(this.$menuItem);
@@ -301,7 +301,7 @@ export default class Counter {
     }
     renderPermanentSideMenuItems($container) {
         // To make sure that this.$menuItem is already defined
-        if (typeof this.$newItemBtn == 'undefined') {
+        if (typeof this.$newItemBtn === undefined) {
             mediator.subscribe('CounterViewLoaded', this.renderPermanentSideMenuItems.bind(this), $container);
         } else {
             // Render items into SideMenu
@@ -449,7 +449,7 @@ export default class Counter {
         let data = this._getStorageTickingItem();
         let itemIndex = Number(event.target.parentElement.dataset.id);
         let tickingItem = this.itemList.getTask(itemIndex);
-        if (data == null || typeof data.task_id == 'undefined' || typeof data.spent_time == 'undefined') {
+        if (data == null || typeof data.task_id === undefined || typeof data.spent_time === undefined) {
             data.task_id = tickingItem.id;
         }
         dataProvider.provide("stopTask", data).done((response) => {
@@ -628,7 +628,7 @@ export default class Counter {
         }
     }
     animateEditedItem(itemId) {
-        if (typeof itemId != 'undefined') {
+        if (typeof itemId !== undefined) {
             this.$itemList.find('li[data-id="' + itemId + '"] span.edit_animation_box')
                 .css('opacity', '1')
                 .animate({opacity: '0'}, 3000);
@@ -647,7 +647,7 @@ export default class Counter {
     // Edit view according to SideMenu position
     adjustItemsListForActiveSideMenu() {
         // To make sure that $itemList is already defined
-        if (typeof this.$itemList == 'undefined') {
+        if (typeof this.$itemList === undefined) {
             mediator.subscribe('CounterViewLoaded', this.adjustItemsListForActiveSideMenu.bind(this));
         } else {
             this.$itemList.parent()
@@ -660,7 +660,7 @@ export default class Counter {
     adjustItemsNameLength() {
         let itemNames = this.$itemList.find('span.name');
         let maxHeight = this.$itemList.find('span.task_index').height();
-        if (itemNames.length != 0 && typeof maxHeight != 'undefined' && maxHeight > 0) {
+        if (itemNames.length != 0 && typeof maxHeight !== undefined && maxHeight > 0) {
             for (let itemName of itemNames) {
                 let $itemName = $(itemName);
                 while ($itemName.width() > $itemName.parent().innerWidth() * 0.73) {
