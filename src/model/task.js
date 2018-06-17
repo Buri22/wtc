@@ -16,12 +16,17 @@ class Task {
 
 }
 
+/**
+ * Wrapper for list of Tasks
+ */
 export default class TaskList {
 
+    /**
+     * Constructor
+     * @param {JSON} taskListData 
+     */
     constructor(taskListData) {
         this.taskList = Array.from(taskListData, taskData => new Task(taskData));
-
-        mediator.subscribe('UserLogout', this.clearDataModel.bind(this));
     }
 
     addTask(task) {
@@ -33,7 +38,10 @@ export default class TaskList {
     getTasklist() {
         return this.taskList;
     }
-    clearDataModel() {
-        this.taskList = null;
+    getTask(i) {
+        return this.taskList[i];
+    }
+    getLength() {
+        return this.taskList.length;
     }
 }

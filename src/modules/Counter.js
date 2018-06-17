@@ -144,6 +144,8 @@ export default class Counter {
             if (!this.$parentContainer) {
                 this.$parentContainer = $container;
             }
+            // TODO: This could be done by proxy, when any method is called on the Tasks class it checks whether it is null, 
+            // if its null, it subscribes for the CounterModelLoaded action
             // To make sure that items and $counter are already defined
             if (this.itemList == null) {
                 mediator.subscribe('CounterModelLoaded', this.renderCounter.bind(this), $container);
@@ -166,16 +168,17 @@ export default class Counter {
         // Render TaskList table
         let itemList = [];
         
-        this.pagination.totalItems = this.itemList.taskList.length;
+        this.pagination.totalItems = this.itemList.getLength();
         let itemsPerPage = this.pagination.itemsPerPage[this.pagination.itemsPerPageIndex];
         if ((this.pagination.currentPage - 1) * itemsPerPage > this.pagination.totalItems) {
             this.pagination.currentPage = 1;
         }
         startIndex = startIndex || (this.pagination.currentPage - 1) * itemsPerPage;
         let endIndex = startIndex + itemsPerPage;
-        for (let i in this.itemList.taskList) {
+        for (let i in this.itemList.getTasklist()) {
+            let currentItem = this.itemList.getTask(i);
             // Save ticking task by defining activeItemIndex
-            if (this.itemList.taskList[i].taskStarted) {
+            if (currentItem.taskStarted) {
                 this.activeItemIndex = i;
             }
 
@@ -183,8 +186,8 @@ export default class Counter {
                 itemList.push({
                     index: this.pagination.totalItems - i,
                     Id: i,
-                    Name: this.itemList.taskList[i].name,
-                    SpentTime: this.secondsToHms(this.itemList.taskList[i].spentTime)
+                    Name: currentItem.name,
+                    SpentTime: this.secondsToHms(currentItem.spentTime)
                 });
             }
         }
@@ -263,16 +266,17 @@ export default class Counter {
             // Edit/Delete task
             else if (event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id')) {
                 let itemIndex = Number(event.target.getAttribute('data-id') || event.target.parentElement.getAttribute('data-id'));
-                let spentTime = this.secondsToHms(this.itemList.taskList[itemIndex].spentTime);
+                let currentItem = this.itemList.getTask(itemIndex);
+                let spentTime = this.secondsToHms(currentItem.spentTime);
                 let storageTickingItem = localStorage.getObject(WTC_TICKING_COUNTER + '-' + this.userId);
                 if (storageTickingItem != null && typeof storageTickingItem.spent_time != 'undefined') {
                     spentTime = storageTickingItem.spent_time;
                 }
 
                 let edit_delete_body = Mustache.render($templates.filter('#modal_body_edit_delete').html(), {
-                    taskName: this.itemList.taskList[itemIndex].name,
+                    taskName: currentItem.name,
                     taskSpentTime: spentTime,
-                    taskDateCreated: Helper.getFormatedDate(this.itemList.taskList[itemIndex].dateCreated)
+                    taskDateCreated: Helper.getFormatedDate(currentItem.dateCreated)
                 });
 
                 Helper.getModalTemplate(this.$modal, {
@@ -305,14 +309,14 @@ export default class Counter {
         }
     }
     getTickingSideMenuItem(itemIndex) {
-        let spentTimeHms = this.secondsToHms(this.itemList.taskList[itemIndex].spentTime);
+        let currentItem = this.itemList.getTask(itemIndex);
+        let spentTimeHms = this.secondsToHms(currentItem.spentTime);
         let storageTickingItem = this._getStorageTickingItem();
         if (storageTickingItem != null && storageTickingItem.spent_time) {
             spentTimeHms = storageTickingItem.spent_time;
         }
 
-        //this.$sideMenuItem.find('.task_index').text(this.itemList.taskList.length - itemIndex + '.');
-        this.$sideMenuItem.find('.name').text(this.itemList.taskList.length - itemIndex + '. ' + this.itemList.taskList[itemIndex].name);
+        this.$sideMenuItem.find('.name').text(this.itemList.getLength() - itemIndex + '. ' + currentItem.name);
         this.$sideMenuItem.find('.spent_time').text(spentTimeHms);
         this.$sideMenuItem.attr('data-id', itemIndex);
 
@@ -375,9 +379,9 @@ export default class Counter {
         if (storageTickingItem != null
             && storageTickingItem.spent_time
             && storageTickingItem.task_id
-            && this.activeItemIndex != null && this.itemList.taskList[this.activeItemIndex].Id == storageTickingItem.task_id) {
+            && this.activeItemIndex != null && this.itemList.getTask(this.activeItemIndex).Id == storageTickingItem.task_id) {
             if (startTicking) {
-                this.startMyTimer(this.itemList.taskList[this.activeItemIndex], storageTickingItem.spent_time);
+                this.startMyTimer(this.itemList.getTask(this.activeItemIndex), storageTickingItem.spent_time);
                 mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(this.activeItemIndex));
             }
             else {  // Just render ticking time
@@ -385,7 +389,7 @@ export default class Counter {
             }
         }
         else if (startTicking && this.activeItemIndex != null) {    // Storage Ticking Item is missing
-            this.startMyTimer(this.itemList.taskList[this.activeItemIndex]);
+            this.startMyTimer(this.itemList.getTask(this.activeItemIndex));
             mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(this.activeItemIndex));
         }
     }
@@ -406,15 +410,16 @@ export default class Counter {
     }
     _startTicking(event) {
         let itemIndex = Number(event.target.parentElement.dataset.id);
+        let currentItem = this.itemList.getTask(itemIndex);
         let data = {
-            task_id: this.itemList.taskList[itemIndex].id,
+            task_id: currentItem.id,
             last_start: Math.round(new Date().getTime() / 1000) // We store time in seconds
         };
         dataProvider.provide("startTask", data).done((response) => {
             if (response.Id) {
                 // Update model
-                this.itemList.taskList[itemIndex].taskStarted = 1;
-                this.itemList.taskList[itemIndex].lastStart = data.last_start;
+                currentItem.taskStarted = 1;
+                currentItem.lastStart = data.last_start;
 
                 this.userId = dataProvider.getValue('LoggedUserId');
                 this.$activeListItem = this.$itemList.find('li[data-id="' + itemIndex + '"]');
@@ -422,7 +427,7 @@ export default class Counter {
 
                 this.$sideMenuItem.find('.stop').on('click', this._stopTicking.bind(this));
                 this.setActiveTaskListItem();
-                mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(itemIndex, this.itemList.taskList));
+                mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(itemIndex));
                 this.$resultMsg.text('Started successfully!');
             }
             else if (response == ERROR.Input) {
@@ -443,8 +448,9 @@ export default class Counter {
     _stopTicking(event) {
         let data = this._getStorageTickingItem();
         let itemIndex = Number(event.target.parentElement.dataset.id);
+        let tickingItem = this.itemList.getTask(itemIndex);
         if (data == null || typeof data.task_id == 'undefined' || typeof data.spent_time == 'undefined') {
-            data.task_id = this.itemList.taskList[itemIndex].id;
+            data.task_id = tickingItem.id;
         }
         dataProvider.provide("stopTask", data).done((response) => {
             if (response == ERROR.LogOut) {    // User isn`t logged in
@@ -461,8 +467,8 @@ export default class Counter {
             }
             else if (response) {
                 // Update model
-                this.itemList.taskList[itemIndex].spentTime = response.SpentTime || 0;
-                this.itemList.taskList[itemIndex].taskStarted = 0;
+                tickingItem.spentTime = response.SpentTime || 0;
+                tickingItem.taskStarted = 0;
 
                 clearInterval(window.myTime);   // Stop ticking
                 this.deleteLocalStorage();   // Clear localStorage
@@ -470,7 +476,7 @@ export default class Counter {
                 this.unsetActiveTaskListItem();
                 mediator.publish('RemoveItemFromSideMenu', this.$sideMenuItem.attr('id'));
                 this.activeItemIndex = null;
-                this.$resultMsg.html("<strong>" + this.itemList.taskList[itemIndex].name + "</strong> stopped successfully!");
+                this.$resultMsg.html("<strong>" + tickingItem.name + "</strong> stopped successfully!");
             }
             else {
                 this.$resultMsg.text('Stopping failed!');
@@ -491,7 +497,7 @@ export default class Counter {
             if (response.Name == data.new_name) {
                 // Update model
                 this.itemList.addTask(response);    // Adds created Task to the beginning of this.itemList.taskList array
-                this.pagination.totalItems = this.itemList.taskList.length;
+                this.pagination.totalItems = this.itemList.getLength();
 
                 this._renderTaskList();
                 this.bindCounterEvents();
@@ -523,8 +529,9 @@ export default class Counter {
     _editTask(event) {
         let $editResultMsg = this.$modal.find('#edit_result_msg');
         let itemIndex = Number(event.target.dataset.id);
+        let currentItem = this.itemList.getTask(itemIndex);
         let data = {
-            item_id:          this.itemList.taskList[itemIndex].id,
+            item_id:          currentItem.id,
             new_name:         this.$modal.find('#edit_name').val().trim(),
             new_spent_time:   this.$modal.find('#edit_spent_time').val().trim(),
             new_date_created: this.$modal.find('#edit_date_created').val().trim()
@@ -532,9 +539,9 @@ export default class Counter {
         dataProvider.provide('editTask', data).done((response) => {
             if (response.Name == data.new_name) {
                 // Update model
-                this.itemList.taskList[itemIndex].name        = response.Name;
-                this.itemList.taskList[itemIndex].spentTime   = response.SpentTime;
-                this.itemList.taskList[itemIndex].dateCreated = response.DateCreated;
+                currentItem.name        = response.Name;
+                currentItem.spentTime   = response.SpentTime;
+                currentItem.dateCreated = response.DateCreated;
 
                 this._renderTaskList();
                 this.bindCounterEvents();
@@ -566,17 +573,17 @@ export default class Counter {
         });
     }
     _deleteTask(event) {
-        let task_index = Number(event.target.dataset.id);
+        let itemIndex = Number(event.target.dataset.id);
         let $deleteResultMsg = this.$modal.find('#edit_result_msg');
         let data = {
-            task_id: this.itemList.taskList[task_index].id,
+            task_id: this.itemList.getTask(itemIndex).id,
             password: this.$modal.find('#delete_task_password_confirm').val().trim()
         };
         dataProvider.provide('deleteTask', data).done((response) => {
             if (response == false) {
                 // Update model
-                this.itemList.removeTask(task_index);
-                this.pagination.totalItems = this.itemList.taskList.length;
+                this.itemList.removeTask(itemIndex);
+                this.pagination.totalItems = this.itemList.getLength();
                 this.$resultMsg.text("Task was deleted successfully.");
 
                 this._renderTaskList();
@@ -613,11 +620,9 @@ export default class Counter {
         this.$itemList.empty();
         this.$pagination.empty();
         this.$resultMsg.empty();
-
-        //mediator.publish('ClearDataModel');
     }
     _adjustViewForNoTasks() {
-        if (this.itemList.taskList.length == 0) {
+        if (this.itemList.getLength() == 0) {
             this.$itemList.empty();
             this.$resultMsg.text("Please create task, by clicking on the Create button.");
         }
