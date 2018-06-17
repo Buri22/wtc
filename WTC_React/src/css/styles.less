@@ -1,0 +1,293 @@
+/************** Color palette ***************/
+@white: #fff;
+@light_grey: #f8f8f8;
+@grey: #e7e7e7;
+
+//@orange: #f0ad4e;
+@green: #5cb85c;
+@blue: #337ab7;
+
+@red: #d9534f;
+
+/************** Mixins ***************/
+.highlight-item (@shadow_width, @color: @green) {
+    -moz-box-shadow:    inset 0 0 @shadow_width @color;
+    -webkit-box-shadow: inset 0 0 @shadow_width @color;
+    box-shadow:         inset 0 0 @shadow_width @color;
+}
+
+/************** Styles ***************/
+body {
+   background: @white;
+   width: 100%;
+   height: auto;
+   font-size: 1.5em;
+   font-family: 'Open Sans', sans-serif;
+   font-weight: normal;
+   line-height: 2.3rem;
+   /*font-smoothing: antialiased;
+   -webkit-font-smoothing: antialiased;
+   -moz-font-smoothing: antialiased;
+   -o-font-smoothing: antialiased;*/
+}
+
+/*========== Counter Page ==========*/
+#main_menu > li > a {
+    background-color: transparent;
+    .highlight-item(25px);
+
+    &:hover, &:focus {
+        background-color: @green;
+        color: @white;
+    }
+}
+#newTask {
+    display: block;
+    margin: 0 auto;
+}
+
+#taskList {
+    list-style-type: none;
+    padding: 0;
+
+    > li {
+        cursor: pointer;
+        margin: 2px 5px;
+        padding: 8px;
+        border-radius: 4px;
+        background-color: @grey;
+
+        &:nth-child(2n) {
+            background-color: @light_grey;
+        }
+        &:not(:first-child):hover {
+            background-color: lighten(@green, 5%);
+            color: @white;
+        }
+        &.active {
+            background-color: @white;
+            .highlight-item(25px);
+        }
+        &.header {
+            background-color: transparent;
+        }
+
+        > span {
+            display:inline-block;
+
+            &.edit_animation_box {
+                position: absolute;
+                width: 94%;
+                height: 36px;
+                margin: -8px;
+                left: 28px;
+                background-color: @blue;
+                border-radius: 4px;
+                opacity: 0;
+            }
+        }
+        > .name {
+            overflow: hidden;
+            margin-bottom: -5px;
+        }
+        > .spent_time {
+            min-width: 70px;
+            text-align: right;
+            float: right;
+            margin-right: 65px;
+        }
+        > button.start, > button.stop {
+            position: absolute;
+            margin-top: -8px;
+            right: 20px;
+            height: 36px;
+            border-bottom-left-radius: 0;
+            border-top-left-radius: 0;
+            z-index: 1000;
+        }
+        > button.stop {
+            display: none;
+        }
+    }
+}
+
+#page {
+
+    .pagination {
+        margin-bottom: 0;
+        margin-top: 10px;
+
+        > li.active a {
+            background-color: transparent;
+            border-color: @grey;
+            color: @blue;
+            .highlight-item(15px);
+        }
+    }
+    .paginationItemsPerPage {
+        display: inline-block;
+        width: initial;
+        margin-top: 10px;
+        margin-right: 15px;
+        padding: 6px;
+    }
+    .pagination_box {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 4px;
+        clear: both;
+
+        &:last-of-type {
+            margin-bottom: 70px;
+        }
+    }
+}
+
+#login_msg, #register_msg {
+    height: auto;
+    display: block;
+    margin-bottom: 5px;
+    text-align: center;
+}
+button#login, button#register {
+    margin: 25px 0 10px 0;
+}
+
+/*========== Side Menu ==========*/
+#sideMenu > * {
+    width: 100%;
+    margin-bottom: 15px;
+}
+#counter_side_menu_active_item {
+    background-color: transparent;
+    border-radius: 6px;
+    .highlight-item(50px);
+
+    span {
+        display: block;
+        text-align: center;
+        padding: 5px 20px;
+    }
+    .name {
+        font-size: 20px;
+        padding-top: 20px;
+    }
+    .spent_time {
+        font-size: 35px;
+        padding-bottom: 15px;
+    }
+    .stop {
+        width: 100%;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+}
+
+/*========== Modal Window ==========*/
+.btn-modal-close {
+    float: left;
+}
+#result_msg {
+    margin-top: -5px;
+    text-align: center;
+    font-size: initial;
+}
+#create_result_msg , #edit_result_msg {
+    text-align: right;
+    padding-right: 50px;
+}
+
+#user_account {
+	.password_section {
+		display: none;
+	}
+}
+#delete_body {
+    display: none;
+
+    .info {
+        display: block;
+        margin: 10px;
+        text-align: center;
+    }
+}
+#app_settings_body {
+	display: none;
+}
+.modal-body {
+    .modal-tabs {
+        display: flex;
+        justify-content: center;
+        margin-top: -15px;
+        margin-bottom: 20px;
+
+        > span {
+            margin: 0 3px;
+            padding: 5px 8px;
+            border: 1px solid @grey;
+            border-top: none;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+            cursor: pointer;
+            min-width: 65px;
+            text-align: center;
+
+            &.active {
+                color: @white;
+                border-color: transparent;
+            }
+        }
+    }
+    input[type="checkbox"] {
+        margin-top: 10px;
+    }
+}
+#edit_page.active, #account_page.active, #app_page.active {
+    background-color: @green;
+    border-color: darken(@green, 10%);
+}
+#delete_page.active {
+    background-color: @red;
+    border-color: darken(@red, 10%);
+}
+
+/* Color styles */
+.red {
+    color: @red;
+}
+
+/* Position styles */
+.left {
+    float: left;
+}
+.right {
+    float: right;
+}
+.clear {
+    clear: both;
+}
+.centered_flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Bootstrap styles */
+#task_action_buttons .modal-dialog {
+    margin-top: 75px;
+}
+.btn {
+    min-width: 65px;
+}
+
+/*==================== Media ======================*/
+
+
+
+
+
+
+
+
+

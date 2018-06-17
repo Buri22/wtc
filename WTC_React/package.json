@@ -1,12 +1,13 @@
 {
     "name": "WTC",
-    "version": "0.2",
+    "version": "0.2.0",
     "dependencies": {
+        "axios": "^0.18.0",
+        "bootstrap": "3.3.7",
         "react": "16.4.1",
-        "react-dom": "16.4.1",
-        "react-scripts": "1.1.4",
         "react-bootstrap": "0.32.1",
-        "bootstrap": "3.3.7"
+        "react-dom": "16.4.1",
+        "react-scripts": "1.1.4"
     },
     "scripts": {
         "start": "react-scripts start",
