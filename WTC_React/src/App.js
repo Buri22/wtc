@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import {Button, Grid, Row, Col, ButtonToolbar, Table} from 'react-bootstrap';
 
+// testing components
+import PasswordInput from './components/passwordInput/PasswordInput';
+
 class App extends Component {
   render () {
     return (
@@ -18,6 +21,8 @@ class App extends Component {
           <Button bsStyle="primary">Primary button</Button>
           <Button bsStyle="success">Success</Button>
         </ButtonToolbar>
+
+        <PasswordInput/>
       </div>
     );
   }
