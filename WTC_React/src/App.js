@@ -3,6 +3,7 @@ import {Button, Grid, Row, Col, ButtonToolbar, Table} from 'react-bootstrap';
 
 // testing components
 import PasswordInput from './components/passwordInput/PasswordInput';
+import Header from './components/changableHeader/Header'
 
 class App extends Component {
   render () {
@@ -23,6 +24,8 @@ class App extends Component {
         </ButtonToolbar>
 
         <PasswordInput/>
+
+        <Header />
       </div>
     );
   }

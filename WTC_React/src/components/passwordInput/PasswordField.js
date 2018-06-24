@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import {FormGroup, FormControl, ControlLabel} from 'react-bootstrap';
-
 import classNames from 'classnames';
+
+import { SharedFunctionality } from './SharedFunctionality';
 
 export default class PasswordField extends Component {
     constructor(props) {
@@ -16,6 +17,7 @@ export default class PasswordField extends Component {
     }
 
     inputColor() {
+        // this function should be iherited from SharedFunctionality Higher-order component
         let { satisfiedPercent } = this.props;
         let percentage = satisfiedPercent();
 
@@ -41,4 +43,15 @@ export default class PasswordField extends Component {
             </FormGroup>
         );
     }
+}
+
+//export default SharedFunctionality(PasswordField);
+
+
+
+// PasswordField.propTypes = {
+//     password:  String
+// }
+PasswordField.defaultProps = {
+    password: ''
 }
