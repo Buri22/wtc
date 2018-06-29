@@ -36,7 +36,7 @@ class PrincipleList extends Component {
         return (
             <ul>
                 {principles.map(principle => 
-                <li className={this.principleClass(principle)}>
+                <li key={principle.key} className={this.principleClass(principle)}>
                     <small>
                         {principle.label}
                     </small>
