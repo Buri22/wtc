@@ -1,32 +1,42 @@
 import React, {Component} from 'react';
-import {Button, Grid, Row, Col, ButtonToolbar, Table} from 'react-bootstrap';
+
+import Menu from './components/Menu';
+import Page from './components/Page';
+import LoginRegister from './components/account/LoginRegister';
+
+//import {Button, Grid, Row, Col, ButtonToolbar, Table} from 'react-bootstrap';
 
 // testing components
-import PasswordInput from './components/passwordInput/PasswordInput';
-import Header from './components/changableHeader/Header'
+//import PasswordInput from './components/passwordInput/PasswordInput';
+//import Header from './components/changableHeader/Header'
 
 class App extends Component {
+  constructor() {
+    super();
+
+    this.state = { loggedIn: false };
+  }
+
+  renderApp() {
+    let appContent;
+
+    if (this.state.loggedIn) {
+      appContent = 
+        <React.Fragment>
+          <Menu />
+          <Page />
+        </React.Fragment>;
+    }
+    else {
+      appContent = <LoginRegister />;
+    }
+
+    return appContent;
+  }
+
   render () {
     return (
-      <div className="App">
-        <h2>Grid example</h2>
-        <Grid>
-          <Row className="show-grid">
-            <Col xs={12} md={8}>
-              One column
-            </Col>
-          </Row>
-        </Grid>
-        <ButtonToolbar>
-          <Button>Default button</Button>
-          <Button bsStyle="primary">Primary button</Button>
-          <Button bsStyle="success">Success</Button>
-        </ButtonToolbar>
-
-        <PasswordInput/>
-
-        <Header />
-      </div>
+      this.renderApp()
     );
   }
 }
