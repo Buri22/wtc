@@ -4,7 +4,7 @@ import {Row, Col} from 'react-bootstrap';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
-export default class LoginRegister extends Component {
+export default class Introduction extends Component {
     constructor(props) {
         super(props);
 

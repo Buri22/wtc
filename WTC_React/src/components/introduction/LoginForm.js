@@ -46,7 +46,7 @@ export default class LoginForm extends Component {
                     onClick={this.handleRegisterClick}
                 >
                     <span className="glyphicon glyphicon-arrow-right"></span>
-                    Register
+                    Sign up
                 </Button>
                 
                 {/*TODO: create forgot password functionality*/}

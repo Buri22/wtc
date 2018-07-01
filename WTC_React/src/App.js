@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
+import { dataProvider } from './services/DataProvider';
 
+import Loading from './components/loading/Loading';
 import Menu from './components/Menu';
 import Page from './components/Page';
-import LoginRegister from './components/account/LoginRegister';
+import Introduction from './components/introduction/Introduction';
 
 //import {Button, Grid, Row, Col, ButtonToolbar, Table} from 'react-bootstrap';
 
@@ -11,16 +13,32 @@ import LoginRegister from './components/account/LoginRegister';
 //import Header from './components/changableHeader/Header'
 
 class App extends Component {
-  constructor() {
-    super();
+  
+  state = { loggedIn: null };
 
-    this.state = { loggedIn: false };
+  componentDidMount() {
+    // Check if user is logged in
+    dataProvider.provide('checkLogin')
+      .then((result) => {
+        if (result){
+          // Define user model
+          //this.account.setUser(result);
+
+          this.setState({ loggedIn: true });
+        }
+        else {
+          this.setState({ loggedIn: false });
+        }
+      });
   }
 
   renderApp() {
     let appContent;
 
-    if (this.state.loggedIn) {
+    if (this.state.loggedIn === null) {
+      appContent = <Loading />;
+    }
+    else if (this.state.loggedIn) {
       appContent = 
         <React.Fragment>
           <Menu />
@@ -28,7 +46,7 @@ class App extends Component {
         </React.Fragment>;
     }
     else {
-      appContent = <LoginRegister />;
+      appContent = <Introduction />;
     }
 
     return appContent;
