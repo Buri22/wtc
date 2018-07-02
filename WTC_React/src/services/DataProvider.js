@@ -11,7 +11,12 @@ class DataProvider {
          */
         this.getActions = {}
 
+        // Set Axios default request params
         axios.defaults.baseURL = 'http://www.localhost/WTC_JS_OOP/WTC_React';
+        axios.defaults.method = 'post';
+        axios.defaults.url = '/server/wtc_ajax.php';
+        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+        axios.defaults.headers.post['X-Requested-With'] = 'xmlhttprequest';
     }
     
     // Method to provide data from one module to other module that need it
@@ -39,32 +44,29 @@ class DataProvider {
      */
     provide(action, data = {}) {        
         return axios({
-            method: 'post',
-            headers: { 
-                'Content-type': 'application/x-www-form-urlencoded',
-                'Ajax-Action': action
-            },
-            url: '/server/wtc_ajax.php',
-            data: data
-        })
-        .catch(function (error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.log(error.request);
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error', error.message);
-          }
-          console.log(error.config);
-        });
+                headers: {
+                    'Ajax-Action': action
+                },
+                data: data
+            })
+            .catch(function (error) {
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    console.log(error.response.data);
+                    console.log(error.response.status);
+                    console.log(error.response.headers);
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                    // http.ClientRequest in node.js
+                    console.log(error.request);
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.log('Error', error.message);
+                }
+                console.log(error.config);
+            });
     }
     
 

@@ -10,7 +10,7 @@ require_once 'functions.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token, Ajax-Action');
+header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token, Ajax-Action, X-Requested-With');
 
 $headers = getallheaders();
 $action = $headers["Ajax-Action"];

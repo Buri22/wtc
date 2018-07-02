@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { dataProvider } from './services/DataProvider';
+import {user} from './model/user';
 
 import Loading from './components/loading/Loading';
 import Menu from './components/Menu';
@@ -17,19 +17,7 @@ class App extends Component {
   state = { loggedIn: null };
 
   componentDidMount() {
-    // Check if user is logged in
-    dataProvider.provide('checkLogin')
-      .then((result) => {
-        if (result){
-          // Define user model
-          //this.account.setUser(result);
-
-          this.setState({ loggedIn: true });
-        }
-        else {
-          this.setState({ loggedIn: false });
-        }
-      });
+    this.setState({ loggedIn: user.isUserLoggedIn() });
   }
 
   renderApp() {
