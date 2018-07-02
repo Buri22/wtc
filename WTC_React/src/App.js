@@ -17,12 +17,16 @@ class App extends Component {
   state = { loggedIn: null };
 
   componentDidMount() {
-    this.setState({ loggedIn: user.isUserLoggedIn() });
+    user.isUserLoggedIn()
+      .then((response) => {
+        this.setState({ loggedIn: response });
+      });
   }
 
   renderApp() {
     let appContent;
 
+    // TODO: implement loading just after some delay 200ms
     if (this.state.loggedIn === null) {
       appContent = <Loading />;
     }
@@ -34,7 +38,7 @@ class App extends Component {
         </React.Fragment>;
     }
     else {
-      appContent = <Introduction />;
+      appContent = <Introduction isUserLogged={this.state.loggedIn} />;
     }
 
     return appContent;

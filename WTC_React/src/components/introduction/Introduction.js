@@ -5,18 +5,12 @@ import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
 export default class Introduction extends Component {
-    constructor(props) {
-        super(props);
-
-        this.pages = {
-            login: 1,
-            register: 2
-        };
-        this.state = { page: this.pages.login };
-
-        this.goToLogin = this.goToLogin.bind(this);
-        this.goToRegister = this.goToRegister.bind(this);
-    }
+    
+    pages = {
+        login: 1,
+        register: 2
+    };
+    state = { page: this.pages.login };
 
     goToLogin() {
         this.setState({ page: this.pages.login });
@@ -30,10 +24,13 @@ export default class Introduction extends Component {
 
         switch (this.state.page) {
             case this.pages.login:
-                page = <LoginForm goToRegister={this.goToRegister} />;
+                page = <LoginForm
+                            isUserLogged={this.props.isUserLogged}
+                            goToRegister={this.goToRegister.bind(this)}
+                        />;
                 break;
             case this.pages.register:
-                page = <RegisterForm goToLogin={this.goToLogin} />;
+                page = <RegisterForm goToLogin={this.goToLogin.bind(this)} />;
                 break;
             default:
                 // do nothing
