@@ -15,7 +15,7 @@ class DataProvider {
         axios.defaults.baseURL = 'http://www.localhost/WTC_JS_OOP/WTC_React';
         axios.defaults.method = 'post';
         axios.defaults.url = '/server/wtc_ajax.php';
-        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+        axios.defaults.headers.post['Content-Type'] = 'multipart/form-data';
         axios.defaults.headers.post['X-Requested-With'] = 'xmlhttprequest';
     }
     
@@ -42,12 +42,16 @@ class DataProvider {
      * @param {String} action name of the action to be performed at server
      * @param {JSON} data POST request data
      */
-    provide(action, data = {}) {        
+    provide(action, data = {}) {
+        let bodyFormData = new FormData();
+        for (let key in data) {
+            bodyFormData.set(key, data[key]);
+        }        
         return axios({
                 headers: {
                     'Ajax-Action': action
                 },
-                data: data
+                data: bodyFormData
             });
             // .catch(function (error) {
             //     if (error.response) {

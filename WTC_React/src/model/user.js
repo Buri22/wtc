@@ -48,28 +48,45 @@ class User {
                     return { success: true };
                 }
                 else if (response.data === ERROR.Input) {
-                    //this.$loginMsg.text('Please, enter all information.');
                     return { msg: 'Please, enter all information.' };
                 }
                 else if (response.data === ERROR.Email) {
-                    //this.$loginMsg.text('Email format is not valid.');
                     return { msg: 'Email format is not valid.' };
                 }
                 else if (response.data === ERROR.Unregistered) {
-                    //this.$loginMsg.text('You are not registered yet.');
                     return { msg: 'You are not registered yet.' };
                 }
                 else if (response.data === ERROR.Brute) {
-                    //this.$loginMsg.text('Your account is blocked.');
                     return { msg: 'Your account is blocked.' };
                 }
                 else if (response.data === ERROR.Password) {
-                    //this.$loginMsg.text('Wrong password, please try it again.');
                     return { msg: 'Wrong password, please try it again.' };
                 }
                 else {
-                    //this.$loginMsg.text('Login failed, please try again later.');
                     return { msg: 'Login failed, please try again later.' };
+                }
+            });
+    }
+    register(data) {
+        return dataProvider.provide('register', data)
+            .then((response) => {
+                if (response === ERROR.OK) {  // new user was created successfully
+                    return { success: true, msg: 'You were successfully registered, please login with your credentials.' };
+                }
+                else if (response === ERROR.Input) {
+                    return { msg: 'Please, enter all information.' };
+                }
+                else if (response === ERROR.Email) {
+                    return { msg: 'Email format is not valid.' };
+                }
+                else if (response === ERROR.EqualPasswords) {
+                    return { msg: 'Passwords don`t match, please, enter them again.' };
+                }
+                else if (response === ERROR.Registered) {
+                    return { msg: 'You are already registered. Please login with this email.' };
+                }
+                else {
+                    return { msg: 'New user failed to create!' };
                 }
             });
     }

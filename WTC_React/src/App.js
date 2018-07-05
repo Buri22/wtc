@@ -23,6 +23,10 @@ class App extends Component {
       });
   }
 
+  loginSuccess() {
+    this.setState({ loggedIn: true });
+  }
+
   renderApp() {
     let appContent;
 
@@ -38,7 +42,7 @@ class App extends Component {
         </React.Fragment>;
     }
     else {
-      appContent = <Introduction isUserLogged={this.state.loggedIn} />;
+      appContent = <Introduction handleLogin={this.loginSuccess.bind(this)} />;
     }
 
     return appContent;

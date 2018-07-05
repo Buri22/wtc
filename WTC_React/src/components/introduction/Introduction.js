@@ -10,10 +10,16 @@ export default class Introduction extends Component {
         login: 1,
         register: 2
     };
-    state = { page: this.pages.login };
+    state = {
+        page: this.pages.login,
+        msg: ''
+    };
 
-    goToLogin() {
-        this.setState({ page: this.pages.login });
+    goToLogin(msg = '') {
+        this.setState({ 
+            page: this.pages.login,
+            msg: msg
+        });
     }
     goToRegister() {
         this.setState({ page: this.pages.register });
@@ -25,7 +31,8 @@ export default class Introduction extends Component {
         switch (this.state.page) {
             case this.pages.login:
                 page = <LoginForm
-                            isUserLogged={this.props.isUserLogged}
+                            msg={this.state.msg}
+                            handleLogin={this.props.handleLogin}
                             goToRegister={this.goToRegister.bind(this)}
                         />;
                 break;

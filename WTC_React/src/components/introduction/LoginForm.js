@@ -6,7 +6,7 @@ export default class LoginForm extends Component {
     state = {
         email: '',
         password: '',
-        errorMessage: ''
+        errorMessage: this.props.msg
     };
 
     handleUserInput (e) {
@@ -14,7 +14,9 @@ export default class LoginForm extends Component {
         let value = e.target.value;
         this.setState({ [name]: value });
     }
-    handleSubmit() {
+    handleSubmit(e) {
+        e.preventDefault();
+
         let data = {
             email: this.state.email,
             password: this.state.password
@@ -22,15 +24,14 @@ export default class LoginForm extends Component {
         
         user.logIn(data)
             .then((response) => {
-                if (response.successful) {
-                    this.props.isUserLogged = true;
+                if (response.success) {
+                    this.props.handleLogin();
                 }
                 else if (response.msg) {
-                    // update result action message
+                    // update submit result message
                     this.setState({ errorMessage: response.msg });
                 }
             });
-        //let loginAttempt = { msg: `email: ${data.email}, password: ${data.password}` };
     }
     handleRegisterClick() {
         let { goToRegister } = this.props;
@@ -43,7 +44,6 @@ export default class LoginForm extends Component {
             <Col lg={4} lgOffset={4}>
                 <h2 className="text-center">Login</h2>
 
-                {/*TODO: implement result action messages*/}
                 <span id="login_msg">{this.state.errorMessage}</span>
 
                 <form onSubmit={this.handleSubmit.bind(this)}>
@@ -55,6 +55,7 @@ export default class LoginForm extends Component {
                             value={this.state.email}
                             onChange={this.handleUserInput.bind(this)}
                             autoComplete="email"
+                            required="required"
                         />
                     </FormGroup>
 
@@ -66,6 +67,7 @@ export default class LoginForm extends Component {
                             value={this.state.password}
                             onChange={this.handleUserInput.bind(this)}
                             autoComplete="current-password"
+                            required="required"
                         />
                     </FormGroup>
 

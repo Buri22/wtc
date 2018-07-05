@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Grid, Row, Col} from 'react-bootstrap';
+import {Row, Col} from 'react-bootstrap';
 
 import StrengthMeter from './StrengthMeter';
 import PasswordField from './PasswordField';
@@ -12,18 +12,18 @@ export default class PasswordInput extends Component {
         super(props);
         this.state = { password: '' };
 
-        this.changePassword = this.changePassword.bind(this);
         this.satisfiedPercent = this.satisfiedPercent.bind(this);
     }
 
     changePassword(password) {
-        this.setState({ password });
+        let { handlePasswordInput } = this.props;
+        handlePasswordInput(password);
     }
     satisfiedPercent() {
         let { goodPasswordPrinciples } = this.props;
-        let { password } = this.state;
+        let { passwordValue } = this.props;
 
-        let satisfiedCount = goodPasswordPrinciples.map(p => p.predicate(password))
+        let satisfiedCount = goodPasswordPrinciples.map(p => p.predicate(passwordValue))
                                                     .reduce((count, satisfied) => 
                                                         count + (satisfied ? 1 : 0)
                                                     , 0);
@@ -35,27 +35,25 @@ export default class PasswordInput extends Component {
 
     render() {
         let { goodPasswordPrinciples } = this.props;
-        let { password } = this.state;
+        let { passwordValue } = this.props;
 
         return (
-            <Grid>
-                <Row>
-                    <Col md={8}>
-                        <PasswordField 
-                            password={password}
-                            onPasswordChange={this.changePassword}
-                            satisfiedPercent={this.satisfiedPercent}
-                        />
-                    </Col>
-                    <Col md={4}>
-                        <StrengthMeter 
-                            principles={goodPasswordPrinciples}
-                            password={password}
-                            satisfiedPercent={this.satisfiedPercent}
-                        />
-                    </Col>
-                </Row>
-            </Grid>
+            <Row>
+                <Col lg={12}>
+                    <StrengthMeter 
+                        principles={goodPasswordPrinciples}
+                        password={passwordValue}
+                        satisfiedPercent={this.satisfiedPercent}
+                    />
+                </Col>
+                <Col lg={12}>
+                    <PasswordField 
+                        password={passwordValue}
+                        onPasswordChange={this.changePassword.bind(this)}
+                        satisfiedPercent={this.satisfiedPercent}
+                    />
+                </Col>
+            </Row>
         );
     }
 }

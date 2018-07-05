@@ -1,14 +1,10 @@
 import React, {Component} from 'react';
-import {FormGroup, FormControl, ControlLabel} from 'react-bootstrap';
+import {FormGroup, FormControl} from 'react-bootstrap';
 import classNames from 'classnames';
 
 import { SharedFunctionality } from './SharedFunctionality';
 
 export default class PasswordField extends Component {
-    constructor(props) {
-        super(props);
-        this.handlePasswordChange = this.handlePasswordChange.bind(this);
-    }
 
     handlePasswordChange(ev) {
         let { onPasswordChange } = this.props;
@@ -33,11 +29,13 @@ export default class PasswordField extends Component {
 
         return (
             <FormGroup validationState={this.inputColor()}>
-                <ControlLabel>Password</ControlLabel>
                 <FormControl 
                     type='password'
+                    name='password'
+                    placeholder='Password'
                     value={password}
-                    onChange={this.handlePasswordChange}
+                    onChange={this.handlePasswordChange.bind(this)}
+                    autoComplete="new-password"
                 />
                 <FormControl.Feedback />
             </FormGroup>

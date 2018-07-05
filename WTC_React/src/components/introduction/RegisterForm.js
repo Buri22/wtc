@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import {Col, FormGroup, FormControl, Button} from 'react-bootstrap';
+import {user} from '../../model/user';
+import PasswordInput from '../passwordInput/PasswordInput';
 
 export default class RegisterForm extends Component {
     state = {
@@ -15,6 +17,9 @@ export default class RegisterForm extends Component {
         let value = e.target.value;
         this.setState({ [name]: value });
     }
+    handlePasswordInput(password) {
+        this.setState({ password: password });
+    }
     handleSubmit() {
         let data = {
             userName: this.state.userName,
@@ -22,21 +27,22 @@ export default class RegisterForm extends Component {
             password: this.state.password,
             passwordConfirm: this.state.passwordConfirm
         };
-        //let loginAttempt = user.logIn(data);
-        let registerAttempt = { msg: `email: ${data.email}, password: ${data.password}` };
+        
+        user.register(data)
+            .then((response) => {
+                if (response.successful) {
+                    // go to login page with success msg
+                    this.props.goToLogin(response.msg);
+                }
+                else if (response.msg) {
+                    // update result action message
+                    this.setState({ errorMessage: response.msg });
+                }
+            });
 
-        if (registerAttempt.successful) {
-            this.props.isUserLogged = true;
-        }
-        else if (registerAttempt.msg) {
-            // update result action message
-            this.setState({ errorMessage: registerAttempt.msg });
-        }
     }
     handleLoginClick() {
-        let { goToLogin } = this.props;
-
-        goToLogin();
+        this.props.goToLogin();
     }
 
     render(){
@@ -70,16 +76,10 @@ export default class RegisterForm extends Component {
                         /> 
                     </FormGroup>
 
-                    <FormGroup controlId="passwordReg">
-                        <FormControl
-                            type="password"
-                            name="password"
-                            placeholder="Password"
-                            value={this.state.password}
-                            onChange={this.handleUserInput.bind(this)}
-                            autoComplete="new-password"
-                        /> 
-                    </FormGroup>
+                    <PasswordInput
+                        passwordValue={this.state.password}
+                        handlePasswordInput={this.handlePasswordInput.bind(this)}    
+                    />
 
                     <FormGroup controlId="passwordRegConfirm">
                         <FormControl
