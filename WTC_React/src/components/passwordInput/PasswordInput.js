@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Row, Col} from 'react-bootstrap';
+import {Col} from 'react-bootstrap';
 
 import StrengthMeter from './StrengthMeter';
 import PasswordField from './PasswordField';
@@ -39,7 +39,7 @@ export default class PasswordInput extends Component {
         let { passwordValue } = this.props;
 
         return (
-            <Row>
+            <React.Fragment>
                 <Col lg={12}>
                     <StrengthMeter 
                         principles={goodPasswordPrinciples}
@@ -54,7 +54,7 @@ export default class PasswordInput extends Component {
                         onPasswordChange={this.changePassword.bind(this)}
                     />
                 </Col>
-            </Row>
+            </React.Fragment>
         );
     }
 }

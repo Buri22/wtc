@@ -10,6 +10,12 @@ class User {
         this.userName    = null;
         this.email       = null;
         this.appSettings = null;
+
+        this.setUser = this.setUser.bind(this);
+        this.isUserLoggedIn = this.isUserLoggedIn.bind(this);
+        this.logIn = this.logIn.bind(this);
+        this.register = this.register.bind(this);
+        this.getProp = this.getProp.bind(this);
     }
 
     /**
@@ -94,12 +100,23 @@ class User {
             });
     }
 
-    getId(){
-        return this.id || false;
+    // getId(){
+    //     return this.id || false;
+    // }
+    getProp(name) {
+        return this[name];
     }
-	isSideMenuActive() {
-        return this.appSettings.sideMenu.active;
-    }
+	// isSideMenuActive() {
+    //     return this.appSettings.sideMenu.active;
+    // }
 }
 
-export let user = new User();
+let user = new User();
+const isUserLoggedIn = user.isUserLoggedIn;
+const setUser = user.setUser;
+const register = user.register;
+const logIn = user.logIn;
+const logOut = user.logOut;
+const getUserProp = user.getProp;
+
+export { isUserLoggedIn, setUser, logIn, logOut, getUserProp, register };

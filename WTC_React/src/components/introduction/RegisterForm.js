@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import {Col, FormGroup, FormControl, Button} from 'react-bootstrap';
-import {user} from '../../model/user';
+import {Row, Col, FormGroup, FormControl, Button} from 'react-bootstrap';
+import {register} from '../../model/user';
 import PasswordInput from '../passwordInput/PasswordInput';
 
 export default class RegisterForm extends Component {
@@ -30,7 +30,7 @@ export default class RegisterForm extends Component {
             passwordConfirm: this.state.passwordConfirm
         };
         
-        user.register(data)
+        register(data)
             .then((response) => {
                 if (response.success) {
                     // go to login page with success msg
@@ -83,11 +83,13 @@ export default class RegisterForm extends Component {
                         />
                     </FormGroup>
 
-                    <PasswordInput
-                        controlId='passwordReg'
-                        passwordValue={this.state.password}
-                        handlePasswordInput={this.handlePasswordInput.bind(this)}
-                    />
+                    <Row>
+                        <PasswordInput
+                            controlId='passwordReg'
+                            passwordValue={this.state.password}
+                            handlePasswordInput={this.handlePasswordInput.bind(this)}
+                        />
+                    </Row>
 
                     <FormGroup
                         validationState={this.validatePasswordConfirm()}
@@ -120,7 +122,7 @@ export default class RegisterForm extends Component {
                     onClick={this.handleLoginClick.bind(this)}
                 >
                     <span className='glyphicon glyphicon-arrow-left'></span>
-                    Login
+                    <span> Login</span>
                 </Button>
             </Col>
         );

@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
-import {NavItem} from 'react-bootstrap';
-import {user} from '../../model/user';
+import React, { Component } from 'react';
+import { NavItem } from 'react-bootstrap';
+import { logOut } from '../../model/user';
 import Loading from '../loading/Loading';
 
 export default class LogOut extends Component {
@@ -10,7 +10,7 @@ export default class LogOut extends Component {
 
     handleLogout() {
         this.setState({ inProcess: true });
-        user.logOut()
+        logOut()
             .then((response) => {
                 if (response === true) {
                     this.props.logout();
@@ -25,7 +25,7 @@ export default class LogOut extends Component {
         let itemContent;
 
         if (this.state.inProcess) {
-            itemContent = 
+            itemContent =
                 <NavItem
                     title='Loading'
                     className='loading'
@@ -34,7 +34,7 @@ export default class LogOut extends Component {
                 </ NavItem>;
         }
         else {
-            itemContent = 
+            itemContent =
                 <NavItem
                     onClick={this.handleLogout.bind(this)}
                     title="Logout"
@@ -45,7 +45,7 @@ export default class LogOut extends Component {
         return itemContent;
     }
 
-    render(){
+    render() {
         return this.renderLogOutMenuItem();
     }
 }

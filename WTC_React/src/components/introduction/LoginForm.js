@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Col, FormGroup, FormControl, Button} from 'react-bootstrap';
-import {user} from '../../model/user';
+import {logIn} from '../../model/user';
 
 export default class LoginForm extends Component {
     state = {
@@ -22,7 +22,7 @@ export default class LoginForm extends Component {
             password: this.state.password
         };
         
-        user.logIn(data)
+        logIn(data)
             .then((response) => {
                 if (response.success) {
                     this.props.handleLogin();
@@ -87,8 +87,8 @@ export default class LoginForm extends Component {
                     className="right"
                     onClick={this.handleRegisterClick.bind(this)}
                 >
+                    <span>Sign up  </span>
                     <span className="glyphicon glyphicon-arrow-right"></span>
-                    Sign up
                 </Button>
                 
                 {/*TODO: create forgot password functionality*/}
