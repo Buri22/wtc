@@ -274,6 +274,17 @@ button#login, button#register {
 }
 
 /* Bootstrap styles */
+.container > .navbar > .container-fluid > .navbar-collapse {
+    padding-right: 0;
+}
+.navbar-right .loading a {
+    cursor: default;
+}
+.navbar-right a[title="Loading"] img,
+.navbar-right a[title="Logout"] span {
+    max-height: 20px;
+    width: 20px;
+}
 #task_action_buttons .modal-dialog {
     margin-top: 75px;
 }

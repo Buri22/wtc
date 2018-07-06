@@ -67,6 +67,9 @@ class User {
                 }
             });
     }
+    logOut() {
+        return dataProvider.provide('logout');
+    }
     register(data) {
         return dataProvider.provide('register', data)
             .then((response) => {

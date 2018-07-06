@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {Navbar, Nav, NavItem, NavDropdown, MenuItem} from 'react-bootstrap';
 
+import LogOut from './LogOut';
+
 export default class Menu extends Component {
     render(){
         return(
@@ -31,9 +33,10 @@ export default class Menu extends Component {
                     <NavItem eventKey={1} href="#">
                         Link Right
                     </NavItem>
-                    <NavItem eventKey={2} href="#">
+                    {/* <NavItem eventKey={2} href="#">
                         Link Right
-                    </NavItem>
+                    </NavItem> */}
+                    <LogOut logout={this.props.logout} />
                 </Nav>
             </Navbar.Collapse>
             </Navbar>

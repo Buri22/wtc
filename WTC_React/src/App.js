@@ -2,15 +2,9 @@ import React, {Component} from 'react';
 import {user} from './model/user';
 
 import Loading from './components/loading/Loading';
-import Menu from './components/Menu';
+import Menu from './components/mainMenu/Menu';
 import Page from './components/Page';
 import Introduction from './components/introduction/Introduction';
-
-//import {Button, Grid, Row, Col, ButtonToolbar, Table} from 'react-bootstrap';
-
-// testing components
-//import PasswordInput from './components/passwordInput/PasswordInput';
-//import Header from './components/changableHeader/Header'
 
 class App extends Component {
   
@@ -26,6 +20,9 @@ class App extends Component {
   loginSuccess() {
     this.setState({ loggedIn: true });
   }
+  logout() {
+    this.setState({ loggedIn: false });
+  }
 
   renderApp() {
     let appContent;
@@ -37,7 +34,7 @@ class App extends Component {
     else if (this.state.loggedIn) {
       appContent = 
         <React.Fragment>
-          <Menu />
+          <Menu logout={this.logout.bind(this)} />
           <Page />
         </React.Fragment>;
     }
