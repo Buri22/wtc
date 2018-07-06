@@ -2,8 +2,9 @@ import React, {Component} from 'react';
 import {Panel, ProgressBar} from 'react-bootstrap';
 
 import classNames from 'classnames';
+import { SharedLogic } from './SharedLogic';
 
-export default class StrengthMeter extends Component {
+class StrengthMeter extends Component {
     render() {
         return (
             <Panel>
@@ -14,6 +15,7 @@ export default class StrengthMeter extends Component {
         );
     }
 }
+export default SharedLogic(StrengthMeter);
 
 class PrincipleList extends Component {
     principleSatisfied(principle) {
@@ -33,38 +35,24 @@ class PrincipleList extends Component {
     render() {
         let { principles } = this.props;
 
-        return (
-            <ul>
+        return <ul>
                 {principles.map(principle => 
-                <li key={principle.key} className={this.principleClass(principle)}>
-                    <small>
-                        {principle.label}
-                    </small>
-                </li>
-                )}
-            </ul>
-        );
+                    <li key={principle.key} className={this.principleClass(principle)}>
+                        <small>
+                            {principle.label}
+                        </small>
+                    </li>
+                    )
+                }
+                </ul>;
     }
 }
 
 class PrinciplesProgress extends Component {
-    constructor(props) {
-        super(props);
-        this.satisfiedPercent = this.props.satisfiedPercent.bind(this);
-    }
-    
-    progressColor() {
-        let percentage = this.satisfiedPercent();
-
-        return classNames({
-            danger: (percentage < 33.4),
-            success: (percentage >= 66.7),
-            warning: (percentage >= 33.4 && percentage < 66.7)
-        });
-    }
-
     render() {
-        return (<ProgressBar now={this.satisfiedPercent()} 
-                            bsStyle={this.progressColor()}/>);
+        return <ProgressBar 
+                    now={this.props.satisfiedPercent()} 
+                    bsStyle={this.props.progressInputColor()}
+                />;
     }
 }

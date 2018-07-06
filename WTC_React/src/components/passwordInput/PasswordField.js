@@ -1,10 +1,12 @@
 import React, {Component} from 'react';
 import {FormGroup, FormControl} from 'react-bootstrap';
-import classNames from 'classnames';
 
-import { SharedFunctionality } from './SharedFunctionality';
+import { SharedLogic } from './SharedLogic';
 
-export default class PasswordField extends Component {
+class PasswordField extends Component {
+    static defaultProps = {
+        password: ''
+    }
 
     handlePasswordChange(ev) {
         let { onPasswordChange } = this.props;
@@ -12,23 +14,11 @@ export default class PasswordField extends Component {
         onPasswordChange(ev.target.value);
     }
 
-    inputColor() {
-        // this function should be iherited from SharedFunctionality Higher-order component
-        let { satisfiedPercent } = this.props;
-        let percentage = satisfiedPercent();
-
-        return classNames({
-            error: (percentage < 33.4),
-            success: (percentage >= 66.7),
-            warning: (percentage >= 33.4 && percentage < 66.7)
-        });
-    }
-
     render() {
         let { password } = this.props;
 
         return (
-            <FormGroup validationState={this.inputColor()}>
+            <FormGroup validationState={this.props.progressInputColor('error')}>
                 <FormControl 
                     type='password'
                     name='password'
@@ -43,13 +33,6 @@ export default class PasswordField extends Component {
     }
 }
 
-//export default SharedFunctionality(PasswordField);
+export default SharedLogic(PasswordField);
 
 
-
-// PasswordField.propTypes = {
-//     password:  String
-// }
-PasswordField.defaultProps = {
-    password: ''
-}
