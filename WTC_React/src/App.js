@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {user} from './model/user';
+import React, { Component } from 'react';
+import { user } from './model/user';
 
 import Loading from './components/loading/Loading';
 import Menu from './components/mainMenu/Menu';
@@ -7,7 +7,7 @@ import Page from './components/Page';
 import Introduction from './components/introduction/Introduction';
 
 class App extends Component {
-  
+
   state = { loggedIn: null };
 
   componentDidMount() {
@@ -32,7 +32,7 @@ class App extends Component {
       appContent = <Loading />;
     }
     else if (this.state.loggedIn) {
-      appContent = 
+      appContent =
         <React.Fragment>
           <Menu logout={this.logout.bind(this)} />
           <Page />
@@ -45,7 +45,7 @@ class App extends Component {
     return appContent;
   }
 
-  render () {
+  render() {
     return (
       this.renderApp()
     );

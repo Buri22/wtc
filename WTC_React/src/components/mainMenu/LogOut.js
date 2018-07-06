@@ -25,12 +25,13 @@ export default class LogOut extends Component {
         let itemContent;
 
         if (this.state.inProcess) {
-            itemContent = <NavItem
-                                title='Loading'
-                                className='loading'
-                            >
-                                <Loading />
-                            </ NavItem>;
+            itemContent = 
+                <NavItem
+                    title='Loading'
+                    className='loading'
+                >
+                    <Loading />
+                </ NavItem>;
         }
         else {
             itemContent = 
