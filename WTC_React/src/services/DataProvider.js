@@ -52,7 +52,8 @@ class DataProvider {
                     'Ajax-Action': action
                 },
                 data: bodyFormData
-            });
+            })
+            .then((response) => {return response.data});
             // .catch(function (error) {
             //     if (error.response) {
             //         // The request was made and the server responded with a status code

@@ -19,12 +19,12 @@ export default class PasswordInput extends Component {
             },
             {
                 key: 1,
-                label: 'with at least one digit',
+                label: 'at least one digit',
                 predicate: password => password.match(DIGIT_REGEX) !== null
             },
             {
                 key: 2,
-                label: 'with at least one special character',
+                label: 'at least one special character',
                 predicate: password => password.match(SPECIAL_CHARS_REGEX) !== null
             }
         ]
@@ -47,7 +47,8 @@ export default class PasswordInput extends Component {
                     />
                 </Col>
                 <Col lg={12}>
-                    <PasswordField 
+                    <PasswordField
+                        controlId={this.props.controlId}
                         principles={goodPasswordPrinciples}
                         password={passwordValue}
                         onPasswordChange={this.changePassword.bind(this)}

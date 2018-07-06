@@ -113,17 +113,17 @@ function getUserForJS($user) {
 
 function register() {
     // Check if all inputs were entered
-    if (!isset($_POST['user_name']) || empty($_POST['user_name'])
+    if (!isset($_POST['userName']) || empty($_POST['userName'])
         || !isset($_POST['email']) || empty($_POST['email'])
         || !isset($_POST['password']) || empty($_POST['password'])
-        || !isset($_POST['password_confirm']) || empty($_POST['password_confirm'])
+        || !isset($_POST['passwordConfirm']) || empty($_POST['passwordConfirm'])
     ) { return Error::Input; }
 
     // Email validation
     if (!isValidEmail(trim($_POST['email']))) { return Error::Email; }
 
     // Password validation
-    if (trim($_POST['password']) != trim($_POST['password_confirm'])) { return Error::EqualPasswords; }
+    if (trim($_POST['password']) != trim($_POST['passwordConfirm'])) { return Error::EqualPasswords; }
 
     // Check if user is already registered
     $registered = Db::queryOne('
@@ -139,7 +139,7 @@ function register() {
     $new_user = Db::query('
                     INSERT INTO user (UserName, Password, Email, AppSettings)
                     VALUES (?, ?, ?, ?)
-                ', trim($_POST['user_name']), $password, trim($_POST['email']), $app_settings);
+                ', trim($_POST['userName']), $password, trim($_POST['email']), $app_settings);
     return $new_user;
 }
 

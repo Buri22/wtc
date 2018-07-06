@@ -9,7 +9,7 @@ class StrengthMeter extends Component {
         return (
             <Panel>
                 <PrinciplesProgress {...this.props}/>
-                <h5>A good password is:</h5>
+                <h5 className="text-center">A good password has:</h5>
                 <PrincipleList {...this.props}/>
             </Panel>
         );

@@ -20,7 +20,9 @@ export default class RegisterForm extends Component {
     handlePasswordInput(password) {
         this.setState({ password: password });
     }
-    handleSubmit() {
+    handleSubmit(e) {
+        e.preventDefault();
+
         let data = {
             userName: this.state.userName,
             email: this.state.email,
@@ -30,7 +32,7 @@ export default class RegisterForm extends Component {
         
         user.register(data)
             .then((response) => {
-                if (response.successful) {
+                if (response.success) {
                     // go to login page with success msg
                     this.props.goToLogin(response.msg);
                 }
@@ -44,59 +46,69 @@ export default class RegisterForm extends Component {
     handleLoginClick() {
         this.props.goToLogin();
     }
+    validatePasswordConfirm() {
+        if (this.state.passwordConfirm.length === 0) return null;
+        if (this.state.password === this.state.passwordConfirm) return 'success';
+        return 'error';
+    }
 
     render(){
         return(
             <Col lg={4} lgOffset={4}>
-                <h2 className="text-center">Sign up</h2>
+                <h2 className='text-center'>Sign up</h2>
 
                 {/*TODO: implement result action messages*/}
-                <span id="register_msg">{this.state.errorMessage}</span>
+                <span id='register_msg'>{this.state.errorMessage}</span>
 
                 <form onSubmit={this.handleSubmit.bind(this)}>
-                    <FormGroup controlId="userName">
+                    <FormGroup controlId='userName'>
                         <FormControl
-                            type="text"
-                            name="userName"
-                            placeholder="User name"
+                            type='text'
+                            name='userName'
+                            placeholder='User name'
                             value={this.state.userName}
                             onChange={this.handleUserInput.bind(this)}
-                            autoComplete="username"
+                            autoComplete='username'
                         /> 
                     </FormGroup>
 
-                    <FormGroup controlId="emailReg">
+                    <FormGroup controlId='emailReg'>
                         <FormControl
-                            type="email"
-                            name="email"
-                            placeholder="Email address"
+                            type='email'
+                            name='email'
+                            placeholder='Email address'
                             value={this.state.email}
                             onChange={this.handleUserInput.bind(this)}
-                            autoComplete="email"
-                        /> 
+                            autoComplete='email'
+                        />
                     </FormGroup>
 
                     <PasswordInput
+                        controlId='passwordReg'
                         passwordValue={this.state.password}
-                        handlePasswordInput={this.handlePasswordInput.bind(this)}    
+                        handlePasswordInput={this.handlePasswordInput.bind(this)}
                     />
 
-                    <FormGroup controlId="passwordRegConfirm">
+                    <FormGroup
+                        validationState={this.validatePasswordConfirm()}
+                        controlId='passwordRegConfirm'
+                    >
                         <FormControl
-                            type="password"
-                            name="passwordConfirm"
-                            placeholder="Confirm password"
+                            type='password'
+                            name='passwordConfirm'
+                            placeholder='Confirm password'
                             value={this.state.passwordConfirm}
                             onChange={this.handleUserInput.bind(this)}
-                            autoComplete="new-password"
-                        /> 
+                            autoComplete='new-password'
+                        />
+                        <FormControl.Feedback />
                     </FormGroup>
 
                     <Button 
-                        type="submit"
-                        id="register"
-                        bsStyle="primary"
-                        bsSize="large"
+                        type='submit'
+                        id='register'
+                        bsStyle='primary'
+                        bsSize='large'
                         block
                     >
                         Sign up
@@ -104,10 +116,10 @@ export default class RegisterForm extends Component {
                 </form>
 
                 <Button 
-                    bsStyle="link"
+                    bsStyle='link'
                     onClick={this.handleLoginClick.bind(this)}
                 >
-                    <span className="glyphicon glyphicon-arrow-left"></span>
+                    <span className='glyphicon glyphicon-arrow-left'></span>
                     Login
                 </Button>
             </Col>

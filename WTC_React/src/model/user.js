@@ -26,9 +26,9 @@ class User {
     isUserLoggedIn() {
         return dataProvider.provide('checkLogin')
             .then((response) => {
-                if (response.data){
+                if (response){
                     // Define user model
-                    this.setUser(response.data);
+                    this.setUser(response);
 
                     return true;
                 }
@@ -40,26 +40,26 @@ class User {
     logIn(data) {
         return dataProvider.provide('login', data)
             .then((response) => {
-                if (response.data.Id && response.data.UserName) {
+                if (response.Id && response.UserName) {
                     //this.user = new User(response);
                     //mediator.publish('UserLogin');
 
-                    this.setUser(response.data);
+                    this.setUser(response);
                     return { success: true };
                 }
-                else if (response.data === ERROR.Input) {
+                else if (response === ERROR.Input) {
                     return { msg: 'Please, enter all information.' };
                 }
-                else if (response.data === ERROR.Email) {
+                else if (response === ERROR.Email) {
                     return { msg: 'Email format is not valid.' };
                 }
-                else if (response.data === ERROR.Unregistered) {
+                else if (response === ERROR.Unregistered) {
                     return { msg: 'You are not registered yet.' };
                 }
-                else if (response.data === ERROR.Brute) {
+                else if (response === ERROR.Brute) {
                     return { msg: 'Your account is blocked.' };
                 }
-                else if (response.data === ERROR.Password) {
+                else if (response === ERROR.Password) {
                     return { msg: 'Wrong password, please try it again.' };
                 }
                 else {

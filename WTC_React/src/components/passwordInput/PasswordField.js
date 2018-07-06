@@ -16,16 +16,20 @@ class PasswordField extends Component {
 
     render() {
         let { password } = this.props;
+        let validationStateColor = password.length > 0 ? this.props.progressInputColor('error') : null;
 
         return (
-            <FormGroup validationState={this.props.progressInputColor('error')}>
+            <FormGroup
+                validationState={validationStateColor}
+                controlId={this.props.controlId}
+            >
                 <FormControl 
                     type='password'
                     name='password'
                     placeholder='Password'
                     value={password}
                     onChange={this.handlePasswordChange.bind(this)}
-                    autoComplete="new-password"
+                    autoComplete='new-password'
                 />
                 <FormControl.Feedback />
             </FormGroup>
