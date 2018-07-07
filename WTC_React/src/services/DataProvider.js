@@ -15,6 +15,7 @@ class DataProvider {
         axios.defaults.baseURL = 'http://www.localhost/WTC_JS_OOP/WTC_React';
         axios.defaults.method = 'post';
         axios.defaults.url = '/server/wtc_ajax.php';
+        axios.defaults.withCredentials = true;
         axios.defaults.headers.post['Content-Type'] = 'multipart/form-data';
         axios.defaults.headers.post['X-Requested-With'] = 'xmlhttprequest';
     }
@@ -51,8 +52,7 @@ class DataProvider {
                 headers: {
                     'Ajax-Action': action
                 },
-                data: bodyFormData,
-                withCredentials: true
+                data: bodyFormData
             })
             .then((response) => {
                 return response.data

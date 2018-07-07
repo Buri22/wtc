@@ -19,15 +19,13 @@ export default class RegisterForm extends Component {
     }
     handleSubmit(e) {
         e.preventDefault();
-
-        let data = {
-            userName: this.state.userName,
-            email: this.state.email,
-            password: this.state.password,
-            passwordConfirm: this.state.passwordConfirm
-        };
         
-        user.register(data)
+        user.register({
+                userName: this.state.userName,
+                email: this.state.email,
+                password: this.state.password,
+                passwordConfirm: this.state.passwordConfirm
+            })
             .then((response) => {
                 if (response.success) {
                     // go to login page with success msg
@@ -66,6 +64,7 @@ export default class RegisterForm extends Component {
                             value={this.state.userName}
                             onChange={this.handleUserInput.bind(this)}
                             autoComplete='username'
+                            required='required'
                         /> 
                     </FormGroup>
 
@@ -77,6 +76,7 @@ export default class RegisterForm extends Component {
                             value={this.state.email}
                             onChange={this.handleUserInput.bind(this)}
                             autoComplete='email'
+                            required='required'
                         />
                     </FormGroup>
 
@@ -99,6 +99,7 @@ export default class RegisterForm extends Component {
                             value={this.state.passwordConfirm}
                             onChange={this.handleUserInput.bind(this)}
                             autoComplete='new-password'
+                            required='required'
                         />
                         <FormControl.Feedback />
                     </FormGroup>

@@ -13,25 +13,23 @@ function isValidEmail($email) {
 }
 
 function sec_session_start() {
-    // $session_name = 'sec_session_id';   // Set a custom session name
-    // $secure = SECURE;
-    // // This stops JavaScript being able to access the session id.
-    // $httponly = true;
-    // // Forces sessions to only use cookies.
-    // if (ini_set('session.use_only_cookies', 1) === FALSE) {
-    //     // TODO: relocate by JS
-    //     header("Location: ../error.php?err=Could not initiate a safe session (ini_set)");
-    //     exit();
-    // }
-    // // Gets current cookies params.
-    // $cookieParams = session_get_cookie_params();
-    // session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], $secure, $httponly);
-    // // Sets the session name to the one set above.
-    // session_name($session_name);
+    $session_name = 'sec_session_id';   // Set a custom session name
+    $secure = SECURE;
+    // This stops JavaScript being able to access the session id.
+    $httponly = true;
+    // Forces sessions to only use cookies.
+    if (ini_set('session.use_only_cookies', 1) === FALSE) {
+        // TODO: relocate by JS
+        header("Location: ../error.php?err=Could not initiate a safe session (ini_set)");
+        exit();
+    }
+    // Gets current cookies params.
+    $cookieParams = session_get_cookie_params();
+    session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], $secure, $httponly);
+    // Sets the session name to the one set above.
+    session_name($session_name);
     session_start();            // Start the PHP session
-    $session_id = session_id();
-    $_SESSION['session_id'] = $session_id;
-    // session_regenerate_id();    // regenerated the session, delete the old one.
+    session_regenerate_id();    // regenerated the session, delete the old one.
 }
 
 function check_brute($user) {
@@ -206,12 +204,12 @@ function logout() {
 // Update User Account data
 function editAccount() {
     // Check if all inputs were entered
-    if (!isset($_POST['user_name']) || empty($_POST['user_name'])
+    if (!isset($_POST['userName']) || empty($_POST['userName'])
         || !isset($_POST['email']) || empty($_POST['email'])
-        || ($_POST['change_password'] == "true"
-            && (!isset($_POST['password_old']) || empty($_POST['password_old'])
-            || !isset($_POST['password_new']) || empty($_POST['password_new'])
-            || !isset($_POST['password_confirm']) || empty($_POST['password_confirm'])))) {
+        || ($_POST['changePassword'] == "true"
+            && (!isset($_POST['passwordCurrent']) || empty($_POST['passwordCurrent'])
+            || !isset($_POST['passwordNew']) || empty($_POST['passwordNew'])
+            || !isset($_POST['passwordConfirm']) || empty($_POST['passwordConfirm'])))) {
         return Error::Input;
     }
 
@@ -236,23 +234,23 @@ function editAccount() {
 
     // Define SQL query data
     $data = array(
-        'UserName' => trim($_POST['user_name']),
+        'UserName' => trim($_POST['userName']),
         'Email' => trim($_POST['email'])
 
     );
 
     // User wants to change his password
-    if ($_POST['change_password'] == "true") {
+    if ($_POST['changePassword'] == "true") {
         $loggedIn_user = Db::queryOne('SELECT * FROM user WHERE Id = ?', $user['Id']);
         if ($loggedIn_user) {
             // Check passwords
-            if (!password_verify($_POST['password_old'], $loggedIn_user['Password'])) { return Error::Password; }
+            if (!password_verify($_POST['passwordCurrent'], $loggedIn_user['Password'])) { return Error::Password; }
 
             // New password validation
-            if (trim($_POST['password_new']) != trim($_POST['password_confirm'])) { return Error::EqualPasswords; }
+            if (trim($_POST['passwordNew']) != trim($_POST['passwordConfirm'])) { return Error::EqualPasswords; }
 
             // Define new password
-            $data['Password'] = password_hash(trim($_POST['password_new']), PASSWORD_BCRYPT);
+            $data['Password'] = password_hash(trim($_POST['passwordNew']), PASSWORD_BCRYPT);
             // Update session login_string
             $_SESSION['login_string'] = hash('sha512', $loggedIn_user['Password'] . $_SERVER['HTTP_USER_AGENT']);
         }

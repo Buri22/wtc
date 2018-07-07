@@ -31,7 +31,7 @@ export default class Menu extends Component {
                     </NavDropdown>
                 </Nav>
                 <Nav pullRight>
-                    <AccountSettings />
+                    <AccountSettings logout={this.props.logout} />
                     <LogOut logout={this.props.logout} />
                 </Nav>
             </Navbar.Collapse>

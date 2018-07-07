@@ -27,6 +27,10 @@ class User {
         this.email       = userData.Email;
         this.appSettings = JSON.parse(userData.AppSettings);
     }
+    _setProp(name, value) {
+        this[name] = value;
+    }
+
     // Check if user is logged in
     isUserLoggedIn() {
         return dataProvider.provide('checkLogin')
@@ -99,6 +103,41 @@ class User {
             });
     }
 
+    editAccountData(data) {
+        return dataProvider.provide('editAccount', data)
+            .then((response) => {
+                if (response === ERROR.OK) {
+                    // Update Account Model
+                    this._setProp('userName', data.userName);
+                    this._setProp('email', data.email);
+    
+                    return { success: true, msg: 'Your account was successfully edited.' };
+                }
+                else if (response === ERROR.Input) {
+                    return { msg: 'Some required form data are missing.' };
+                }
+                else if (response === ERROR.Login) {
+                    return {
+                        success: false,
+                        action: 'logout',
+                        msg: 'You were unexpectedly logged out.'
+                    };
+                }
+                else if (response === ERROR.Email) {
+                    return { msg: 'Email has a wrong format (example@host.com).' };
+                }
+                else if (response === ERROR.Registered) {
+                    return { msg: 'You can not use this email, please try something else.' };
+                }
+                else if (response === ERROR.Password) {
+                    return { msg: 'Current password is wrong.' };
+                }
+                else if (response === ERROR.EqualPasswords) {
+                    return { msg: 'New passwords do not equal.' };
+                }
+            });
+    }
+
     // getId(){
     //     return this.id || false;
     // }
@@ -114,12 +153,12 @@ let user = new User();
 
 // Public methods exposed through userProxy
 const userProxy = {
-    isUserLoggedIn: user.isUserLoggedIn.bind(user)
+    isUserLoggedIn: user.isUserLoggedIn.bind(user),
+    register: user.register.bind(user),
+    logIn: user.logIn.bind(user),
+    logOut: user.logOut.bind(user),
+    getUserProp: user.getProp.bind(user),
+    editAccountData: user.editAccountData.bind(user)
 };
-//userProxy.isUserLoggedIn = user.isUserLoggedIn.bind(user);
-userProxy.register = user.register.bind(user);
-userProxy.logIn = user.logIn.bind(user);
-userProxy.logOut = user.logOut.bind(user);
-userProxy.getUserProp = user.getProp.bind(user);
 
 export default userProxy;

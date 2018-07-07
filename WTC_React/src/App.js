@@ -8,7 +8,10 @@ import Introduction from './components/introduction/Introduction';
 
 class App extends Component {
 
-  state = { loggedIn: null };
+  state = {
+    loggedIn: null,
+    msg: ''
+  };
 
   componentDidMount() {
     user.isUserLoggedIn()
@@ -20,8 +23,11 @@ class App extends Component {
   loginSuccess() {
     this.setState({ loggedIn: true });
   }
-  logout() {
-    this.setState({ loggedIn: false });
+  logout(msg) {
+    this.setState({
+      loggedIn: false,
+      msg: msg
+    });
   }
 
   renderApp() {
@@ -39,7 +45,11 @@ class App extends Component {
         </React.Fragment>;
     }
     else {
-      appContent = <Introduction handleLogin={this.loginSuccess.bind(this)} />;
+      appContent = 
+        <Introduction
+          handleLogin={this.loginSuccess.bind(this)}
+          msg={this.state.msg}
+        />;
     }
 
     return appContent;

@@ -12,7 +12,7 @@ export default class AccountSettings extends Component {
         passwordCurrent: '',
         passwordNew: '',
         passwordNewConfirm: '',
-        //errorMessage: ''
+        msg: ''
      };
 
      componentWillMount() {
@@ -39,7 +39,27 @@ export default class AccountSettings extends Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        console.log('handleSubmit of accountSettingsForm');
+        user.editAccountData({
+                userName: this.state.userName,
+                email: this.state.email,
+                changePassword: this.state.changePassword,
+                passwordCurrent: this.state.passwordCurrent,
+                passwordNew: this.state.passwordNew,
+                passwordNewConfirm: this.state.passwordNewConfirm
+            })
+            .then((response) => {
+                console.log(response);
+                if (response.success) {
+                    this.setState({ showModal: false });
+                    // TODO: set result message with mediator into some general result message box
+                }
+                else if (response.success === false) {
+                    this.props.logout(response.msg);
+                }
+                else if (response.msg) {
+                    this.setState({ msg: response.msg });
+                }
+            });
     }
 
     validatePasswordConfirm() {
@@ -80,6 +100,7 @@ export default class AccountSettings extends Component {
                                     onChange={this.handleUserInput.bind(this)}
                                     autoComplete='username'
                                     placeholder='Enter your User Name'
+                                    required='required'
                                 />
                             </Col>
                         </FormGroup>
@@ -94,6 +115,7 @@ export default class AccountSettings extends Component {
                                     onChange={this.handleUserInput.bind(this)}
                                     autoComplete='email'
                                     placeholder='Enter your Email'
+                                    required='required'
                                 />
                             </Col>
                         </FormGroup>
@@ -119,6 +141,7 @@ export default class AccountSettings extends Component {
                                         value={this.state.passwordCurrent}
                                         onChange={this.handleUserInput.bind(this)}
                                         autoComplete='current-password'
+                                        required='required'
                                     />
                                 </Col>
                             </FormGroup>
@@ -147,6 +170,7 @@ export default class AccountSettings extends Component {
                                         value={this.state.passwordNewConfirm}
                                         onChange={this.handleUserInput.bind(this)}
                                         autoComplete='new-password'
+                                        required='required'
                                     />
                                     <FormControl.Feedback />
                                 </Col>
@@ -154,6 +178,7 @@ export default class AccountSettings extends Component {
                             </React.Fragment>
                         )}
                     </Form>
+                    {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
                 </Modal.Body>
 
                 <Modal.Footer>

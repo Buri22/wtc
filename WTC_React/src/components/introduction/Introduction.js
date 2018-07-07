@@ -12,7 +12,7 @@ export default class Introduction extends Component {
     };
     state = {
         page: this.pages.login,
-        msg: ''
+        msg: this.props.msg || ''
     };
 
     goToLogin(msg = '') {

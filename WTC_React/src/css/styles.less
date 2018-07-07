@@ -144,12 +144,12 @@
 //     }
 // }
 
-// #login_msg, #register_msg {
-//     height: auto;
-//     display: block;
-//     margin-bottom: 5px;
-//     text-align: center;
-// }
+#login_msg, #register_msg {
+    height: auto;
+    display: block;
+    margin-bottom: 5px;
+    text-align: center;
+}
 button#login, button#register {
     margin: 25px 0 10px 0;
 }
@@ -184,7 +184,10 @@ button#login, button#register {
 //     }
 // }
 
-// /*========== Modal Window ==========*/
+/*========== Modal Window ==========*/
+.modalErrorMsg {
+    margin-top: -10px;
+}
 // .btn-modal-close {
 //     float: left;
 // }
@@ -253,9 +256,9 @@ button#login, button#register {
 // }
 
 /* Color styles */
-// .red {
-//     color: @red;
-// }
+.red {
+    color: @red;
+}
 
 /* Position styles */
 .left {
@@ -291,7 +294,7 @@ button#login, button#register {
 .form-horizontal .lableAlignBottom {
     display: flex;
     align-items: flex-end;
-    
+
     .control-label {
         margin-bottom: 20px;
     }

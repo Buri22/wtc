@@ -16,13 +16,11 @@ export default class LoginForm extends Component {
     }
     handleSubmit(e) {
         e.preventDefault();
-
-        let data = {
-            email: this.state.email,
-            password: this.state.password
-        };
         
-        user.logIn(data)
+        user.logIn({
+                email: this.state.email,
+                password: this.state.password
+            })
             .then((response) => {
                 if (response.success) {
                     this.props.handleLogin();

@@ -13,7 +13,7 @@ export default class LogOut extends Component {
         user.logOut()
             .then((response) => {
                 if (response === true) {
-                    this.props.logout();
+                    this.props.logout('You were successfuly logged out.');
                 }
                 else {
                     this.setState({ inProcess: false });

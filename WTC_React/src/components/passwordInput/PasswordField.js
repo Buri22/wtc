@@ -28,6 +28,7 @@ class PasswordField extends Component {
                     value={password}
                     onChange={this.handlePasswordChange.bind(this)}
                     autoComplete='new-password'
+                    required='required'
                 />
                 <FormControl.Feedback />
             </FormGroup>
