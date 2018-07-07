@@ -31,9 +31,6 @@ export default class Menu extends Component {
                     </NavDropdown>
                 </Nav>
                 <Nav pullRight>
-                    {/* <NavItem eventKey={1} href="#">
-                        Link Right
-                    </NavItem> */}
                     <AccountSettings />
                     <LogOut logout={this.props.logout} />
                 </Nav>

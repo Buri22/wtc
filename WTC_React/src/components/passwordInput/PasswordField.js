@@ -8,10 +8,8 @@ class PasswordField extends Component {
         password: ''
     }
 
-    handlePasswordChange(ev) {
-        let { onPasswordChange } = this.props;
-
-        onPasswordChange(ev.target.value);
+    handlePasswordChange(evt) {
+        this.props.onPasswordChange(evt);
     }
 
     render() {
@@ -25,7 +23,7 @@ class PasswordField extends Component {
             >
                 <FormControl 
                     type='password'
-                    name='password'
+                    name={this.props.name}
                     placeholder='Password'
                     value={password}
                     onChange={this.handlePasswordChange.bind(this)}

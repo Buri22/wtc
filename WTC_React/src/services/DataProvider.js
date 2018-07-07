@@ -46,12 +46,13 @@ class DataProvider {
         let bodyFormData = new FormData();
         for (let key in data) {
             bodyFormData.set(key, data[key]);
-        }        
+        }
         return axios({
                 headers: {
                     'Ajax-Action': action
                 },
-                data: bodyFormData
+                data: bodyFormData,
+                withCredentials: true
             })
             .then((response) => {
                 return response.data

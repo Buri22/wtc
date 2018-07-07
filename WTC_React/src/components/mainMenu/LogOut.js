@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { NavItem } from 'react-bootstrap';
-import { logOut } from '../../model/user';
+import user from '../../model/user';
 import Loading from '../loading/Loading';
 
 export default class LogOut extends Component {
@@ -10,7 +10,7 @@ export default class LogOut extends Component {
 
     handleLogout() {
         this.setState({ inProcess: true });
-        logOut()
+        user.logOut()
             .then((response) => {
                 if (response === true) {
                     this.props.logout();

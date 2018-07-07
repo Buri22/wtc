@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { isUserLoggedIn } from './model/user';
+import user from './model/user';
 
 import Loading from './components/loading/Loading';
 import Menu from './components/mainMenu/Menu';
@@ -11,7 +11,7 @@ class App extends Component {
   state = { loggedIn: null };
 
   componentDidMount() {
-    isUserLoggedIn()
+    user.isUserLoggedIn()
       .then((response) => {
         this.setState({ loggedIn: response });
       });

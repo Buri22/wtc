@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Row, Col, FormGroup, FormControl, Button} from 'react-bootstrap';
-import {register} from '../../model/user';
+import user from '../../model/user';
 import PasswordInput from '../passwordInput/PasswordInput';
 
 export default class RegisterForm extends Component {
@@ -17,9 +17,6 @@ export default class RegisterForm extends Component {
         let value = e.target.value;
         this.setState({ [name]: value });
     }
-    handlePasswordInput(password) {
-        this.setState({ password: password });
-    }
     handleSubmit(e) {
         e.preventDefault();
 
@@ -30,7 +27,7 @@ export default class RegisterForm extends Component {
             passwordConfirm: this.state.passwordConfirm
         };
         
-        register(data)
+        user.register(data)
             .then((response) => {
                 if (response.success) {
                     // go to login page with success msg
@@ -87,7 +84,7 @@ export default class RegisterForm extends Component {
                         <PasswordInput
                             controlId='passwordReg'
                             passwordValue={this.state.password}
-                            handlePasswordInput={this.handlePasswordInput.bind(this)}
+                            handlePasswordInput={this.handleUserInput.bind(this)}
                         />
                     </Row>
 

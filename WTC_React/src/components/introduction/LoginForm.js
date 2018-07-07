@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Col, FormGroup, FormControl, Button} from 'react-bootstrap';
-import {logIn} from '../../model/user';
+import user from '../../model/user';
 
 export default class LoginForm extends Component {
     state = {
@@ -22,7 +22,7 @@ export default class LoginForm extends Component {
             password: this.state.password
         };
         
-        logIn(data)
+        user.logIn(data)
             .then((response) => {
                 if (response.success) {
                     this.props.handleLogin();

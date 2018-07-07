@@ -11,18 +11,17 @@ class User {
         this.email       = null;
         this.appSettings = null;
 
-        this.setUser = this.setUser.bind(this);
-        this.isUserLoggedIn = this.isUserLoggedIn.bind(this);
-        this.logIn = this.logIn.bind(this);
-        this.register = this.register.bind(this);
-        this.getProp = this.getProp.bind(this);
+        // this.isUserLoggedIn = this.isUserLoggedIn.bind(this);
+        // this.logIn = this.logIn.bind(this);
+        // this.register = this.register.bind(this);
+        // this.getProp = this.getProp.bind(this);
     }
 
     /**
      * Set User model data
      * @param {JSON} userData Data for User model
      */
-    setUser(userData) {
+    _setUser(userData) {
         this.id          = userData.Id;
         this.userName    = userData.UserName;
         this.email       = userData.Email;
@@ -34,7 +33,7 @@ class User {
             .then((response) => {
                 if (response){
                     // Define user model
-                    this.setUser(response);
+                    this._setUser(response);
 
                     return true;
                 }
@@ -50,7 +49,7 @@ class User {
                     //this.user = new User(response);
                     //mediator.publish('UserLogin');
 
-                    this.setUser(response);
+                    this._setUser(response);
                     return { success: true };
                 }
                 else if (response === ERROR.Input) {
@@ -112,11 +111,15 @@ class User {
 }
 
 let user = new User();
-const isUserLoggedIn = user.isUserLoggedIn;
-const setUser = user.setUser;
-const register = user.register;
-const logIn = user.logIn;
-const logOut = user.logOut;
-const getUserProp = user.getProp;
 
-export { isUserLoggedIn, setUser, logIn, logOut, getUserProp, register };
+// Public methods exposed through userProxy
+const userProxy = {
+    isUserLoggedIn: user.isUserLoggedIn.bind(user)
+};
+//userProxy.isUserLoggedIn = user.isUserLoggedIn.bind(user);
+userProxy.register = user.register.bind(user);
+userProxy.logIn = user.logIn.bind(user);
+userProxy.logOut = user.logOut.bind(user);
+userProxy.getUserProp = user.getProp.bind(user);
+
+export default userProxy;

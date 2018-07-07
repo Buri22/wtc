@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { NavItem, Modal, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col } from 'react-bootstrap';
-import { getUserProp } from '../../model/user';
+import user from '../../model/user';
 import PasswordInput from '../passwordInput/PasswordInput';
 
 export default class AccountSettings extends Component {
@@ -17,8 +17,8 @@ export default class AccountSettings extends Component {
 
      componentWillMount() {
         this.setState({
-            userName: getUserProp('userName'),
-            email: getUserProp('email')
+            userName: user.getUserProp('userName'),
+            email: user.getUserProp('email')
         });
      }
 
@@ -35,9 +35,6 @@ export default class AccountSettings extends Component {
         let name = e.target.name;
         let value = e.target.value;
         this.setState({ [name]: value });
-    }
-    handlePasswordInput(password) {
-        this.setState({ passwordNew: password });
     }
     handleSubmit(e) {
         e.preventDefault();
@@ -130,9 +127,10 @@ export default class AccountSettings extends Component {
                                 <Col componentClass={ControlLabel} md={4}>New Password *</Col>
                                 <Col md={6}>
                                     <PasswordInput
+                                        name='passwordNew'
                                         controlId='newPassword'
                                         passwordValue={this.state.passwordNew}
-                                        handlePasswordInput={this.handlePasswordInput.bind(this)}
+                                        handlePasswordInput={this.handleUserInput.bind(this)}
                                     />
                                 </Col>
                             </Row>

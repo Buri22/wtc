@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {Panel, ProgressBar} from 'react-bootstrap';
 
-import classNames from 'classnames';
 import { SharedLogic } from './SharedLogic';
 
 class StrengthMeter extends Component {
@@ -26,10 +25,7 @@ class PrincipleList extends Component {
     principleClass(principle) {
         let satisfied = this.principleSatisfied(principle);
 
-        return classNames({
-            ['text-success']: satisfied,
-            ['text-danger']: !satisfied
-        });
+        return satisfied ? 'text-success' : 'text-danger';
     }
 
     render() {
