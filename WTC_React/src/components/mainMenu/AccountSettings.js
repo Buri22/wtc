@@ -4,23 +4,54 @@ import user from '../../model/user';
 import PasswordInput from '../passwordInput/PasswordInput';
 
 export default class AccountSettings extends Component {
-    state = { 
-        showModal: false,
-        showPasswordSection: false,
-        userName: '',
-        email: '',
-        passwordCurrent: '',
-        passwordNew: '',
-        passwordNewConfirm: '',
-        msg: ''
-     };
+    constructor (props) {
+        super(props);
 
-     componentWillMount() {
-        this.setState({
-            userName: user.getUserProp('userName'),
-            email: user.getUserProp('email')
-        });
-     }
+        this.state = { 
+            showModal: false,
+            userName: user.getProp('userName'),
+            email: user.getProp('email'),
+            changePassword: false,
+            passwordCurrent: '',
+            passwordNew: '',
+            passwordNewConfirm: '',
+            msg: ''
+        };
+
+        this.initialFormState = {
+            userName:           this.state.userName,
+            email:              this.state.email,
+            changePassword:     this.state.changePassword,
+            passwordCurrent:    this.state.passwordCurrent,
+            passwordNew:        this.state.passwordNew,
+            passwordNewConfirm: this.state.passwordNewConfirm
+        };
+        this.passwordConfirmValidationResults = {
+            OK: 'success',
+            ERROR: 'error',
+            UNDEFINED: null
+        };
+    }
+
+    validatePasswordConfirm() {
+        if (this.state.passwordNewConfirm.length === 0) return this.passwordConfirmValidationResults.UNDEFINED;
+        if (this.state.passwordNew === this.state.passwordNewConfirm) return this.passwordConfirmValidationResults.OK;
+        return this.passwordConfirmValidationResults.ERROR;
+    }
+    editEnabled() {
+        if (((this.state.userName !== this.initialFormState.userName
+                || this.state.email !== this.initialFormState.email)
+                && this.state.changePassword === false)
+            || (this.state.changePassword === true
+                && this.state.passwordCurrent.length > 0
+                && this.state.passwordNew.length > 0
+                && this.state.passwordNewConfirm.length > 0
+                && this.validatePasswordConfirm() === this.passwordConfirmValidationResults.OK)) {
+            return true;
+        }
+
+        return false;
+    }
 
     handleShowModal() {
         this.setState({ showModal: true });
@@ -29,7 +60,7 @@ export default class AccountSettings extends Component {
         this.setState({ showModal: false });
     }
     handleChangePassCheck(e) {
-        this.setState({ showPasswordSection: e.target.checked });
+        this.setState({ changePassword: e.target.checked });
     }
     handleUserInput (e) {
         let name = e.target.name;
@@ -40,12 +71,12 @@ export default class AccountSettings extends Component {
         e.preventDefault();
 
         user.editAccountData({
-                userName: this.state.userName,
-                email: this.state.email,
-                changePassword: this.state.changePassword,
+                userName:        this.state.userName,
+                email:           this.state.email,
+                changePassword:  this.state.changePassword,
                 passwordCurrent: this.state.passwordCurrent,
-                passwordNew: this.state.passwordNew,
-                passwordNewConfirm: this.state.passwordNewConfirm
+                passwordNew:     this.state.passwordNew,
+                passwordConfirm: this.state.passwordNewConfirm,
             })
             .then((response) => {
                 console.log(response);
@@ -62,12 +93,6 @@ export default class AccountSettings extends Component {
             });
     }
 
-    validatePasswordConfirm() {
-        if (this.state.passwordNewConfirm.length === 0) return null;
-        if (this.state.passwordNew === this.state.passwordNewConfirm) return 'success';
-        return 'error';
-    }
-
     render() {
         return <React.Fragment>
             <NavItem
@@ -75,7 +100,7 @@ export default class AccountSettings extends Component {
                 title='Account Settings'
             >
                 <span className='glyphicon glyphicon-user'></span>
-                <span> {this.state.userName || 'User'}</span>
+                <span> {this.initialFormState.userName || 'User'}</span>
             </NavItem>
 
             <Modal show={this.state.showModal} onHide={this.handleCloseModal.bind(this)}>
@@ -125,12 +150,12 @@ export default class AccountSettings extends Component {
                             <Col md={6}>
                                 <Checkbox
                                     onChange={this.handleChangePassCheck.bind(this)}
-                                    checked={this.state.showPasswordSection}
+                                    checked={this.state.changePassword}
                                 ></Checkbox>
                             </Col>
                         </FormGroup>
 
-                        {this.state.showPasswordSection && (
+                        {this.state.changePassword && (
                             <React.Fragment>
                             <FormGroup controlId='currentPassword'>
                                 <Col componentClass={ControlLabel} md={4}>Current Password *</Col>
@@ -190,6 +215,7 @@ export default class AccountSettings extends Component {
                         bsStyle='primary'
                         type='submit'
                         form='accountSettingsForm'
+                        disabled={!this.editEnabled()}
                     >Edit</Button>
                 </Modal.Footer>
 

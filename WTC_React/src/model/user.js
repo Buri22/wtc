@@ -157,7 +157,7 @@ const userProxy = {
     register: user.register.bind(user),
     logIn: user.logIn.bind(user),
     logOut: user.logOut.bind(user),
-    getUserProp: user.getProp.bind(user),
+    getProp: user.getProp.bind(user),
     editAccountData: user.editAccountData.bind(user)
 };
 
