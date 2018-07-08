@@ -3,7 +3,7 @@ import { MenuItem, Modal, Button, Form, FormGroup, FormControl, ControlLabel, Ch
 import user from '../../model/user';
 import PasswordInput from '../passwordInput/PasswordInput';
 
-export default class AccountSettings extends Component {
+export default class AppSettings extends Component {
     constructor (props) {
         super(props);
 

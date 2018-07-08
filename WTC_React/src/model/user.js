@@ -117,11 +117,7 @@ class User {
                     return { msg: 'Some required form data are missing.' };
                 }
                 else if (response === ERROR.Login) {
-                    return {
-                        success: false,
-                        action: 'logout',
-                        msg: 'You were unexpectedly logged out.'
-                    };
+                    return { success: false, msg: 'You were unexpectedly logged out.' };
                 }
                 else if (response === ERROR.Email) {
                     return { msg: 'Email has a wrong format (example@host.com).' };

@@ -30,6 +30,15 @@
 //    -moz-font-smoothing: antialiased;
 //    -o-font-smoothing: antialiased;*/
 // }
+/*========== Main Menu ==========*/
+ul.dropdown-menu[aria-labelledby="account-nav-dropdown"] {
+    min-width: 100%;
+
+    .glyphicon {
+        max-height: 20px;
+        width: 20px;
+    }
+}
 
 // /*========== Counter Page ==========*/
 // #main_menu > li > a {
@@ -282,11 +291,6 @@ button#login, button#register {
 }
 .navbar-right .loading a {
     cursor: default;
-}
-.navbar-right a[title="Loading"] img,
-.navbar-right a[title="Logout"] span {
-    max-height: 20px;
-    width: 20px;
 }
 .form-horizontal div[class*="col-"] > div[class*="col-"] .has-feedback .form-control-feedback {
     right: 0;
