@@ -8,24 +8,18 @@ export default class AccountSettings extends Component {
         super(props);
 
         this.state = { 
-            showModal: false,
-            userName: user.getProp('userName'),
-            email: user.getProp('email'),
-            changePassword: false,
-            passwordCurrent: '',
-            passwordNew: '',
-            passwordNewConfirm: '',
-            msg: ''
+            showModal:          false,
+            msg:                '',
+            userName:           user.getProp('userName'),
+            email:              user.getProp('email'),
+            changePassword:     false,
+            passwordCurrent:    '',
+            passwordNew:        '',
+            passwordNewConfirm: ''
         };
 
-        this.initialFormState = {
-            userName:           this.state.userName,
-            email:              this.state.email,
-            changePassword:     this.state.changePassword,
-            passwordCurrent:    this.state.passwordCurrent,
-            passwordNew:        this.state.passwordNew,
-            passwordNewConfirm: this.state.passwordNewConfirm
-        };
+        this.initialFormState = {};
+        this.setInitialFormState();
         this.passwordConfirmValidationResults = {
             OK: 'success',
             ERROR: 'error',
@@ -33,6 +27,16 @@ export default class AccountSettings extends Component {
         };
     }
 
+    setInitialFormState() {
+        this.initialFormState = {
+            userName:           this.state.userName,
+            email:              this.state.email,
+            changePassword:     false,
+            passwordCurrent:    '',
+            passwordNew:        '',
+            passwordNewConfirm: ''
+        }
+    }
     validatePasswordConfirm() {
         if (this.state.passwordNewConfirm.length === 0) return this.passwordConfirmValidationResults.UNDEFINED;
         if (this.state.passwordNew === this.state.passwordNewConfirm) return this.passwordConfirmValidationResults.OK;
@@ -79,9 +83,16 @@ export default class AccountSettings extends Component {
                 passwordConfirm: this.state.passwordNewConfirm,
             })
             .then((response) => {
-                console.log(response);
                 if (response.success) {
-                    this.setState({ showModal: false });
+                    this.setInitialFormState();     // update initial form state
+                    // hide modal window + set initial form values
+                    this.setState({
+                        showModal:          false,
+                        changePassword:     false,
+                        passwordCurrent:    '',
+                        passwordNew:        '',
+                        passwordNewConfirm: ''
+                    });
                     // TODO: set result message with mediator into some general result message box
                 }
                 else if (response.success === false) {
