@@ -1,60 +1,52 @@
 import React, { Component } from 'react';
-import { MenuItem, Modal, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col } from 'react-bootstrap';
+import { NavItem, Modal, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Col } from 'react-bootstrap';
 import user from '../../model/user';
-import PasswordInput from '../passwordInput/PasswordInput';
+import { APP_SETTINGS_OPTIONS } from '../../constants';
+
+const RenderOptions = ({ options }) => (
+    options.map((option, index) => {
+        return (<option key={index} value={option.id}>{option.name}</option>);
+    })
+);
 
 export default class AppSettings extends Component {
     constructor (props) {
         super(props);
 
         this.state = { 
-            showModal:          false,
-            msg:                '',
-            userName:           user.getProp('userName'),
-            email:              user.getProp('email'),
-            changePassword:     false,
-            passwordCurrent:    '',
-            passwordNew:        '',
-            passwordNewConfirm: ''
+            showModal:        false,
+            msg:              '',
+            themeColor:       1,
+            sideMenuIsActive: true,
+            sideMenuPosition: 1
         };
 
         this.initialFormState = {};
-        this.setInitialFormState();
-        this.passwordConfirmValidationResults = {
-            OK: 'success',
-            ERROR: 'error',
-            UNDEFINED: null
-        };
+    }
+
+    componentWillMount() {
+        this.userAppSettings = user.getProp('appSettings');
+
+        this.setState({
+            themeColor:       this.userAppSettings.theme.color,
+            sideMenuIsActive: this.userAppSettings.sideMenu.active,
+            sideMenuPosition: this.userAppSettings.sideMenu.position
+        }, () => this.setInitialFormState());
+        
     }
 
     setInitialFormState() {
         this.initialFormState = {
-            userName:           this.state.userName,
-            email:              this.state.email,
-            changePassword:     false,
-            passwordCurrent:    '',
-            passwordNew:        '',
-            passwordNewConfirm: ''
+            themeColor:       this.state.themeColor,
+            sideMenuIsActive: this.state.sideMenuIsActive,
+            sideMenuPosition: this.state.sideMenuPosition
         }
-    }
-    validatePasswordConfirm() {
-        if (this.state.passwordNewConfirm.length === 0) {
-            return this.passwordConfirmValidationResults.UNDEFINED;
-        }
-        if (this.state.passwordNew === this.state.passwordNewConfirm) {
-            return this.passwordConfirmValidationResults.OK;
-        }
-        return this.passwordConfirmValidationResults.ERROR;
     }
     editEnabled() {
-        if (((this.state.userName !== this.initialFormState.userName
-                || this.state.email !== this.initialFormState.email)
-                && this.state.changePassword === false)
-            || (this.state.changePassword === true
-                && this.state.passwordCurrent.length > 0
-                && this.state.passwordNew.length > 0
-                && this.state.passwordNewConfirm.length > 0
-                && this.validatePasswordConfirm() === this.passwordConfirmValidationResults.OK)) {
+        if (this.state.themeColor !== this.initialFormState.themeColor
+            || this.state.sideMenuIsActive !== this.initialFormState.sideMenuIsActive
+            || (this.state.sideMenuIsActive === true
+                && this.state.sideMenuPosition !== this.initialFormState.sideMenuPosition)) {
             return true;
         }
 
@@ -67,8 +59,8 @@ export default class AppSettings extends Component {
     handleCloseModal() {
         this.setState({ showModal: false });
     }
-    handleChangePassCheck(e) {
-        this.setState({ changePassword: e.target.checked });
+    handleSideMenuActive(e) {
+        this.setState({ sideMenuIsActive: e.target.checked });
     }
     handleUserInput (e) {
         let name = e.target.name;
@@ -78,25 +70,17 @@ export default class AppSettings extends Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        user.editAccountData({
-                userName:        this.state.userName,
-                email:           this.state.email,
-                changePassword:  this.state.changePassword,
-                passwordCurrent: this.state.passwordCurrent,
-                passwordNew:     this.state.passwordNew,
-                passwordConfirm: this.state.passwordNewConfirm,
+        user.editAppData({
+                themeColor:       this.state.themeColor,
+                sideMenuIsActive: this.state.sideMenuIsActive,
+                sideMenuPosition: this.state.sideMenuPosition
             })
             .then((response) => {
                 if (response.success) {
+                    // hide modal window
+                    this.setState({ showModal: false });
                     this.setInitialFormState();
-                    // hide modal window + set initial form values
-                    this.setState({
-                        showModal:          false,
-                        changePassword:     false,
-                        passwordCurrent:    '',
-                        passwordNew:        '',
-                        passwordNewConfirm: ''
-                    });
+                    // TODO: rerender App to demonstrate the changes
                     // TODO: set result message with mediator into some general result message box
                 }
                 else if (response.success === false) {
@@ -110,111 +94,64 @@ export default class AppSettings extends Component {
 
     render() {
         return <React.Fragment>
-            <MenuItem
+            <NavItem
                 onClick={this.handleShowModal.bind(this)}
-                title='Account Settings'
+                title='App Settings'
             >
-                <span className='glyphicon glyphicon-user'></span>
-                <span> {this.initialFormState.userName || 'User'}</span>
-            </MenuItem>
+                <span className='glyphicon glyphicon-cog'></span>
+            </NavItem>
 
             <Modal show={this.state.showModal} onHide={this.handleCloseModal.bind(this)}>
 
                 <Modal.Header closeButton>
-                    <Modal.Title>Account settings</Modal.Title>
+                    <Modal.Title>App settings</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
                     <Form
                         horizontal
-                        id='accountSettingsForm'
+                        id='appSettingsForm'
                         onSubmit={this.handleSubmit.bind(this)}
                     >
-                        <FormGroup controlId='userName'>
-                            <Col componentClass={ControlLabel} md={4}>User Name</Col>
+                        <FormGroup controlId='themeColorSelect'>
+                            <Col componentClass={ControlLabel} md={4}>Theme Color</Col>
                             <Col md={6}>
                                 <FormControl
-                                    type='text'
-                                    name='userName'
-                                    value={this.state.userName}
+                                    componentClass='select'
+                                    name='themeColor'
+                                    value={this.state.themeColor}
                                     onChange={this.handleUserInput.bind(this)}
-                                    autoComplete='username'
-                                    placeholder='Enter your User Name'
-                                    required='required'
-                                />
-                            </Col>
-                        </FormGroup>
-                        
-                        <FormGroup controlId='userEmail'>
-                            <Col componentClass={ControlLabel} md={4}>Email</Col>
-                            <Col md={6}>
-                                <FormControl
-                                    type='email'
-                                    name='email'
-                                    value={this.state.email}
-                                    onChange={this.handleUserInput.bind(this)}
-                                    autoComplete='email'
-                                    placeholder='Enter your Email'
-                                    required='required'
-                                />
+                                >
+                                    <RenderOptions options={APP_SETTINGS_OPTIONS.themeColors}/>
+                                </FormControl>
                             </Col>
                         </FormGroup>
 
-                        <FormGroup controlId='changePassword'>
-                            <Col componentClass={ControlLabel} md={4}>Change Password</Col>
+                        <FormGroup controlId='sideMenuActive'>
+                            <Col componentClass={ControlLabel} md={4}>Side Menu Active</Col>
                             <Col md={6}>
                                 <Checkbox
-                                    onChange={this.handleChangePassCheck.bind(this)}
-                                    checked={this.state.changePassword}
+                                    onChange={this.handleSideMenuActive.bind(this)}
+                                    checked={this.state.sideMenuIsActive}
                                 ></Checkbox>
                             </Col>
                         </FormGroup>
 
-                        {this.state.changePassword && (
+                        {this.state.sideMenuIsActive && (
                             <React.Fragment>
-                            <FormGroup controlId='currentPassword'>
-                                <Col componentClass={ControlLabel} md={4}>Current Password *</Col>
-                                <Col md={6}>
-                                    <FormControl
-                                        type='password'
-                                        name='passwordCurrent'
-                                        value={this.state.passwordCurrent}
-                                        onChange={this.handleUserInput.bind(this)}
-                                        autoComplete='current-password'
-                                        required='required'
-                                    />
-                                </Col>
-                            </FormGroup>
-
-                            <Row className='lableAlignBottom'>
-                                <Col componentClass={ControlLabel} md={4}>New Password *</Col>
-                                <Col md={6}>
-                                    <PasswordInput
-                                        name='passwordNew'
-                                        controlId='newPassword'
-                                        passwordValue={this.state.passwordNew}
-                                        handlePasswordInput={this.handleUserInput.bind(this)}
-                                    />
-                                </Col>
-                            </Row>
-
-                            <FormGroup
-                                validationState={this.validatePasswordConfirm()}
-                                controlId='confirmNewPassword'
-                            >
-                                <Col componentClass={ControlLabel} md={4}>Confirm New Password *</Col>
-                                <Col md={6}>
-                                    <FormControl
-                                        type='password'
-                                        name='passwordNewConfirm'
-                                        value={this.state.passwordNewConfirm}
-                                        onChange={this.handleUserInput.bind(this)}
-                                        autoComplete='new-password'
-                                        required='required'
-                                    />
-                                    <FormControl.Feedback />
-                                </Col>
-                            </FormGroup>
+                                <FormGroup controlId='sideMenuPositionSelect'>
+                                    <Col componentClass={ControlLabel} md={4}>Side Menu Position</Col>
+                                    <Col md={6}>
+                                        <FormControl
+                                            componentClass='select'
+                                            name='sideMenuPosition'
+                                            value={this.state.sideMenuPosition}
+                                            onChange={this.handleUserInput.bind(this)}
+                                        >
+                                            <RenderOptions options={APP_SETTINGS_OPTIONS.sideMenuPositions}/>
+                                        </FormControl>
+                                    </Col>
+                                </FormGroup>
                             </React.Fragment>
                         )}
                     </Form>
@@ -229,7 +166,7 @@ export default class AppSettings extends Component {
                     <Button
                         bsStyle='primary'
                         type='submit'
-                        form='accountSettingsForm'
+                        form='appSettingsForm'
                         disabled={!this.editEnabled()}
                     >Edit</Button>
                 </Modal.Footer>

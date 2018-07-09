@@ -3,6 +3,7 @@ import {Navbar, Nav, NavItem, NavDropdown} from 'react-bootstrap';
 
 import LogOut from './LogOut';
 import AccountSettings from './AccountSettings';
+import AppSettings from './AppSettings';
 
 export default class Menu extends Component {
     state = {
@@ -36,6 +37,7 @@ export default class Menu extends Component {
                         <AccountSettings logout={this.props.logout} />
                         <LogOut logout={this.props.logout} />
                     </NavDropdown>
+                    <AppSettings logout={this.props.logout} />
                 </Nav>
             </Navbar.Collapse>
             </Navbar>

@@ -272,10 +272,8 @@ function editAppSettings() {
         return Error::Login;   // User is not logged in
     }
 
-    // Convert boolean value as string to boolean
-    $_POST['app_settings']['sideMenu']['active'] = filter_var($_POST['app_settings']['sideMenu']['active'], FILTER_VALIDATE_BOOLEAN);
 	$data = array(
-		'AppSettings' => json_encode($_POST['app_settings'])
+		'AppSettings' => $_POST['app_settings']
 	);
     $condition = 'WHERE Id = ' . $user['Id'];
     $result = Db::update('user', $data, $condition);

@@ -33,7 +33,6 @@ class App extends Component {
   renderApp() {
     let appContent;
 
-    // TODO: implement loading just after some delay 200ms
     if (this.state.loggedIn === null) {
       appContent = <Loading />;
     }

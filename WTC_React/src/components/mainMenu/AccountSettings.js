@@ -3,6 +3,12 @@ import { MenuItem, Modal, Button, Form, FormGroup, FormControl, ControlLabel, Ch
 import user from '../../model/user';
 import PasswordInput from '../passwordInput/PasswordInput';
 
+const passwordConfirmValidationResults = {
+    OK: 'success',
+    ERROR: 'error',
+    UNDEFINED: null
+};
+
 export default class AccountSettings extends Component {
     constructor (props) {
         super(props);
@@ -20,11 +26,6 @@ export default class AccountSettings extends Component {
 
         this.initialFormState = {};
         this.setInitialFormState();
-        this.passwordConfirmValidationResults = {
-            OK: 'success',
-            ERROR: 'error',
-            UNDEFINED: null
-        };
     }
 
     setInitialFormState() {
@@ -39,12 +40,12 @@ export default class AccountSettings extends Component {
     }
     validatePasswordConfirm() {
         if (this.state.passwordNewConfirm.length === 0) {
-            return this.passwordConfirmValidationResults.UNDEFINED;
+            return passwordConfirmValidationResults.UNDEFINED;
         }
         if (this.state.passwordNew === this.state.passwordNewConfirm) {
-            return this.passwordConfirmValidationResults.OK;
+            return passwordConfirmValidationResults.OK;
         }
-        return this.passwordConfirmValidationResults.ERROR;
+        return passwordConfirmValidationResults.ERROR;
     }
     editEnabled() {
         if (((this.state.userName !== this.initialFormState.userName
@@ -54,7 +55,7 @@ export default class AccountSettings extends Component {
                 && this.state.passwordCurrent.length > 0
                 && this.state.passwordNew.length > 0
                 && this.state.passwordNewConfirm.length > 0
-                && this.validatePasswordConfirm() === this.passwordConfirmValidationResults.OK)) {
+                && this.validatePasswordConfirm() === passwordConfirmValidationResults.OK)) {
             return true;
         }
 
@@ -141,6 +142,7 @@ export default class AccountSettings extends Component {
                                     autoComplete='username'
                                     placeholder='Enter your User Name'
                                     required='required'
+                                    autoFocus
                                 />
                             </Col>
                         </FormGroup>

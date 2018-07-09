@@ -10,11 +10,6 @@ class User {
         this.userName    = null;
         this.email       = null;
         this.appSettings = null;
-
-        // this.isUserLoggedIn = this.isUserLoggedIn.bind(this);
-        // this.logIn = this.logIn.bind(this);
-        // this.register = this.register.bind(this);
-        // this.getProp = this.getProp.bind(this);
     }
 
     /**
@@ -25,10 +20,13 @@ class User {
         this.id          = userData.Id;
         this.userName    = userData.UserName;
         this.email       = userData.Email;
-        this.appSettings = JSON.parse(userData.AppSettings);
+        this.appSettings = new AppSettingsModel(userData.AppSettings);
     }
     _setProp(name, value) {
         this[name] = value;
+    }
+    getProp(name) {
+        return this[name];
     }
 
     // Check if user is logged in
@@ -133,16 +131,47 @@ class User {
                 }
             });
     }
+    editAppData(data) {
+        let updatedAppSettings = {
+            theme: { color: data.themeColor },
+            sideMenu: {
+                active: data.sideMenuIsActive,
+                position: data.sideMenuPosition
+            }
+        };
 
-    // getId(){
-    //     return this.id || false;
-    // }
-    getProp(name) {
-        return this[name];
+        return dataProvider.provide('editAppSettings', {
+                app_settings: JSON.stringify(updatedAppSettings)
+            })
+            .then((response) => {
+                if (response === ERROR.OK) {
+                    // Update Account Model
+                    this._setProp('appSettings', updatedAppSettings);
+
+                    //mediator.publish('ReloadPageLayout', this.user.appSettings);
+                    //mediator.publish('SetResultMessage', 'Your app settings were successfully edited.');
+                    return { success: true, msg: 'Your settings was successfully edited.' };
+                }
+                else if (response === ERROR.Input) {
+                    return { msg: 'Some required form data are missing.' };
+                }
+                else if (response === ERROR.Login) {
+                    return { success: false, msg: 'You were unexpectedly logged out.' };
+                }
+            });
     }
-	// isSideMenuActive() {
-    //     return this.appSettings.sideMenu.active;
-    // }
+}
+
+class AppSettingsModel {
+    constructor(data) {
+        let appData = JSON.parse(data);
+
+        this.theme = { color: Number(appData.theme.color) };
+        this.sideMenu = {
+            active: appData.sideMenu.active,
+            position: Number(appData.sideMenu.position)
+        };
+    }
 }
 
 let user = new User();
@@ -154,7 +183,8 @@ const userProxy = {
     logIn: user.logIn.bind(user),
     logOut: user.logOut.bind(user),
     getProp: user.getProp.bind(user),
-    editAccountData: user.editAccountData.bind(user)
+    editAccountData: user.editAccountData.bind(user),
+    editAppData: user.editAppData.bind(user)
 };
 
 export default userProxy;

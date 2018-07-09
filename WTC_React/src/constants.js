@@ -19,5 +19,16 @@ const ERROR = Object.freeze({
     TaskStarted: 24,
     TaskMissing: 25
 });
+const APP_SETTINGS_OPTIONS = {
+    themeColors: [
+        { id: 1, name: 'green' },
+        { id: 2, name: 'blue' },
+        { id: 3, name: 'purple' }
+    ],
+    sideMenuPositions: [
+        { id: 1, name: 'left' },
+        { id: 2, name: 'right' }
+    ]
+};
 
-export { ERROR };
+export { ERROR, APP_SETTINGS_OPTIONS };
