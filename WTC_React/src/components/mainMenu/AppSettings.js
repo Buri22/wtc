@@ -43,10 +43,10 @@ export default class AppSettings extends Component {
         }
     }
     editEnabled() {
-        if (this.state.themeColor !== this.initialFormState.themeColor
+        if (Number(this.state.themeColor) !== this.initialFormState.themeColor
             || this.state.sideMenuIsActive !== this.initialFormState.sideMenuIsActive
             || (this.state.sideMenuIsActive === true
-                && this.state.sideMenuPosition !== this.initialFormState.sideMenuPosition)) {
+                && Number(this.state.sideMenuPosition) !== this.initialFormState.sideMenuPosition)) {
             return true;
         }
 
