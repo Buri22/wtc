@@ -1,9 +1,18 @@
 import React, {Component} from 'react';
-import {Navbar, Nav, NavItem, NavDropdown} from 'react-bootstrap';
-
-import LogOut from './LogOut';
-import AccountSettings from './AccountSettings';
+import {Navbar, Nav, NavItem} from 'react-bootstrap';
+import modulConfig from '../../modulConfig';
 import AppSettings from './AppSettings';
+
+const RenderModules = ({ position }) => (
+    modulConfig.map((item) => {
+        if (position === item.menuItemPosition) {
+            import(`../../..${item.menuItemPath}`)
+            .then(module => this.setState({ module: module.default }));
+        }
+    })
+);
+// import(`../../${path}`)
+// .then(module => this.setState({ module: module.default }))
 
 export default class Menu extends Component {
     state = {
@@ -33,10 +42,11 @@ export default class Menu extends Component {
                     </NavItem>
                 </Nav>
                 <Nav pullRight>
-                    <NavDropdown title="Account" id="account-nav-dropdown">
+                    <RenderModules position="right" />
+                    {/* <NavDropdown title="Account" id="account-nav-dropdown">
                         <AccountSettings logout={this.props.logout} />
                         <LogOut logout={this.props.logout} />
-                    </NavDropdown>
+                    </NavDropdown> */}
                     <AppSettings logout={this.props.logout} />
                 </Nav>
             </Navbar.Collapse>
