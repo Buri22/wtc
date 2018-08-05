@@ -1,4 +1,7 @@
+var path = require('path'); // required for "resolve" option 
+
 module.exports = {
+  mode: 'development',
   entry: ['./src/index.js'],
   output: {
     path: __dirname,
@@ -6,31 +9,79 @@ module.exports = {
     filename: 'dist/bundle.js'
   },
   module: {
-    loaders: [
-      {
-        test: /\.css$/, // CSS loader (used for style loading)
-        loaders: [ 'style-loader', 'css-loader' ]
+    rules: [{
+        test: /\.less$/,
+        use: [{
+          loader: 'style-loader' // creates style nodes from JS strings
+        }, {
+          loader: 'css-loader' // translates CSS into CommonJS
+        }, {
+          loader: 'less-loader' // compiles Less to CSS
+        }]
+      }, {
+        test: /\.jsx$|\.es6$|\.js$/, // must be at the first place, otherwise it would also try to load css files
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['es2015', 'react', 'stage-1']
+          }
+        }
       },
       {
-        test: /\.(png|jpg|gif|ttf|svg|woff|woff2|eot)$/, // file loader (used for loading.gif)
-        loader: 'file-loader'
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
       },
+      {
+        test: /\.png$/,
+        use: [{
+          loader: "url-loader?limit=100000"
+        }]
+      },
+      {
+        test: /\.(jpg|gif)$/,
+        use: [{
+          loader: "file-loader"
+        }]
+      },
+      {
+        test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+        use: [{
+          loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+        }]
+      },
+      {
+        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+        use: [{
+          loader: 'url-loader?limit=10000&mimetype=application/octet-stream'
+        }]
+      },
+      {
+        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+        use: [{
+          loader: 'file-loader'
+        }]
+      },
+      {
+        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+        use: [{
+          loader: 'url-loader?limit=10000&mimetype=image/svg+xml'
+        }]
+      },
+      /*  Webpack 2.0+ has native JSON support
       {
         test: /\.json$/, // json loader (used for moduleConfig.json)
-        loader: 'json-loader'
-      },
-      {
-        exclude: /node_modules/,
-        test: /\.js$/,
-        loader: 'babel',
-        query: {
-          presets: ['react', 'es2015', 'stage-1']
-        }
-      }
+        use: [{
+          loader: 'json-loader'
+        }]
+      }*/
     ]
   },
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    modules: [
+      path.resolve('./src'),
+      path.resolve('./node_modules')
+    ],
   },
   devServer: {
     historyApiFallback: true,

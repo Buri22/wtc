@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { MenuItem, Modal, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col } from 'react-bootstrap';
-import user from '../../model/user';
-import PasswordInput from '../passwordInput/PasswordInput';
+import user from 'model/user';
+import PasswordInput from 'components/passwordInput/PasswordInput';
 
 const passwordConfirmValidationResults = {
     OK: 'success',
