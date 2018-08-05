@@ -15,7 +15,7 @@ define("SECURE", FALSE);    // FOR DEVELOPMENT ONLY!!!!
 /**
  * Error types
  */
-abstract class Error {
+abstract class WTCError {
     const Input          = 2;
     const Email          = 3;
     const Password       = 4;

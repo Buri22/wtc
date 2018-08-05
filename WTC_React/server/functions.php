@@ -95,7 +95,7 @@ function checkTaskStarted() {
         return $task;   // returns task that started or false
     }
     else {
-        return Error::Logout;
+        return WTCError::Logout;
     }
 }
 
@@ -117,13 +117,13 @@ function register() {
         || !isset($_POST['email']) || empty($_POST['email'])
         || !isset($_POST['password']) || empty($_POST['password'])
         || !isset($_POST['passwordConfirm']) || empty($_POST['passwordConfirm'])
-    ) { return Error::Input; }
+    ) { return WTCError::Input; }
 
     // Email validation
-    if (!isValidEmail(trim($_POST['email']))) { return Error::Email; }
+    if (!isValidEmail(trim($_POST['email']))) { return WTCError::Email; }
 
     // Password validation
-    if (trim($_POST['password']) != trim($_POST['passwordConfirm'])) { return Error::EqualPasswords; }
+    if (trim($_POST['password']) != trim($_POST['passwordConfirm'])) { return WTCError::EqualPasswords; }
 
     // Check if user is already registered
     $registered = Db::queryOne('
@@ -132,7 +132,7 @@ function register() {
                           WHERE Email = ?
                     ', $_POST['email']);
 
-    if ($registered) { return Error::Registered; }
+    if ($registered) { return WTCError::Registered; }
 
     $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
     $app_settings = json_encode(unserialize(DEFAULT_APP_SETTINGS));
@@ -149,11 +149,11 @@ function login() {
     // Check if all inputs were entered
     if (!isset($_POST['email']) || empty($_POST['email'])
         || !isset($_POST['password']) || empty($_POST['password'])) {
-        return Error::Input;
+        return WTCError::Input;
     }
     // Email validation
     if (!isValidEmail(trim($_POST['email']))) {
-        return Error::Email;
+        return WTCError::Email;
     }
     // Try to find user
     $user =  Db::queryOne('
@@ -163,13 +163,13 @@ function login() {
                     ', trim($_POST['email']));
 
     if (!$user) {    // User has no record in DB
-        return Error::Unregistered;
+        return WTCError::Unregistered;
     }
     else if (check_brute($user)){
-        return Error::Brute;
+        return WTCError::Brute;
     }
     else if (!password_verify($_POST['password'], $user['Password'])) {   // Check passwords
-        return Error::Password;
+        return WTCError::Password;
     }
 
     $_SESSION['user_id'] = $user['Id'];
@@ -210,17 +210,17 @@ function editAccount() {
             && (!isset($_POST['passwordCurrent']) || empty($_POST['passwordCurrent'])
             || !isset($_POST['passwordNew']) || empty($_POST['passwordNew'])
             || !isset($_POST['passwordConfirm']) || empty($_POST['passwordConfirm'])))) {
-        return Error::Input;
+        return WTCError::Input;
     }
 
     $user = checkLogin();
     if (!$user) {
-        return Error::Login;   // User is not logged in
+        return WTCError::Login;   // User is not logged in
     }
 
     // Email validation
     if (!isValidEmail(trim($_POST['email']))) {
-        return Error::Email;
+        return WTCError::Email;
     }
     // Check that edited email isn't already registered
     $registered = Db::queryOne('
@@ -229,7 +229,7 @@ function editAccount() {
                           WHERE Email = ?
                     ', $_POST['email']);
     if ($registered && $registered['Id'] != $user['Id']) {
-        return Error::Registered;
+        return WTCError::Registered;
     }
 
     // Define SQL query data
@@ -244,10 +244,10 @@ function editAccount() {
         $loggedIn_user = Db::queryOne('SELECT * FROM user WHERE Id = ?', $user['Id']);
         if ($loggedIn_user) {
             // Check passwords
-            if (!password_verify($_POST['passwordCurrent'], $loggedIn_user['Password'])) { return Error::Password; }
+            if (!password_verify($_POST['passwordCurrent'], $loggedIn_user['Password'])) { return WTCError::Password; }
 
             // New password validation
-            if (trim($_POST['passwordNew']) != trim($_POST['passwordConfirm'])) { return Error::EqualPasswords; }
+            if (trim($_POST['passwordNew']) != trim($_POST['passwordConfirm'])) { return WTCError::EqualPasswords; }
 
             // Define new password
             $data['Password'] = password_hash(trim($_POST['passwordNew']), PASSWORD_BCRYPT);
@@ -264,12 +264,12 @@ function editAccount() {
 function editAppSettings() {
     // Check if all inputs were entered
     if (!isset($_POST['app_settings']) || empty($_POST['app_settings'])) {
-        return Error::Input;
+        return WTCError::Input;
     }
 	
     $user = checkLogin();
     if (!$user) {
-        return Error::Login;   // User is not logged in
+        return WTCError::Login;   // User is not logged in
     }
 
 	$data = array(
@@ -284,7 +284,7 @@ function editAppSettings() {
 // Unused function... Deprecated?
 function getTask() {
     if (!isset($_POST['task_id']) || empty($_POST['task_id'])) {
-        return Error::Input;
+        return WTCError::Input;
     }
     $result = Db::queryOne('
                     SELECT *
@@ -314,10 +314,10 @@ function createTask() {
     if (!isset($_POST['new_name']) || empty($_POST['new_name'])
         || !isset($_POST['new_spent_time']) || empty($_POST['new_spent_time'])
         || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])) {
-        return Error::Input;
+        return WTCError::Input;
     }
     $user = checkLogin();
-    if (!$user) { return Error::Login; }
+    if (!$user) { return WTCError::Login; }
 
     // Check if task name already exists
     $result = Db::queryOne('
@@ -328,17 +328,17 @@ function createTask() {
 
     // New task name is already used by another task
     if ($result) {
-        return Error::TaskName;
+        return WTCError::TaskName;
     }
 
     // Validate task spent time format
     if (!validateSpentTime($_POST['new_spent_time'])) {
-        return Error::TaskSpentTime;
+        return WTCError::TaskSpentTime;
     }
     // Validate task date created format
     $date = explode(".", $_POST['new_date_created']);
     if (!checkdate(intval($date[1]), intval($date[0]), intval($date[2]))) {
-        return Error::TaskDateCreated;
+        return WTCError::TaskDateCreated;
     }
 
     // Define data for insert query
@@ -367,10 +367,10 @@ function editTask() {
         || !isset($_POST['new_spent_time']) || empty($_POST['new_spent_time'])
         || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])
         || !isset($_POST['item_id']) || empty($_POST['item_id'])) {
-        return Error::Input;
+        return WTCError::Input;
     }
     $user = checkLogin();
-    if (!$user) { return Error::Login; }
+    if (!$user) { return WTCError::Login; }
 
     // Check if task name already exists
     $result = Db::queryOne('
@@ -381,17 +381,17 @@ function editTask() {
 
     // New task name is already used by another task
     if ($result && $result['Id'] != $_POST['item_id']) {
-        return Error::TaskName;
+        return WTCError::TaskName;
     }
 
     // Validate task spent time format
     if (!validateSpentTime($_POST['new_spent_time'])) {
-        return Error::TaskSpentTime;
+        return WTCError::TaskSpentTime;
     }
     // Validate task date created format
     $date = explode(".", $_POST['new_date_created']);
     if (!checkdate(intval($date[1]), intval($date[0]), intval($date[2]))) {
-        return Error::TaskDateCreated;
+        return WTCError::TaskDateCreated;
     }
 
     // Define data for update query
@@ -415,12 +415,12 @@ function deleteTask() {
     // Check if all inputs were entered
     if (!isset($_POST['password']) || empty($_POST['password'])
         || !isset($_POST['task_id']) || empty($_POST['task_id'])
-    ) { return Error::Input; }
+    ) { return WTCError::Input; }
 
     // Prevent from deleting running Task
     $runningTask = checkTaskStarted();
     if ($runningTask && $runningTask['Id'] == $_POST['task_id']) {
-        return Error::TaskRunning;
+        return WTCError::TaskRunning;
     }
 
     // Try to find the task
@@ -431,10 +431,10 @@ function deleteTask() {
                         WHERE task.Id = ?
                     ', $_POST['task_id']);
     if (!$password) {
-        return Error::TaskMissing;
+        return WTCError::TaskMissing;
     }
     else if(!password_verify($_POST['password'], $password['Password'])) {
-        return Error::Password;
+        return WTCError::Password;
     }
 
     $result = Db::queryOne('
@@ -448,7 +448,7 @@ function deleteTask() {
 function startCounting() {
     $task_started = checkTaskStarted();
 
-    if ($task_started == ERROR::Logout) {
+    if ($task_started == WTCError::Logout) {
         return $task_started;
     }
     else if ($task_started) {
@@ -458,7 +458,7 @@ function startCounting() {
 
     if (!isset($_POST['task_id']) || empty($_POST['task_id'])
         || !isset($_POST['last_start']) || empty($_POST['last_start'])
-    ) { return Error::Input; }
+    ) { return WTCError::Input; }
 
     $result = Db::query('
                      UPDATE task
@@ -480,15 +480,15 @@ function startCounting() {
 function stopCounting() {
     $task_started = checkTaskStarted();
 
-    if ($task_started == ERROR::Logout) {
+    if ($task_started == WTCError::Logout) {
         return $task_started;
     }
     else if (!$task_started) {
-        return ERROR::TaskStarted;
+        return WTCError::TaskStarted;
     }
 
     if (!isset($_POST['task_id']) || empty($_POST['task_id'])) {
-        return Error::Input;
+        return WTCError::Input;
     }
 
     if ($_POST['task_id'] != $task_started['Id']) { // Other task started
