@@ -15,16 +15,19 @@ class ModuleRenderer extends Component {
   }
 
   componentDidMount () {
+    // load the module from JSON config
     modulConfig.map (item => {
       if (this.props.position === item.menuItemPosition) {
         let existing = this.modules[item.name];
 
         if (existing) {
+          // load existing module
           this.setState ({
             moduleLoaded: true,
             module: this.state.modules[item.name],
           });
         } else {
+          // load new module
           this.setState ({moduleLoaded: false});
           import (`../../${item.menuItemPath}`).then (module => {
             this.modules[item.name] = module.default;

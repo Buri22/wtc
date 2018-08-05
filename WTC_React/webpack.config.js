@@ -11,16 +11,22 @@ module.exports = {
   module: {
     rules: [{
         test: /\.less$/,
+        exclude: /node_modules/,
         use: [{
           loader: 'style-loader' // creates style nodes from JS strings
         }, {
-          loader: 'css-loader' // translates CSS into CommonJS
+          loader: 'css-loader', // translates CSS into CommonJS
+          options: {
+            modules: true,
+            importLoaders: 1,
+            sourceMap: true,
+          },
         }, {
           loader: 'less-loader' // compiles Less to CSS
         }]
       }, {
         test: /\.jsx$|\.es6$|\.js$/, // must be at the first place, otherwise it would also try to load css files
-        exclude: /node_modules/,
+        exclude: /node_modules/, // if you want to use less files from node_modules libraries, delete this line
         use: {
           loader: 'babel-loader',
           options: {
