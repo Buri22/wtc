@@ -39,7 +39,7 @@ function check_brute($user) {
     $result = false;
 
     if ($login_attempts > MAX_LOGIN_ATTEMPTS) { // This is the MAX_LOGIN_ATTEMPTS + 1 attempt to login
-        if ($now - $last_attempt < LAST_ATTEMPT_MIN_TIME) { // Block the account
+        if (($now - intval($last_attempt)) < LAST_ATTEMPT_MIN_TIME) { // Block the account
             $result = true;
         }
         else {
