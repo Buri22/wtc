@@ -18,12 +18,13 @@ $action = $headers["Ajax-Action"];
 if (is_ajax($headers) && $action != null) {
     switch ($action) {
         case "checkLogin":
-            $user = checkLogin();
-            if (!$user) {
-                echo WTCError::Login;   // User is not logged in
-            } else {
-                echo json_encode($user);
-            }
+            echo json_encode(checkLogin());
+            // $user = checkLogin();
+            // if (!$user) {
+            //     echo WTCError::Login;   // User is not logged in
+            // } else {
+            //     echo json_encode($user);
+            // }
             break;
 
         case "register":

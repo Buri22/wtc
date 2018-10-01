@@ -12,7 +12,7 @@ class DataProvider {
         this.getActions = {}
 
         // Set Axios default request params
-        axios.defaults.baseURL = 'http://www.localhost/WTC_JS_OOP/WTC_React';
+        axios.defaults.baseURL = 'http://localhost/WTC_JS_OOP/WTC_React';
         axios.defaults.method = 'post';
         axios.defaults.url = '/server/wtc_ajax.php';
         axios.defaults.withCredentials = true;

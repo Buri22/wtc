@@ -9,7 +9,8 @@ module.exports = {
     filename: 'dist/bundle.js'
   },
   module: {
-    rules: [{
+    rules: [
+      {
         test: /\.less$/,
         exclude: /node_modules/,
         use: [{
@@ -24,7 +25,8 @@ module.exports = {
         }, {
           loader: 'less-loader' // compiles Less to CSS
         }]
-      }, {
+      }, 
+      {
         test: /\.jsx$|\.es6$|\.js$/, // must be at the first place, otherwise it would also try to load css files
         exclude: /node_modules/, // if you want to use less files from node_modules libraries, delete this line
         use: {
