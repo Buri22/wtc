@@ -6,7 +6,7 @@
     },
     {
         "name": "Counter",
-        "menuItemPath": "modules/counter/counterMenuItem",
+        "menuItemPath": "modules/counter/CounterMenuItem",
         "menuItemPosition": "left"
     }
 ]

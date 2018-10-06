@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import modulConfig from '../modulConfig.json';
 
-export default class MenuItemRenderer extends Component {
+// Should be called MenuItemRenderer
+export default class ModuleRenderer extends Component {
     state = {
         modules: []
     };

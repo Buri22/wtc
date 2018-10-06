@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Navbar, Nav, NavItem} from 'react-bootstrap';
 
-import ModuleRenderer from '../../services/ModuleRenderer';
+import MenuItemRenderer from '../../services/MenuItemRenderer';
 import AppSettings from './AppSettings';
 
 export default class Menu extends Component {
@@ -27,15 +27,17 @@ export default class Menu extends Component {
             activeKey={this.state.activeKey}
             onSelect={this.handleSelect.bind (this)}
           >
-            <NavItem eventKey={1} href="#">
+            <NavItem eventKey={3} href="#">
               Link
             </NavItem>
             <NavItem eventKey={2} href="#">
               Link
             </NavItem>
+            
+            <MenuItemRenderer position="left" />
           </Nav>
           <Nav pullRight>
-            <ModuleRenderer position="right" />
+            <MenuItemRenderer position="right" />
             <AppSettings logout={this.props.logout} />
           </Nav>
         </Navbar.Collapse>
