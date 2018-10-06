@@ -98,6 +98,7 @@ export default class AccountSettings extends Component {
                         passwordNew:        '',
                         passwordNewConfirm: ''
                     });
+                    this.props.handleUserNameChange(this.state.userName);
                     // TODO: set result message with mediator into some general result message box
                 }
                 else if (response.success === false) {
@@ -116,7 +117,7 @@ export default class AccountSettings extends Component {
                 title='Account Settings'
             >
                 <span className='glyphicon glyphicon-user'></span>
-                <span> {this.initialFormState.userName || 'User'}</span>
+                <span> Account</span>
             </MenuItem>
 
             <Modal show={this.state.showModal} onHide={this.handleCloseModal.bind(this)}>

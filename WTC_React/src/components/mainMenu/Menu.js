@@ -5,46 +5,27 @@ import AppSettings from './AppSettings';
 
 class ModuleRenderer extends Component {
   state = {
-    module: null,
-    moduleLoaded: false,
+    modules: []
   };
-
-  constructor () {
-    super ();
-    this.modules = [];
-  }
 
   componentDidMount () {
     // load the module from JSON config
     modulConfig.map (item => {
       if (this.props.position === item.menuItemPosition) {
-        let existing = this.modules[item.name];
-
-        if (existing) {
-          // load existing module
-          this.setState ({
-            moduleLoaded: true,
-            module: this.state.modules[item.name],
-          });
-        } else {
-          // load new module
-          this.setState ({moduleLoaded: false});
-          import (`../../${item.menuItemPath}`).then (module => {
-            this.modules[item.name] = module.default;
-            this.setState ({moduleLoaded: true, module: module.default});
-          });
-        }
+        import (`../../${item.menuItemPath}`).then (module => {
+          this.state.modules.push (module.default);
+          this.setState ({modules: this.state.modules});
+        });
       }
     });
   }
 
   render () {
-    if (this.state.moduleLoaded) {
-      const WTCModule = this.state.module;
-      return <WTCModule />;
-    } else {
-      return <div>Loading module</div>;
-    }
+    return (
+      <React.Fragment>
+        {this.state.modules.map ((ModuleItem, index) => <ModuleItem key={index}/>)}
+      </React.Fragment>
+    );
   }
 }
 
@@ -80,10 +61,6 @@ export default class Menu extends Component {
           </Nav>
           <Nav pullRight>
             <ModuleRenderer position="right" />
-            {/* <NavDropdown title="Account" id="account-nav-dropdown">
-                        <AccountSettings logout={this.props.logout} />
-                        <LogOut logout={this.props.logout} />
-                    </NavDropdown> */}
             <AppSettings logout={this.props.logout} />
           </Nav>
         </Navbar.Collapse>
