@@ -80,7 +80,7 @@ export default class AppSettings extends Component {
                     // hide modal window
                     this.setState({ showModal: false });
                     this.setInitialFormState();
-                    // TODO: rerender App to demonstrate the changes
+                    // TODO: rerender App to demonstrate the changes - use context to provide app theme data to components
                     // TODO: set result message with mediator into some general result message box
                 }
                 else if (response.success === false) {

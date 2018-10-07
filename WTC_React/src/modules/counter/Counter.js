@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 
-class Counter extends Component {
+export default class Counter extends Component {
     render(){
-        return '';
+        return <div>Counter content</div>;
     }
 }

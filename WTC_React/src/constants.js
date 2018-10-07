@@ -30,5 +30,6 @@ const APP_SETTINGS_OPTIONS = {
         { id: 2, name: 'right' }
     ]
 };
+const DEFAULT_MODULE = 'Counter'
 
-export { ERROR, APP_SETTINGS_OPTIONS };
+export { ERROR, APP_SETTINGS_OPTIONS, DEFAULT_MODULE };

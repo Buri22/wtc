@@ -1,28 +1,31 @@
 import React, {Component} from 'react';
 import modulConfig from '../modulConfig.json';
 
-// Should be called MenuItemRenderer
-export default class ModuleRenderer extends Component {
+export default class MenuItemRenderer extends Component {
     state = {
-        modules: []
+        modules: {}
     };
 
     componentDidMount () {
         // load the module from JSON config
         modulConfig.map (item => {
-        if (this.props.position === item.menuItemPosition) {
-            import (`../${item.menuItemPath}`).then (module => {
-                this.state.modules.push (module.default);
-                this.setState ({modules: this.state.modules});
-            });
-        }
+            if (this.props.position === item.menuItemPosition) {
+                if (!this.state.modules[item.name]) {
+                    import (`../${item.menuItemPath}`).then (module => {
+                        this.state.modules[item.name] = module.default;       // this is little bit strange assignment and state update
+                        this.setState ({modules: this.state.modules});
+                    });
+                }
+            }
         });
     }
-
     render () {
         return (
         <React.Fragment>
-            {this.state.modules.map ((ModuleItem, index) => <ModuleItem key={index}/>)}
+            {Object.keys(this.state.modules).map(key => {
+                let ModuleMenuItem = this.state.modules[key];
+                return <ModuleMenuItem key={key} currentAppState={this.props.currentAppState} onMenuItemClick={this.props.onMenuItemClick}/>
+            })}
         </React.Fragment>
         );
     }

@@ -1,20 +1,20 @@
 import React, {Component} from 'react';
 import {NavItem} from 'react-bootstrap';
 import Navigator from '../../model/NavigationState';
-import Counter from './Counter';
+import Statistics from './Statistics';
 
-export default class CounterMenuItem extends Component {
+export default class StatisticsMenuItem extends Component {
 
     handleMenuItemClick() {
-        this.props.onMenuItemClick('Counter');
+        this.props.onMenuItemClick('Statistics');
     }
 
     render() {
         let moduleContent;
         
-        if (this.props.currentAppState.activeModule == 'Counter') {
+        if (this.props.currentAppState.activeModule == 'Statistics') {
             moduleContent = <Navigator>
-                <Counter />
+                <Statistics />
             </Navigator>;
         }
 
@@ -23,7 +23,7 @@ export default class CounterMenuItem extends Component {
                 <NavItem 
                     onClick={this.handleMenuItemClick.bind(this)}
                 >
-                Counter
+                Statistics
                 </NavItem>
                 {moduleContent}
             </React.Fragment>

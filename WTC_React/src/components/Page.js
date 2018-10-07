@@ -2,6 +2,6 @@ import React, {Component} from 'react';
 
 export default class Page extends Component {
     render(){
-        return(<div className="Page"></div>);
+        return(<div id="PageContent"></div>);
     }
 }
