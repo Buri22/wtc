@@ -12,7 +12,7 @@ export default class CounterMenuItem extends Component {
     render() {
         let moduleContent;
         
-        if (this.props.currentAppState.activeModule == 'Counter') {
+        if (this.props.activeModule == 'Counter') {
             moduleContent = <Navigator>
                 <Counter />
             </Navigator>;

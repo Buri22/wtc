@@ -21,12 +21,12 @@ export default class MenuItemRenderer extends Component {
     }
     render () {
         return (
-        <React.Fragment>
-            {Object.keys(this.state.modules).map(key => {
-                let ModuleMenuItem = this.state.modules[key];
-                return <ModuleMenuItem key={key} currentAppState={this.props.currentAppState} onMenuItemClick={this.props.onMenuItemClick}/>
-            })}
-        </React.Fragment>
+            <React.Fragment>
+                {Object.keys(this.state.modules).map(key => {
+                    let ModuleMenuItem = this.state.modules[key];
+                    return <ModuleMenuItem key={key} activeModule={this.props.activeModule} onMenuItemClick={this.props.onMenuItemClick}/>
+                })}
+            </React.Fragment>
         );
     }
 }

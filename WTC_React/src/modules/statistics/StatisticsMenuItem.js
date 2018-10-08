@@ -12,7 +12,7 @@ export default class StatisticsMenuItem extends Component {
     render() {
         let moduleContent;
         
-        if (this.props.currentAppState.activeModule == 'Statistics') {
+        if (this.props.activeModule == 'Statistics') {
             moduleContent = <Navigator>
                 <Statistics />
             </Navigator>;

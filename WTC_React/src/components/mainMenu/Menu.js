@@ -2,14 +2,13 @@ import React, {Component} from 'react';
 import {Navbar, Nav, NavItem} from 'react-bootstrap';
 
 import {DEFAULT_MODULE} from '../../constants';
-import AppState from '../../model/AppState';
 import MenuItemRenderer from '../../services/MenuItemRenderer';
 import AppSettings from './AppSettings';
 
 export default class Menu extends Component {
   state = {
     activeKey: 1,
-    appState: new AppState(DEFAULT_MODULE)
+    activeModule: DEFAULT_MODULE
   };
 
   handleSelect (selectedKey) {
@@ -17,8 +16,8 @@ export default class Menu extends Component {
   }
 
   onMenuItemClick(currentMenuItem) {
-    this.state.appState.activeModule = currentMenuItem;
-    this.setState({appState: this.state.appState});
+    this.state.activeModule = currentMenuItem;
+    this.setState({activeModule: this.state.activeModule});
   }
 
   render () {
@@ -37,7 +36,7 @@ export default class Menu extends Component {
           >            
             <MenuItemRenderer
               position="left"
-              currentAppState={this.state.appState}
+              activeModule={this.state.activeModule}
               onMenuItemClick={this.onMenuItemClick.bind(this)}
             />
           </Nav>
