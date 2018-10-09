@@ -12,7 +12,7 @@ export default class MenuItemRenderer extends Component {
             if (this.props.position === item.menuItemPosition) {
                 if (!this.state.modules[item.name]) {
                     import (`../${item.menuItemPath}`).then (module => {
-                        this.state.modules[item.name] = module.default;       // this is little bit strange assignment and state update
+                        this.state.modules[item.name] = module.default;
                         this.setState ({modules: this.state.modules});
                     });
                 }
@@ -24,7 +24,11 @@ export default class MenuItemRenderer extends Component {
             <React.Fragment>
                 {Object.keys(this.state.modules).map(key => {
                     let ModuleMenuItem = this.state.modules[key];
-                    return <ModuleMenuItem key={key} activeModule={this.props.activeModule} onMenuItemClick={this.props.onMenuItemClick}/>
+                    return <ModuleMenuItem 
+                                key={key} 
+                                activeModule={this.props.activeModule} 
+                                onMenuItemClick={this.props.onMenuItemClick}
+                            />
                 })}
             </React.Fragment>
         );

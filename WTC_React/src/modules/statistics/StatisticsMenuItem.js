@@ -1,29 +1,36 @@
 import React, {Component} from 'react';
 import {NavItem} from 'react-bootstrap';
-import Navigator from '../../model/NavigationState';
+import ModuleContentRenderer from '../../services/ModuleContentRenderer';
 import Statistics from './Statistics';
 
 export default class StatisticsMenuItem extends Component {
+    constructor() {
+        super();
+        this.isActive;
+    }
 
     handleMenuItemClick() {
         this.props.onMenuItemClick('Statistics');
     }
 
     render() {
+        this.isActive = false;
         let moduleContent;
         
         if (this.props.activeModule == 'Statistics') {
-            moduleContent = <Navigator>
-                <Statistics />
-            </Navigator>;
+            this.isActive = true;
+            moduleContent = <ModuleContentRenderer>
+                                <Statistics />
+                            </ModuleContentRenderer>;
         }
 
         return (
             <React.Fragment>
                 <NavItem 
+                    active={this.isActive}
                     onClick={this.handleMenuItemClick.bind(this)}
                 >
-                Statistics
+                    Statistics
                 </NavItem>
                 {moduleContent}
             </React.Fragment>

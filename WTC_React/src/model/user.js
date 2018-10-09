@@ -178,13 +178,13 @@ let user = new User();
 
 // Public methods exposed through userProxy
 const userProxy = {
-    isUserLoggedIn: user.isUserLoggedIn.bind(user),
-    register: user.register.bind(user),
-    logIn: user.logIn.bind(user),
-    logOut: user.logOut.bind(user),
-    getProp: user.getProp.bind(user),
+    isUserLoggedIn:  user.isUserLoggedIn.bind(user),
+    register:        user.register.bind(user),
+    logIn:           user.logIn.bind(user),
+    logOut:          user.logOut.bind(user),
+    getProp:         user.getProp.bind(user),
     editAccountData: user.editAccountData.bind(user),
-    editAppData: user.editAppData.bind(user)
+    editAppData:     user.editAppData.bind(user)
 };
 
 export default userProxy;
