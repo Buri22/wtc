@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Row, Col, Button, ListGroup, ListGroupItem} from 'react-bootstrap';
+import PaginationBox from '../../components/PaginationBox';
 
 import Loading from '../../components/loading/Loading';
 import taskList from '../../model/task';
@@ -10,7 +11,9 @@ export default class Counter extends Component {
         super();
 
         this.state = {
-            taskListDataLoaded: false
+            taskListDataLoaded: false,
+            itemsPerPage: 20,
+            currentPage: 1
         };
     }
 
@@ -30,17 +33,24 @@ export default class Counter extends Component {
     renderTaskList() {
         let tasks;
         if (this.state.taskListDataLoaded) {
-            let taskListData = taskList.getTasklist();
-            tasks = taskListData.map((listItemData, index) => (
-                <ListGroupItem key={index}>
-                    <span className="taskIndex">{index}.</span>
-                    <span className="name">{listItemData.name}</span>
-                    <span className="spentTime">{listItemData.spentTime}</span>
-                    <Button className="start" bsStyle="success">Start</Button>
-                    <Button className="stop" bsStyle="primary">Stop</Button>
-                    <span className="edit_animation_box"></span>
-                </ListGroupItem>
-            ));
+            let taskListData = taskList.getTasklist(),
+                indexFrom = (this.state.currentPage - 1) * this.state.itemsPerPage,
+                indexTo = this.state.currentPage * this.state.itemsPerPage;
+
+            tasks = taskListData.map((listItemData, index) => {
+                if (indexFrom <= index && index < indexTo) {
+                    return (
+                        <ListGroupItem key={index}>
+                            <span className="taskIndex">{index + 1}.</span>
+                            <span className="name">{listItemData.name}</span>
+                            <span className="spentTime">{listItemData.spentTimeInHms()}</span>
+                            <Button className="start" bsStyle="success">Start</Button>
+                            <Button className="stop" bsStyle="primary">Stop</Button>
+                            <span className="edit_animation_box"></span>
+                        </ListGroupItem>
+                    )
+                }
+            });
         } else {
             tasks = <Loading />;
         }
@@ -54,6 +64,24 @@ export default class Counter extends Component {
                 {tasks}
             </ListGroup>
         );
+    }
+
+    changeItemsPerPage(itemsPerPage) {
+        this.setState({itemsPerPage: itemsPerPage});
+    }
+    changeCurrentPage(currentPage) {
+        this.setState({currentPage: currentPage});
+    }
+    renderPagination() {
+        if (this.state.taskListDataLoaded) {
+            return <PaginationBox 
+                        totalItems={taskList.getLength()}
+                        itemsPerPage={this.state.itemsPerPage}
+                        currentPage={this.state.currentPage}
+                        changeItemsPerPage={this.changeItemsPerPage.bind(this)}
+                        changeCurrentPage={this.changeCurrentPage.bind(this)}
+                    />;
+        }
     }
 
     render(){
@@ -70,7 +98,7 @@ export default class Counter extends Component {
                 </Button>
 
                 <Col sm={12} md={8} mdOffset={2} className="taskList">
-                    <div className="paginationBox"></div>
+                    {this.renderPagination()}
                     {this.renderTaskList()}
                 </Col>
 

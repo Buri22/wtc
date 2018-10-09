@@ -13,6 +13,13 @@ class Task {
         this.taskStarted = taskData.TaskStarted;
         this.dateCreated = taskData.DateCreated;
     }
+
+    spentTimeInHms() {
+        let h = Math.floor(this.spentTime / 3600);
+        let m = Math.floor(this.spentTime % 3600 / 60);
+        let s = Math.floor(this.spentTime % 3600 % 60);
+        return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+    }
 }
 
 /**
