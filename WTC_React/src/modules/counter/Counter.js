@@ -12,13 +12,14 @@ export default class Counter extends Component {
 
         this.state = {
             taskListDataLoaded: false,
-            itemsPerPage: 20,
-            currentPage: 1
+            itemsPerPage:       20,
+            currentPage:        1,
+            msg:                ''
         };
     }
 
     componentDidMount() {
-        if (taskList.getTasklist() == undefined) {
+        if (taskList.hasTaskList()) {
             taskList.loadTaskList().then(result => {
                 if (result.success) {
                     this.setState({ taskListDataLoaded: true });
@@ -28,6 +29,25 @@ export default class Counter extends Component {
         else {
             this.setState({ taskListDataLoaded: true });
         }
+    }
+
+    handleStartBtn(e) {
+        taskList.startTicking(Number(e.currentTarget.parentElement.dataset.id))
+            .then(response => {
+                if (response.success) {
+                    // make item active highlighted
+                }
+                this.setState({msg: response.msg});
+            });
+    }
+    handleStopBtn(e) {
+        taskList.stopTicking(Number(e.currentTarget.parentElement.dataset.id))
+            .then(response => {
+                if (response.success) {
+                    // remove item active highlight
+                }
+                this.setState({msg: response.msg});
+            });
     }
 
     renderTaskList() {
@@ -40,12 +60,12 @@ export default class Counter extends Component {
             tasks = taskListData.map((listItemData, index) => {
                 if (indexFrom <= index && index < indexTo) {
                     return (
-                        <ListGroupItem key={index}>
+                        <ListGroupItem key={index} data-id={listItemData.id}>
                             <span className="taskIndex">{index + 1}.</span>
                             <span className="name">{listItemData.name}</span>
                             <span className="spentTime">{listItemData.spentTimeInHms()}</span>
-                            <Button className="start" bsStyle="success">Start</Button>
-                            <Button className="stop" bsStyle="primary">Stop</Button>
+                            <Button className="start" bsStyle="success" onClick={this.handleStartBtn.bind(this)}>Start</Button>
+                            <Button className="stop" bsStyle="primary" onClick={this.handleStopBtn.bind(this)}>Stop</Button>
                             <span className="edit_animation_box"></span>
                         </ListGroupItem>
                     )
@@ -88,6 +108,8 @@ export default class Counter extends Component {
         return (
             <Row>
                 <h2 className="text-center">Tasks</h2>
+
+                {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
 
                 <Button 
                     bsStyle="success"
