@@ -4,6 +4,7 @@ import PaginationBox from '../../components/PaginationBox';
 
 import Loading from '../../components/loading/Loading';
 import taskList from '../../model/task';
+import TickingManager from './TickingManager';
 
 export default class Counter extends Component {
 
@@ -32,19 +33,23 @@ export default class Counter extends Component {
     }
 
     handleStartBtn(e) {
-        taskList.startTicking(Number(e.currentTarget.parentElement.dataset.id))
+        let listItem = e.currentTarget.parentElement;
+        TickingManager.startTicking(Number(listItem.dataset.id))
             .then(response => {
                 if (response.success) {
                     // make item active highlighted
+                    listItem.classList.add("active");
                 }
                 this.setState({msg: response.msg});
             });
     }
     handleStopBtn(e) {
-        taskList.stopTicking(Number(e.currentTarget.parentElement.dataset.id))
+        let listItem = e.currentTarget.parentElement;
+        TickingManager.stopTicking(Number(listItem.dataset.id))
             .then(response => {
                 if (response.success) {
                     // remove item active highlight
+                    listItem.classList.remove("active");
                 }
                 this.setState({msg: response.msg});
             });
@@ -60,7 +65,7 @@ export default class Counter extends Component {
             tasks = taskListData.map((listItemData, index) => {
                 if (indexFrom <= index && index < indexTo) {
                     return (
-                        <ListGroupItem key={index} data-id={listItemData.id}>
+                        <ListGroupItem key={index} data-id={listItemData.id} className={listItemData.taskStarted == 1 ? 'active': ''}>
                             <span className="taskIndex">{index + 1}.</span>
                             <span className="name">{listItemData.name}</span>
                             <span className="spentTime">{listItemData.spentTimeInHms()}</span>
