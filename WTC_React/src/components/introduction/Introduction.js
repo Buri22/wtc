@@ -4,6 +4,7 @@ import {Row, Col} from 'react-bootstrap';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
+// chybi popisek tridy
 export default class Introduction extends Component {
     
     pages = {
@@ -30,6 +31,8 @@ export default class Introduction extends Component {
 
         switch (this.state.page) {
             case this.pages.login:
+            // tady bych mozna zmenil naming - gotoRegister je prikaz, zatimco do properties se vetsinou davaji callbacky a handlery
+            // jako naming by se hodil napr. onRegisterClick nebo registerNavigationHandler
                 page = <LoginForm
                             msg={this.state.msg}
                             handleLogin={this.props.handleLogin}

@@ -7,6 +7,7 @@ import PasswordField from './PasswordField';
 const SPECIAL_CHARS_REGEX = /[^A-Za-z0-9]/;
 const DIGIT_REGEX = /[0-9]/;
 
+// chybi popisek tridy
 export default class PasswordInput extends Component {
     state = { password: '' };
 

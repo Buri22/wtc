@@ -3,6 +3,7 @@ import {FormGroup, FormControl} from 'react-bootstrap';
 
 import { SharedLogic } from './SharedLogic';
 
+// chybi popisek tridy
 class PasswordField extends Component {
     static defaultProps = {
         password: ''

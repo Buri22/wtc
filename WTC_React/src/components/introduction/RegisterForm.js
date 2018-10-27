@@ -3,6 +3,7 @@ import {Row, Col, FormGroup, FormControl, Button} from 'react-bootstrap';
 import user from '../../model/user';
 import PasswordInput from '../passwordInput/PasswordInput';
 
+// chybi popisek tridy
 export default class RegisterForm extends Component {
     state = {
         userName: '',
@@ -13,7 +14,10 @@ export default class RegisterForm extends Component {
     };
 
     handleUserInput (e) {
-        let name = e.target.name;
+        // toto je asi OK, jen je potreba dat pozor na to, ze se tu ukladaji dalsi custom atributy napr. errorMessage,
+        // aby to nekolidovalo s nazvy tech formularovych prvku
+        // samozrejme by se to mohlo dat do vnoreneho objektu (napr.  this.setState({ formData: { ...this.state.formData, [name]: value} });,
+        // ale best practice je snazit se mit ten state plochy
         let value = e.target.value;
         this.setState({ [name]: value });
     }

@@ -5,6 +5,7 @@ import {DEFAULT_MODULE} from '../../constants';
 import MenuItemRenderer from '../../services/MenuItemRenderer';
 import AppSettings from './AppSettings';
 
+// chybi popisek tridy
 export default class Menu extends Component {
   state = {
     activeModule: DEFAULT_MODULE
