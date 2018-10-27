@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 
-require('../css/styles.less');
+import '../css/styles.less';
 require('bootstrap/dist/css/bootstrap.css');      
 require('bootstrap/dist/css/bootstrap-theme.css');
 
