@@ -2,10 +2,67 @@ import { dataProvider } from '../../services/DataProvider';
 import { ERROR } from '../../constants';
 import LocalStorage from '../../model/localStorage';
 import taskList from '../../model/task';
+import DateTimeHelper from '../../services/DateTimeHelper';
 
 class TickingManager {
+    constructor() {
+        this.renderTicking = null;
+        this.isItemTicking = false;
+        this.doRenderTicking = true;
+    }
+
+    startWTCTicker(task) {
+        // Create LocalStorage data object
+        LocalStorage.setItem(task);
+        // Create window object that will tick
+        window.wtcTicker = setInterval(() => {
+            this.executeTick();
+        }, 1000);
+        this.executeTick();
+        this.isItemTicking = true;
+    }
+    executeTick() {
+        let LSTickingItem = LocalStorage.getItem();
+        if (LSTickingItem == null) { 
+            console.log('Class: TickingManager; Method: executeTick(); LocalStorage ticking item is null.');
+        }
+        else {
+            let task = taskList.getTaskById(LSTickingItem.task_id)
+            task.spentTime = DateTimeHelper.hmsToSeconds(LSTickingItem.spent_time) + 1; // add 1 second
+            // update spent time in LS
+            LocalStorage.setItem(task);
+
+            if (this.doRenderTicking) {
+                // rerender spent time
+                this.renderTicking(task);
+            }
+        }
+    }
+    checkTickingItem(renderTickingCallback) {
+        if (this.isItemTicking) return;
+
+        let LSTickingItem = LocalStorage.getItem() || null;
+        let TLTickingItem = taskList.getTaskActive() || null;
+
+        if (LSTickingItem != null && TLTickingItem != null && TLTickingItem.id == LSTickingItem.task_id
+            || TLTickingItem != null)
+        {
+            this.renderTicking = renderTickingCallback;
+            TLTickingItem.spentTime = DateTimeHelper.hmsToSeconds(LSTickingItem.spent_time);
+            this.startWTCTicker(TLTickingItem);
+        }
+        else {console.log('no task is ticking...');}
+    }
+
+    // Set property defining if we do render ticking
+    switchRenderTicking(bool, renderTickingCallback = null) {
+        if (renderTickingCallback) {
+            this.renderTicking = renderTickingCallback;
+        }
+        this.doRenderTicking = bool;
+    }
     
-    startTicking(id) {
+    startTicking(id, renderTickingCallback) {
         let data = {
             task_id: id,
             last_start: Math.round(new Date().getTime() / 1000) // We store time in seconds
@@ -23,14 +80,14 @@ class TickingManager {
                         return { msg: `You are already working on <strong>${taskList.getTaskIndexById(response.Id) + 1}. ${response.Name}</strong>` };
                     }
                     else if (response.Id) {
+                        this.renderTicking = renderTickingCallback;
                         // Update model
                         let task = taskList.getTaskById(id);
                         task.taskStarted = 1;
                         task.lastStart = data.last_start;
-                        // Create LocalStorage data object
-                        LocalStorage.setItem(task);
-                        
-                        // this.startMyTimer(response);
+                        // Set interval for ticking
+                        this.startWTCTicker(task);
+
                         // mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(itemIndex));
 
                         return {success: true, msg: 'Started successfully!'};
@@ -70,10 +127,11 @@ class TickingManager {
                         // Update model
                         task.spentTime = response.SpentTime || 0;
                         task.taskStarted = 0;
-
+                        // Remove LS object
                         LocalStorage.removeItem();
-
-                        // clearInterval(window.myTime);   // Stop ticking
+                        // Clear window.wtcTicker
+                        clearInterval(window.wtcTicker);   // Stop ticking
+                        this.isItemTicking = false;
                         // mediator.publish('RemoveItemFromSideMenu', this.$sideMenuItem.attr('id'));
                         
                         return {success: true, msg: '<strong>' + task.name + '</strong> stopped successfully!'};
@@ -90,8 +148,10 @@ let tickingManager = new TickingManager();
 
 // Public methods exposed through tickingManagerProxy
 const tickingManagerProxy = {
-    startTicking: tickingManager.startTicking.bind(tickingManager),
-    stopTicking: tickingManager.stopTicking.bind(tickingManager)
+    startTicking:         tickingManager.startTicking.bind(tickingManager),
+    stopTicking:          tickingManager.stopTicking.bind(tickingManager),
+    checkTickingItem:     tickingManager.checkTickingItem.bind(tickingManager),
+    switchRenderTicking:  tickingManager.switchRenderTicking.bind(tickingManager)
 };
 
 export default tickingManagerProxy;

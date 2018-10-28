@@ -1,4 +1,5 @@
 import { dataProvider } from '../services/DataProvider';
+import DateTimeHelper from '../services/DateTimeHelper';
 
 /**
  * Task model
@@ -14,14 +15,7 @@ class Task {
     }
 
     spentTimeInHms() {
-        let h = Math.floor(this.spentTime / 3600);
-        let m = Math.floor(this.spentTime % 3600 / 60);
-        let s = Math.floor(this.spentTime % 3600 % 60);
-        return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-    }
-    spentTimeToSeconds() {
-        let hms_time = this.spentTime.split(":");
-        return Number(hms_time[2]) + Number(hms_time[1]) * 60 + Number(hms_time[0]) * 60 * 60;
+        return DateTimeHelper.secondsToHms(this.spentTime);
     }
 }
 
@@ -63,13 +57,19 @@ class TaskList {
     getTaskById(id) {
         return this.taskList[this.taskList.findIndex(x => x.id == id)];
     }
+    getTaskActive() {
+        if (this.taskList == undefined) {
+            return false;
+        }
+        return this.taskList[this.taskList.findIndex(x => x.taskStarted == 1)];
+    }
     getTaskIndexById(id) {
         return this.taskList.findIndex(x => x.id == id);
     }
     getLength() {
         return this.taskList.length;
     }
-    hasTaskList() {
+    taskListIsUndefined() {
         if (taskList.getTasklist() == undefined) {
             return true;
         }
@@ -87,9 +87,10 @@ const taskListProxy = {
     getTasklist:      taskList.getTasklist.bind(taskList),
     getTask:          taskList.getTask.bind(taskList),
     getTaskById:      taskList.getTaskById.bind(taskList),
+    getTaskActive:    taskList.getTaskActive.bind(taskList),
     getTaskIndexById: taskList.getTaskIndexById.bind(taskList),
     getLength:        taskList.getLength.bind(taskList),
-    hasTaskList:      taskList.hasTaskList.bind(taskList)
+    taskListIsUndefined:      taskList.taskListIsUndefined.bind(taskList)
 };
 
 export default taskListProxy;

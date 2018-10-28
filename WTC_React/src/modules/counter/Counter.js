@@ -15,26 +15,38 @@ export default class Counter extends Component {
             taskListDataLoaded: false,
             itemsPerPage:       20,
             currentPage:        1,
-            msg:                ''
+            msg:                '',
+            tickingTime:        null
         };
     }
 
     componentDidMount() {
-        if (taskList.hasTaskList()) {
+        TickingManager.switchRenderTicking(true, this.updateTaskSpentTime.bind(this));
+        if (taskList.taskListIsUndefined()) {
             taskList.loadTaskList().then(result => {
                 if (result.success) {
                     this.setState({ taskListDataLoaded: true });
+                    TickingManager.checkTickingItem(this.updateTaskSpentTime.bind(this));
                 }
             });
         }
         else {
             this.setState({ taskListDataLoaded: true });
+            TickingManager.checkTickingItem(this.updateTaskSpentTime.bind(this));
         }
     }
+    componentWillUnmount() {
+        TickingManager.switchRenderTicking(false);
+    }
 
+    updateTaskSpentTime(task) {
+        // check if counter is rendered to decide whether we allow setState -> rerender unmounted component
+        //if ()
+        this.setState({ tickingTime: task.spentTime });
+    }
     handleStartBtn(e) {
         let listItem = e.currentTarget.parentElement;
-        TickingManager.startTicking(Number(listItem.dataset.id))
+        TickingManager.startTicking(Number(listItem.dataset.id), this.updateTaskSpentTime.bind(this))
             .then(response => {
                 if (response.success) {
                     // make item active highlighted
