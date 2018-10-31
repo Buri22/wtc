@@ -9,6 +9,7 @@ const RenderOptions = ({ options }) => (
     })
 );
 
+// chybi popisek tridy
 export default class AppSettings extends Component {
     constructor (props) {
         super(props);
