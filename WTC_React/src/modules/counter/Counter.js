@@ -22,7 +22,7 @@ export default class Counter extends Component {
 
     componentDidMount() {
         TickingManager.switchRenderTicking(true, this.updateTaskSpentTime.bind(this));
-        if (taskList.taskListIsUndefined()) {
+        if (taskList.isTaskListUndefined()) {
             taskList.loadTaskList().then(result => {
                 if (result.success) {
                     this.setState({ taskListDataLoaded: true });

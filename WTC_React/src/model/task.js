@@ -69,7 +69,7 @@ class TaskList {
     getLength() {
         return this.taskList.length;
     }
-    taskListIsUndefined() {
+    isTaskListUndefined() {
         if (taskList.getTasklist() == undefined) {
             return true;
         }
@@ -81,16 +81,16 @@ let taskList = new TaskList();
 
 // Public methods exposed through taskListProxy
 const taskListProxy = {
-    loadTaskList:     taskList.loadTaskList.bind(taskList),
-    addTask:          taskList.addTask.bind(taskList),
-    removeTask:       taskList.removeTask.bind(taskList),
-    getTasklist:      taskList.getTasklist.bind(taskList),
-    getTask:          taskList.getTask.bind(taskList),
-    getTaskById:      taskList.getTaskById.bind(taskList),
-    getTaskActive:    taskList.getTaskActive.bind(taskList),
-    getTaskIndexById: taskList.getTaskIndexById.bind(taskList),
-    getLength:        taskList.getLength.bind(taskList),
-    taskListIsUndefined:      taskList.taskListIsUndefined.bind(taskList)
+    loadTaskList:        taskList.loadTaskList.bind(taskList),
+    addTask:             taskList.addTask.bind(taskList),
+    removeTask:          taskList.removeTask.bind(taskList),
+    getTasklist:         taskList.getTasklist.bind(taskList),
+    getTask:             taskList.getTask.bind(taskList),
+    getTaskById:         taskList.getTaskById.bind(taskList),
+    getTaskActive:       taskList.getTaskActive.bind(taskList),
+    getTaskIndexById:    taskList.getTaskIndexById.bind(taskList),
+    getLength:           taskList.getLength.bind(taskList),
+    isTaskListUndefined: taskList.isTaskListUndefined.bind(taskList)
 };
 
 export default taskListProxy;

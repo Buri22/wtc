@@ -33,7 +33,7 @@ export default class Menu extends Component {
             />
           </Nav>
           <Nav pullRight>
-            <MenuItemRenderer position="right" />
+            <MenuItemRenderer position="right" logout={this.props.logout} />
             <AppSettings logout={this.props.logout} />
           </Nav>
         </Navbar.Collapse>

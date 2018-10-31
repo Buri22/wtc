@@ -44,14 +44,16 @@ class TickingManager {
         let LSTickingItem = LocalStorage.getItem() || null;
         let TLTickingItem = taskList.getTaskActive() || null;
 
-        if (LSTickingItem != null && TLTickingItem != null && TLTickingItem.id == LSTickingItem.task_id
-            || TLTickingItem != null)
-        {
-            this.renderTicking = renderTickingCallback;
-            TLTickingItem.spentTime = DateTimeHelper.hmsToSeconds(LSTickingItem.spent_time);
-            this.startWTCTicker(TLTickingItem);
+        if (LSTickingItem != null || TLTickingItem != null) {
+            if (LSTickingItem != null && TLTickingItem != null && TLTickingItem.id == LSTickingItem.task_id
+                || LSTickingItem != null)
+            {
+                TLTickingItem.spentTime = DateTimeHelper.hmsToSeconds(LSTickingItem.spent_time);
+            }
+
+            this.renderTicking = renderTickingCallback; // we should render ticking
+            this.startWTCTicker(TLTickingItem);         // start ticking
         }
-        else {console.log('no task is ticking...');}
     }
 
     // Set property defining if we do render ticking

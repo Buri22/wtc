@@ -28,6 +28,7 @@ export default class MenuItemRenderer extends Component {
                                 key={key} 
                                 activeModule={this.props.activeModule} 
                                 onMenuItemClick={this.props.onMenuItemClick}
+                                {...this.props}
                             />
                 })}
             </React.Fragment>
