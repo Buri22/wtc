@@ -498,7 +498,7 @@ function stopCounting() {
 
     $spent_time = time() - $task_started['LastStart'] + $task_started['SpentTime'];
     if (isset($_POST['spent_time']) && !empty($_POST['spent_time'])) {
-        $spent_time = hmsToSeconds($_POST['spent_time']);
+        $spent_time = (int)$_POST['spent_time'];
     }
     $result = Db::query('
                     UPDATE task

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Row, Pagination, FormGroup, FormControl, Col} from 'react-bootstrap';
+import {Pagination, FormGroup, FormControl, Col} from 'react-bootstrap';
 
 const itemsPerPage = [10, 20, 50, 100];
 
@@ -10,7 +10,6 @@ export default class PaginationBox extends Component {
 
     renderPageBtns() {
         let pageBtns = [];
-        let ellipsis = false;
         for (let i = 1; i <= this.state.numberOfPageBtns; i++) {
             if (this.props.currentPage - 2 <= i && i <= this.props.currentPage + 2) {
                 if (i == this.props.currentPage - 2 && i !=1) {
@@ -56,20 +55,17 @@ export default class PaginationBox extends Component {
 
     render() {
         return (
-            <Row>
-                <FormGroup controlId='itemsPerPage'>
-                    <Col md={2}>
-                        <FormControl
-                            componentClass='select'
-                            value={this.props.itemsPerPage}
-                            onChange={this.handleItemsPerPageChange.bind(this)}
-                        >
-                            {itemsPerPage.map((option, index) => {
-                                return (<option key={index} value={option}>{option}</option>);
-                            })}
-                        </FormControl>
-                    </Col>
-                </FormGroup>
+            <div className="paginationBox">
+                <FormControl
+                    className="paginationItemsPerPage"
+                    componentClass='select'
+                    value={this.props.itemsPerPage}
+                    onChange={this.handleItemsPerPageChange.bind(this)}
+                >
+                    {itemsPerPage.map((option, index) => {
+                        return (<option key={index} value={option}>{option}</option>);
+                    })}
+                </FormControl>
                 <Pagination>
                     {this.props.currentPage == 1 ? (
                         <React.Fragment>
@@ -95,7 +91,7 @@ export default class PaginationBox extends Component {
                         </React.Fragment>
                     )}
                 </Pagination>
-            </Row>
+            </div>
         );
     }
 }

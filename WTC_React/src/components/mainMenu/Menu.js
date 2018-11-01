@@ -18,7 +18,7 @@ export default class Menu extends Component {
 
   render () {
     return (
-      <Navbar fluid collapseOnSelect>
+      <Navbar fluid collapseOnSelect className="row">
         <Navbar.Header>
           <Navbar.Brand>
             <a href="#brand">Work Time Counter</a>

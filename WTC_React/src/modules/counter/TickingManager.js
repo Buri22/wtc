@@ -28,7 +28,7 @@ class TickingManager {
         }
         else {
             let task = taskList.getTaskById(LSTickingItem.task_id)
-            task.spentTime = DateTimeHelper.hmsToSeconds(LSTickingItem.spent_time) + 1; // add 1 second
+            task.spentTime = LSTickingItem.spent_time + 1; // add 1 second
             // update spent time in LS
             LocalStorage.setItem(task);
 
@@ -48,7 +48,7 @@ class TickingManager {
             if (LSTickingItem != null && TLTickingItem != null && TLTickingItem.id == LSTickingItem.task_id
                 || LSTickingItem != null)
             {
-                TLTickingItem.spentTime = DateTimeHelper.hmsToSeconds(LSTickingItem.spent_time);
+                TLTickingItem.spentTime = LSTickingItem.spent_time;
             }
 
             this.renderTicking = renderTickingCallback; // we should render ticking

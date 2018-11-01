@@ -13,14 +13,11 @@ const WTC_TICKING_COUNTER = 'wtc_ticking_counter';
  * Wrapper for localStorage object
  */
 class LocalStorage {
-
-    constructor() {
-    }
-
+    // Creates or updates local storage object
     setItem(task, storageSpentTime = null) {
         let storageTickingItem = {
             task_id: task.id,
-            spent_time: storageSpentTime || task.spentTimeInHms() || 0
+            spent_time: storageSpentTime || task.spentTime || 0
         };
         localStorage.setObject(`${WTC_TICKING_COUNTER}-${User.getProp('id')}`, storageTickingItem);
     }

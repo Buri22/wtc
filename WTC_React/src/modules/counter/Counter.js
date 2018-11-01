@@ -92,7 +92,7 @@ export default class Counter extends Component {
             tasks = <Loading />;
         }
         return (
-            <ListGroup>
+            <ListGroup id="taskList">
                 <ListGroupItem className="header">
                     <span className="taskIndex">No.</span>
                     <span className="name">Name</span>
@@ -126,7 +126,7 @@ export default class Counter extends Component {
             <Row>
                 <h2 className="text-center">Tasks</h2>
 
-                {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
+                {this.state.msg && <span className='result_msg centered_flex'>{this.state.msg}</span>}
 
                 <Button 
                     bsStyle="success"
@@ -136,9 +136,10 @@ export default class Counter extends Component {
                     Create
                 </Button>
 
-                <Col sm={12} md={8} mdOffset={2} className="taskList">
+                <Col sm={12} md={8} mdOffset={2}>
                     {this.renderPagination()}
                     {this.renderTaskList()}
+                    {this.renderPagination()}
                 </Col>
 
             </Row>
