@@ -22,7 +22,7 @@ export default class Counter extends Component {
 
     componentDidMount() {
         TickingManager.switchRenderTicking(true, this.updateTaskSpentTime.bind(this));
-        if (taskList.isTaskListUndefined()) {
+        if (!taskList.isLoaded()) {
             taskList.loadTaskList().then(result => {
                 if (result.success) {
                     this.setState({ taskListDataLoaded: true });
@@ -40,8 +40,6 @@ export default class Counter extends Component {
     }
 
     updateTaskSpentTime(task) {
-        // check if counter is rendered to decide whether we allow setState -> rerender unmounted component
-        //if ()
         this.setState({ tickingTime: task.spentTime });
     }
     handleStartBtn(e) {
@@ -63,7 +61,10 @@ export default class Counter extends Component {
                     // remove item active highlight
                     listItem.classList.remove("active");
                 }
-                this.setState({msg: response.msg});
+                this.setState({
+                    msg: response.msg,
+                    tickingTime: response.success ? null : this.state.tickingTime
+                });
             });
     }
 
@@ -77,11 +78,18 @@ export default class Counter extends Component {
             tasks = taskListData.map((listItemData, index) => {
                 if (indexFrom <= index && index < indexTo) {
                     return (
-                        <ListGroupItem key={index} data-id={listItemData.id} className={listItemData.taskStarted == 1 ? 'active': ''}>
+                        <ListGroupItem
+                            key={index}
+                            data-id={listItemData.id}
+                            className={listItemData.taskStarted == 1 ? 'active': ''}
+                        >
                             <span className="taskIndex">{index + 1}.</span>
                             <span className="name">{listItemData.name}</span>
                             <span className="spentTime">{listItemData.spentTimeInHms()}</span>
-                            <Button className="start" bsStyle="success" onClick={this.handleStartBtn.bind(this)}>Start</Button>
+                            {TickingManager.isTicking() ?
+                                <Button className="start" bsStyle="success" disabled>Start</Button>
+                                : <Button className="start" bsStyle="success" onClick={this.handleStartBtn.bind(this)}>Start</Button>
+                            }
                             <Button className="stop" bsStyle="primary" onClick={this.handleStopBtn.bind(this)}>Stop</Button>
                             <span className="edit_animation_box"></span>
                         </ListGroupItem>
@@ -110,7 +118,7 @@ export default class Counter extends Component {
         this.setState({currentPage: currentPage});
     }
     renderPagination() {
-        if (this.state.taskListDataLoaded) {
+        if (this.state.taskListDataLoaded && taskList.getLength() > 20) {
             return <PaginationBox 
                         totalItems={taskList.getLength()}
                         itemsPerPage={this.state.itemsPerPage}

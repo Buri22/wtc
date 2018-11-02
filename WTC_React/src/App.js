@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import user from './model/user';
+import taskList from './model/task';
 
 import Loading from './components/loading/Loading';
 import Menu from './components/mainMenu/Menu';
@@ -28,6 +29,7 @@ class App extends Component {
       loggedIn: false,
       msg: msg
     });
+    taskList.clearTaskList();
   }
 
   renderApp() {

@@ -2,33 +2,45 @@ import { dataProvider } from '../../services/DataProvider';
 import { ERROR } from '../../constants';
 import LocalStorage from '../../model/localStorage';
 import taskList from '../../model/task';
-import DateTimeHelper from '../../services/DateTimeHelper';
 
 class TickingManager {
     constructor() {
-        this.renderTicking = null;
-        this.isItemTicking = false;
-        this.doRenderTicking = true;
+        this.renderTicking = null;      // callback function that renders ticking in Counter
+        this.doRenderTicking = true;    // Boolean indicating whether render ticking is needed
+        this.isItemTicking = false;     // Boolean indicating whether item is ticking
     }
 
-    startWTCTicker(task) {
+    _startWTCTicker(task) {
         // Create LocalStorage data object
         LocalStorage.setItem(task);
         // Create window object that will tick
         window.wtcTicker = setInterval(() => {
-            this.executeTick();
+            this._executeTick();
         }, 1000);
-        this.executeTick();
+        this._executeTick();
         this.isItemTicking = true;
     }
-    executeTick() {
+    _executeTick() {
         let LSTickingItem = LocalStorage.getItem();
         if (LSTickingItem == null) { 
-            console.log('Class: TickingManager; Method: executeTick(); LocalStorage ticking item is null.');
+            console.log('Class: TickingManager; Method: _executeTick(); LocalStorage ticking item is null.');
         }
         else {
-            let task = taskList.getTaskById(LSTickingItem.task_id)
-            task.spentTime = LSTickingItem.spent_time + 1; // add 1 second
+            // LocalStorage Object exists
+            let task;
+
+            if (!taskList.isLoaded()) {
+                // taskList is empty or user is logged out
+                task = {
+                    id: LSTickingItem.task_id,
+                    spentTime: LSTickingItem.spent_time + 1 // add 1 second
+                };
+            }
+            else {
+                task = taskList.getTaskById(LSTickingItem.task_id)
+                task.spentTime = LSTickingItem.spent_time + 1; // add 1 second
+            }
+
             // update spent time in LS
             LocalStorage.setItem(task);
 
@@ -45,14 +57,19 @@ class TickingManager {
         let TLTickingItem = taskList.getTaskActive() || null;
 
         if (LSTickingItem != null || TLTickingItem != null) {
-            if (LSTickingItem != null && TLTickingItem != null && TLTickingItem.id == LSTickingItem.task_id
-                || LSTickingItem != null)
+            if (LSTickingItem != null && TLTickingItem != null && TLTickingItem.id == LSTickingItem.task_id)
             {
                 TLTickingItem.spentTime = LSTickingItem.spent_time;
             }
+            else if (LSTickingItem != null) {
+                TLTickingItem = {
+                    id: LSTickingItem.task_id,
+                    spentTime: LSTickingItem.spent_time
+                };
+            }
 
             this.renderTicking = renderTickingCallback; // we should render ticking
-            this.startWTCTicker(TLTickingItem);         // start ticking
+            this._startWTCTicker(TLTickingItem);         // start ticking
         }
     }
 
@@ -88,7 +105,7 @@ class TickingManager {
                         task.taskStarted = 1;
                         task.lastStart = data.last_start;
                         // Set interval for ticking
-                        this.startWTCTicker(task);
+                        this._startWTCTicker(task);
 
                         // mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(itemIndex));
 
@@ -144,6 +161,10 @@ class TickingManager {
                 });
 
     }
+
+    isTicking() {
+        return this.isItemTicking;
+    }
 }
 
 let tickingManager = new TickingManager();
@@ -153,7 +174,8 @@ const tickingManagerProxy = {
     startTicking:         tickingManager.startTicking.bind(tickingManager),
     stopTicking:          tickingManager.stopTicking.bind(tickingManager),
     checkTickingItem:     tickingManager.checkTickingItem.bind(tickingManager),
-    switchRenderTicking:  tickingManager.switchRenderTicking.bind(tickingManager)
+    switchRenderTicking:  tickingManager.switchRenderTicking.bind(tickingManager),
+    isTicking:            tickingManager.isTicking.bind(tickingManager)
 };
 
 export default tickingManagerProxy;

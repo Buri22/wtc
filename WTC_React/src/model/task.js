@@ -25,7 +25,7 @@ class Task {
 class TaskList {
 
     constructor() {
-        this.taskList;
+        this.taskList = null;
     }
 
     loadTaskList() {
@@ -41,6 +41,9 @@ class TaskList {
                     //mediator.publish('RenderLogin', 'You were logged out, please login again.');
                 }
             });
+    }
+    clearTaskList() {
+        this.taskList = null;
     }
     addTask(task) {
         this.taskList.unshift(new Task(task));
@@ -58,7 +61,7 @@ class TaskList {
         return this.taskList[this.taskList.findIndex(x => x.id == id)];
     }
     getTaskActive() {
-        if (this.taskList == undefined) {
+        if (this.taskList == null) {
             return false;
         }
         return this.taskList[this.taskList.findIndex(x => x.taskStarted == 1)];
@@ -69,8 +72,8 @@ class TaskList {
     getLength() {
         return this.taskList.length;
     }
-    isTaskListUndefined() {
-        if (taskList.getTasklist() == undefined) {
+    isLoaded() {
+        if (this.taskList !== null) {
             return true;
         }
         return false;
@@ -82,6 +85,7 @@ let taskList = new TaskList();
 // Public methods exposed through taskListProxy
 const taskListProxy = {
     loadTaskList:        taskList.loadTaskList.bind(taskList),
+    clearTaskList:       taskList.clearTaskList.bind(taskList),
     addTask:             taskList.addTask.bind(taskList),
     removeTask:          taskList.removeTask.bind(taskList),
     getTasklist:         taskList.getTasklist.bind(taskList),
@@ -90,7 +94,7 @@ const taskListProxy = {
     getTaskActive:       taskList.getTaskActive.bind(taskList),
     getTaskIndexById:    taskList.getTaskIndexById.bind(taskList),
     getLength:           taskList.getLength.bind(taskList),
-    isTaskListUndefined: taskList.isTaskListUndefined.bind(taskList)
+    isLoaded:            taskList.isLoaded.bind(taskList)
 };
 
 export default taskListProxy;
