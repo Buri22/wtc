@@ -30,6 +30,8 @@ const APP_SETTINGS_OPTIONS = {
         { id: 2, name: 'right' }
     ]
 };
-const DEFAULT_MODULE = 'Counter'
+const DEFAULT_MODULE = 'Counter';
+const PAGE_CONTAINER = 'pageContent';
+const MODAL_CONTAINER = 'modalContainer';
 
-export { ERROR, APP_SETTINGS_OPTIONS, DEFAULT_MODULE };
+export { ERROR, APP_SETTINGS_OPTIONS, DEFAULT_MODULE, PAGE_CONTAINER, MODAL_CONTAINER };

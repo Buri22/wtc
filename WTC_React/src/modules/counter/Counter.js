@@ -1,8 +1,11 @@
 import React, {Component} from 'react';
 import {Row, Col, Button, ListGroup, ListGroupItem} from 'react-bootstrap';
-import PaginationBox from '../../components/PaginationBox';
 
+import ModalContentRenderer from '../../services/ModalContentRenderer';
+import PaginationBox from '../../components/PaginationBox';
 import Loading from '../../components/loading/Loading';
+import CreateTask from './CreateTask';
+
 import taskList from '../../model/task';
 import TickingManager from './TickingManager';
 
@@ -16,8 +19,10 @@ export default class Counter extends Component {
             itemsPerPage:       20,
             currentPage:        1,
             msg:                '',
-            tickingTime:        null
+            tickingTime:        null,
+            showModal:          false
         };
+        this.modalContent = null;
     }
 
     componentDidMount() {
@@ -66,6 +71,14 @@ export default class Counter extends Component {
                     tickingTime: response.success ? null : this.state.tickingTime
                 });
             });
+    }
+    handleCreateBtn() {
+        //console.log('create task');
+        this.modalContent = <CreateTask handleCloseModal={this.handleCloseModal.bind(this)} />;
+        this.setState({ showModal: true });
+    }
+    handleCloseModal() {
+        this.setState({ showModal: false });
     }
 
     renderTaskList() {
@@ -140,6 +153,7 @@ export default class Counter extends Component {
                     bsStyle="success"
                     bsSize="large"
                     id="newTaskBtn"
+                    onClick={this.handleCreateBtn.bind(this)}
                 >
                     Create
                 </Button>
@@ -149,6 +163,12 @@ export default class Counter extends Component {
                     {this.renderTaskList()}
                     {this.renderPagination()}
                 </Col>
+
+                {this.state.showModal && 
+                    <ModalContentRenderer>
+                        {this.modalContent}
+                    </ModalContentRenderer>
+                }
 
             </Row>
         );

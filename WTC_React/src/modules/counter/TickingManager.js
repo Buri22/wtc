@@ -51,17 +51,25 @@ class TickingManager {
         }
     }
     checkTickingItem(renderTickingCallback) {
+        // If we're already ticking, return
         if (this.isItemTicking) return;
 
+        // Try to get ticking objects
         let LSTickingItem = LocalStorage.getItem() || null;
         let TLTickingItem = taskList.getTaskActive() || null;
 
+        // If one of them exists, we'll start ticking
         if (LSTickingItem != null || TLTickingItem != null) {
             if (LSTickingItem != null && TLTickingItem != null && TLTickingItem.id == LSTickingItem.task_id)
             {
                 TLTickingItem.spentTime = LSTickingItem.spent_time;
             }
+            else if (TLTickingItem != null) {
+                // We have just the TaskList ticking object data
+                TLTickingItem.spentTime = Math.round((new Date().getTime() - TLTickingItem.lastStart) / 1000);
+            }
             else if (LSTickingItem != null) {
+                // We have just the LocalStorage ticking object data
                 TLTickingItem = {
                     id: LSTickingItem.task_id,
                     spentTime: LSTickingItem.spent_time
@@ -69,7 +77,7 @@ class TickingManager {
             }
 
             this.renderTicking = renderTickingCallback; // we should render ticking
-            this._startWTCTicker(TLTickingItem);         // start ticking
+            this._startWTCTicker(TLTickingItem);        // start ticking
         }
     }
 

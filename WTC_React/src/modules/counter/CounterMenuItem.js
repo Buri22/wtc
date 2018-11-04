@@ -3,7 +3,7 @@ import {NavItem} from 'react-bootstrap';
 import ModuleContentRenderer from '../../services/ModuleContentRenderer';
 import Counter from './Counter';
 
-// TODO: refactor menu items to extendsome base menu item component with common functionality
+// TODO: refactor menu items to extend some base menu item component with common functionality
 
 export default class CounterMenuItem extends Component {
     constructor() {
