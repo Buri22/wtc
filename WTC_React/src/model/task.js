@@ -1,5 +1,6 @@
 import { dataProvider } from '../services/DataProvider';
 import DateTimeHelper from '../services/DateTimeHelper';
+import { ERROR } from '../constants';
 
 /**
  * Task model
@@ -78,6 +79,55 @@ class TaskList {
         }
         return false;
     }
+    
+    createTask(data) {
+        //let $createResultMsg = this.$modal.find('#create_result_msg');
+        // let data = {
+        //     new_name:         this.$modal.find('#new_task_name').val().trim(),
+        //     new_spent_time:   this.$modal.find('#new_task_spent_time').val().trim(),
+        //     new_date_created: this.$modal.find('#new_task_date_created').val().trim()
+        // };
+
+        return dataProvider.provide("createTask", data)
+            .then((response) => {
+                if (response.Name == data.new_name) {
+                    // Update model
+                    this.itemList.addTask(response);    // Adds created Task to the beginning of this.itemList.taskList array
+                    this.pagination.totalItems = this.itemList.getLength();
+
+                    this._renderTaskList();
+                    this.bindCounterEvents();
+                    this._checkTickingTask();
+                    this.$resultMsg.text("New task was successfully created!");
+                    this.$modal.modal('hide');
+                }
+                else if (response == ERROR.Input) {
+                    //$createResultMsg.text("Please input some creative task name.");
+                    return { msg: 'Please input some creative task name.' };
+                }
+                else if (response == ERROR.Login) {
+                    //mediator.publish('LogOut', 'You were unexpectedly logged out.');
+                    return { msg: 'Please input some creative task name.', logout: true };
+                }
+                else if (response == ERROR.Logout) {
+                    //$createResultMsg.text("This task name already exists, try something different.");
+                    return { msg: 'This task name already exists, try something different.' };
+                }
+                else if (response == ERROR.TaskSpentTime) {
+                    //$createResultMsg.text("Please insert Spent Time in as valid time format (hh:mm:ss).");
+                    return { msg: 'Please insert Spent Time in as valid time format (hh:mm:ss).' };
+                }
+                else if (response == ERROR.TaskDateCreated) {
+                    //$createResultMsg.text("Please insert Date Created as as valid date format (dd.mm.yyyy).");
+                    return { msg: 'Please insert Date Created as as valid date format (dd.mm.yyyy).' };
+                }
+                else {
+                    //this.$resultMsg.text("New task name failed to create!");
+                    //this.$modal.modal('hide');
+                    return { msg: 'New task name failed to create!', modalHide: true };
+                }
+            });
+    }
 }
 
 let taskList = new TaskList();
@@ -94,7 +144,8 @@ const taskListProxy = {
     getTaskActive:       taskList.getTaskActive.bind(taskList),
     getTaskIndexById:    taskList.getTaskIndexById.bind(taskList),
     getLength:           taskList.getLength.bind(taskList),
-    isLoaded:            taskList.isLoaded.bind(taskList)
+    isLoaded:            taskList.isLoaded.bind(taskList),
+    createTask:          taskList.createTask.bind(taskList)
 };
 
 export default taskListProxy;

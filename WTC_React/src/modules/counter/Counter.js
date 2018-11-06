@@ -77,8 +77,11 @@ export default class Counter extends Component {
         this.modalContent = <CreateTask handleCloseModal={this.handleCloseModal.bind(this)} />;
         this.setState({ showModal: true });
     }
-    handleCloseModal() {
-        this.setState({ showModal: false });
+    handleCloseModal(msg = null) {
+        this.setState({ 
+            showModal: false,
+            msg: msg || ''
+        });
     }
 
     renderTaskList() {

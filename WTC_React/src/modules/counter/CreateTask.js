@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Modal, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col } from 'react-bootstrap';
+import { Modal, Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 
 import DateTimeHelper from '../../services/DateTimeHelper';
+import taskList from '../../model/task';
 
 // TODO: Implement Date picker and Time picker
 
@@ -23,8 +24,26 @@ export default class CreateTask extends Component {
         let value = e.target.value;
         this.setState({ [name]: value });
     }
-    handleSubmit() {
-        console.log('createTaskForm was submitted');
+    handleSubmit(e) {
+        e.preventDefault();
+
+        //console.log('createTaskForm was submitted');
+        taskList.createTask({
+            new_name:         this.state.taskName,
+            new_spent_time:   this.state.spentTime,
+            new_date_created: this.state.dateCreated
+        })
+        .then((response) => {
+            if (response.modalHide) {
+                this.props.handleCloseModal(response.msg);
+            }
+            else if (response.logout) {
+                // TODO: handle logout through context
+                console.log('handle logout through context')
+            }
+
+            //this.setState({ msg: response.msg });
+        });
     }
 
     createTaskEnabled() {
