@@ -7,6 +7,8 @@ import Menu from './components/mainMenu/Menu';
 import Page from './components/Page';
 import Introduction from './components/introduction/Introduction';
 
+import '@progress/kendo-theme-bootstrap/dist/all.css';
+
 class App extends Component {
 
   state = {
