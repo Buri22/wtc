@@ -2,13 +2,6 @@ import User from '../model/user';
 
 const WTC_TICKING_COUNTER = 'wtc_ticking_counter';
 
-        // Extend usage of localStorage to hold JS objects in JSON
-        Storage.prototype.setObject = function(key, value) {
-            this.setItem(key, JSON.stringify(value));
-        };
-        Storage.prototype.getObject = function(key) {
-            return this.getItem(key) && JSON.parse(this.getItem(key));
-        };
 /**
  * Wrapper for localStorage object
  */
@@ -19,10 +12,14 @@ class LocalStorage {
             task_id: task.id,
             spent_time: task.spentTime || 0
         };
-        localStorage.setObject(`${WTC_TICKING_COUNTER}-${User.getProp('id')}`, storageTickingItem);
+        localStorage.setItem(`${WTC_TICKING_COUNTER}-${User.getProp('id')}`, JSON.stringify(storageTickingItem));
     }
     getItem() {
-        return localStorage.getObject(`${WTC_TICKING_COUNTER}-${User.getProp('id')}`);
+        let LSObject = localStorage.getItem(`${WTC_TICKING_COUNTER}-${User.getProp('id')}`);
+        if (LSObject !== null || JSON.parse(LSObject) !== '') {
+            return JSON.parse(LSObject);
+        }
+        return null;
     }
     removeItem() {
         let itemKey = `${WTC_TICKING_COUNTER}-${User.getProp('id')}`;

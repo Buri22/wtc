@@ -48,7 +48,7 @@ class App extends Component {
     else {
       appContent = 
         <Introduction
-          handleLogin={this.loginSuccess.bind(this)}
+          onLoginSuccess={this.loginSuccess.bind(this)}
           msg={this.state.msg}
         />;
     }

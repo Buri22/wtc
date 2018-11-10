@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import classNames from 'classnames';
 
+// TODO: predelat na dedicnost
 // toto bych urciten nenazyval jako SharedLogic. Je to high order komponenta, ktera
 // se tu pouziva jako wrapper pro jine komponenty v sekci Password. Toto by se mozna 
 // dalo vyresit separatni komponentou nez kompozici - budeme to muset probrat

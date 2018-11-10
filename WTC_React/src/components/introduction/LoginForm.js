@@ -23,7 +23,7 @@ export default class LoginForm extends Component {
             })
             .then((response) => {
                 if (response.success) {
-                    this.props.handleLogin();
+                    this.props.onLoginSuccess();
                 }
                 else if (response.msg) {
                     // update submit result message
@@ -32,9 +32,7 @@ export default class LoginForm extends Component {
             });
     }
     handleRegisterClick() {
-        let { goToRegister } = this.props;
-
-        goToRegister();
+        this.props.onRegisterClick();
     }
 
     render(){

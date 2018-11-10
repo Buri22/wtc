@@ -4,7 +4,10 @@ import {Row, Col} from 'react-bootstrap';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 
-// chybi popisek tridy
+/**
+ * Renders Login or Register page
+ * TODO: finally it could have also some Into page about the WTC
+ */
 export default class Introduction extends Component {
     
     pages = {
@@ -16,13 +19,13 @@ export default class Introduction extends Component {
         msg: this.props.msg || ''
     };
 
-    goToLogin(msg = '') {
+    onLoginClick(msg = '') {
         this.setState({ 
             page: this.pages.login,
             msg: msg
         });
     }
-    goToRegister() {
+    onRegisterClick() {
         this.setState({ page: this.pages.register });
     }
 
@@ -31,16 +34,14 @@ export default class Introduction extends Component {
 
         switch (this.state.page) {
             case this.pages.login:
-            // tady bych mozna zmenil naming - gotoRegister je prikaz, zatimco do properties se vetsinou davaji callbacky a handlery
-            // jako naming by se hodil napr. onRegisterClick nebo registerNavigationHandler
                 page = <LoginForm
                             msg={this.state.msg}
-                            handleLogin={this.props.handleLogin}
-                            goToRegister={this.goToRegister.bind(this)}
+                            onLoginSuccess={this.props.onLoginSuccess}
+                            onRegisterClick={this.onRegisterClick.bind(this)}
                         />;
                 break;
             case this.pages.register:
-                page = <RegisterForm goToLogin={this.goToLogin.bind(this)} />;
+                page = <RegisterForm onLoginClick={this.onLoginClick.bind(this)} />;
                 break;
             default:
                 // do nothing

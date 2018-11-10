@@ -1,6 +1,6 @@
 import { dataProvider } from '../../services/DataProvider';
 import { ERROR } from '../../constants';
-import LocalStorage from '../../model/localStorage';
+import LocalStorage from '../../services/LocalStorageService';
 import taskList from '../../model/task';
 
 class TickingManager {

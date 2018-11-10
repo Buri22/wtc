@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import {Pagination, FormGroup, FormControl, Col} from 'react-bootstrap';
+import {Pagination, FormControl} from 'react-bootstrap';
 
+// TODO: prejmenovat at se neplete konkretni hodnota s moznostmi
 const itemsPerPage = [10, 20, 50, 100];
 
 export default class PaginationBox extends Component {

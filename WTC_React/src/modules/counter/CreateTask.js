@@ -34,12 +34,15 @@ export default class CreateTask extends Component {
             new_date_created: this.state.dateCreated
         })
         .then((response) => {
-            if (response.modalHide) {
+            if (response.success || response.modalHide) {
                 this.props.handleCloseModal(response.msg);
             }
             else if (response.logout) {
-                // TODO: handle logout through context
+                // TODO: handle logout through context and pass msg to the component
                 console.log('handle logout through context')
+            }
+            else if (response.msg) {
+                this.setState({ msg: response.msg });
             }
 
             //this.setState({ msg: response.msg });
@@ -105,7 +108,7 @@ export default class CreateTask extends Component {
                             </Col>
                         </FormGroup>
                     </Form>
-                    {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
+                    {this.state.msg && <span className='modalErrorMsg red'>{this.state.msg}</span>}
                 </Modal.Body>
 
                 <Modal.Footer>

@@ -14,12 +14,7 @@ export default class RegisterForm extends Component {
     };
 
     handleUserInput (e) {
-        // toto je asi OK, jen je potreba dat pozor na to, ze se tu ukladaji dalsi custom atributy napr. errorMessage,
-        // aby to nekolidovalo s nazvy tech formularovych prvku
-        // samozrejme by se to mohlo dat do vnoreneho objektu (napr.  this.setState({ formData: { ...this.state.formData, [name]: value} });,
-        // ale best practice je snazit se mit ten state plochy
-        let value = e.target.value;
-        this.setState({ [name]: value });
+        this.setState({ [e.target.name]: e.target.value });
     }
     handleSubmit(e) {
         e.preventDefault();
@@ -43,7 +38,7 @@ export default class RegisterForm extends Component {
 
     }
     handleLoginClick() {
-        this.props.goToLogin();
+        this.props.onLoginClick();
     }
     validatePasswordConfirm() {
         if (this.state.passwordConfirm.length === 0) return null;
@@ -56,7 +51,6 @@ export default class RegisterForm extends Component {
             <Col lg={4} lgOffset={4}>
                 <h2 className='text-center'>Sign up</h2>
 
-                {/*TODO: implement result action messages*/}
                 <span id='register_msg'>{this.state.errorMessage}</span>
 
                 <form onSubmit={this.handleSubmit.bind(this)}>
