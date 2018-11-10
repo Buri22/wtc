@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { MenuItem, Modal, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col } from 'react-bootstrap';
-import user from 'model/user';
+import UserService from '../../services/UserService';
+import User from '../../model/user';
 import PasswordInput from 'components/passwordInput/PasswordInput';
 
 const passwordConfirmValidationResults = {
@@ -16,8 +17,8 @@ export default class AccountSettings extends Component {
         this.state = { 
             showModal:          false,
             msg:                '',
-            userName:           user.getProp('userName'),
-            email:              user.getProp('email'),
+            userName:           User.getProp('userName'),
+            email:              User.getProp('email'),
             changePassword:     false,
             passwordCurrent:    '',
             passwordNew:        '',
@@ -79,7 +80,7 @@ export default class AccountSettings extends Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        user.editAccountData({
+        UserService.editAccountData({
                 userName:        this.state.userName,
                 email:           this.state.email,
                 changePassword:  this.state.changePassword,

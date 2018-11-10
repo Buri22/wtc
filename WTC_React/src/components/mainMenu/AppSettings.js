@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { NavItem, Modal, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Col } from 'react-bootstrap';
-import user from '../../model/user';
+import UserService from '../../services/UserService';
+import User from '../../model/user';
 import { APP_SETTINGS_OPTIONS } from '../../constants';
 
 const RenderOptions = ({ options }) => (
@@ -26,7 +27,7 @@ export default class AppSettings extends Component {
     }
 
     componentWillMount() {
-        this.userAppSettings = user.getProp('appSettings');
+        this.userAppSettings = User.getProp('appSettings');
 
         this.setState({
             themeColor:       this.userAppSettings.theme.color,
@@ -71,7 +72,7 @@ export default class AppSettings extends Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        user.editAppData({
+        UserService.editAppData({
                 themeColor:       this.state.themeColor,
                 sideMenuIsActive: this.state.sideMenuIsActive,
                 sideMenuPosition: this.state.sideMenuPosition

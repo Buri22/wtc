@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Modal, Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 
 import DateTimeHelper from '../../services/DateTimeHelper';
-import taskList from '../../model/task';
+import TaskService from '../../services/TaskService';
 
 // TODO: Implement Date picker and Time picker
 
@@ -27,8 +27,7 @@ export default class CreateTask extends Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        //console.log('createTaskForm was submitted');
-        taskList.createTask({
+        TaskService.createTask({
             new_name:         this.state.taskName,
             new_spent_time:   this.state.spentTime,
             new_date_created: this.state.dateCreated
@@ -44,8 +43,6 @@ export default class CreateTask extends Component {
             else if (response.msg) {
                 this.setState({ msg: response.msg });
             }
-
-            //this.setState({ msg: response.msg });
         });
     }
 

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { MenuItem } from 'react-bootstrap';
-import user from '../../model/user';
+import UserService from '../../services/UserService';
 
 export default class LogOut extends Component {
 
     handleLogout() {
-        user.logOut()
+        UserService.logOut()
             .then((response) => {
                 if (response === true) {
                     this.props.logout('You were successfuly logged out.');

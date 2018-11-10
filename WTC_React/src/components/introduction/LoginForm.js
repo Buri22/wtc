@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Col, FormGroup, FormControl, Button} from 'react-bootstrap';
-import user from '../../model/user';
+import UserService from '../../services/UserService';
 
 export default class LoginForm extends Component {
     state = {
@@ -17,7 +17,7 @@ export default class LoginForm extends Component {
     handleSubmit(e) {
         e.preventDefault();
         
-        user.logIn({
+        UserService.logIn({
                 email: this.state.email,
                 password: this.state.password
             })

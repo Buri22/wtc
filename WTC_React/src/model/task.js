@@ -23,25 +23,14 @@ class Task {
 /**
  * Wrapper for list of Tasks
  */
-class TaskList {
+class TaskListWrapper {
 
     constructor() {
         this.taskList = null;
     }
 
-    loadTaskList() {
-        return dataProvider.provide('getTaskList')
-            .then((taskListData) => {
-                if (taskListData) {
-                    this.taskList = Array.from(taskListData, taskData => new Task(taskData));
-                    return { success: true };
-                }
-                else {  // Just in case user is not logged in
-                    console.log('user is not logged in and we try to initialize taskList... ??? this should not happen!');
-                    return { success: false };
-                    //mediator.publish('RenderLogin', 'You were logged out, please login again.');
-                }
-            });
+    setTaskList(taskList) {
+        this.taskList = taskList;
     }
     clearTaskList() {
         this.taskList = null;
@@ -79,54 +68,23 @@ class TaskList {
         }
         return false;
     }
-    
-    createTask(data) {
-        return dataProvider.provide("createTask", data)
-            .then((response) => {
-                if (response.Name == data.new_name) {
-                    // Update model
-                    this.addTask(response);     // Adds created Task to the beginning of taskList
-
-                    return { success: true, msg: 'New task was successfully created!' };
-                }
-                else if (response == ERROR.Input) {
-                    return { msg: 'Please input some creative task name.' };
-                }
-                else if (response == ERROR.Login) {
-                    return { msg: 'Please input some creative task name.', logout: true };
-                }
-                else if (response == ERROR.TaskName) {
-                    return { msg: 'This task name already exists, try something different.' };
-                }
-                else if (response == ERROR.TaskSpentTime) {
-                    return { msg: 'Please insert Spent Time in as valid time format (hh:mm:ss).' };
-                }
-                else if (response == ERROR.TaskDateCreated) {
-                    return { msg: 'Please insert Date Created as as valid date format (dd.mm.yyyy).' };
-                }
-                else {
-                    return { msg: 'New task name failed to create!', modalHide: true };
-                }
-            });
-    }
 }
 
-let taskList = new TaskList();
+let TLWrapper = new TaskListWrapper();
 
 // Public methods exposed through taskListProxy
-const taskListProxy = {
-    loadTaskList:        taskList.loadTaskList.bind(taskList),
-    clearTaskList:       taskList.clearTaskList.bind(taskList),
-    addTask:             taskList.addTask.bind(taskList),
-    removeTask:          taskList.removeTask.bind(taskList),
-    getTasklist:         taskList.getTasklist.bind(taskList),
-    getTask:             taskList.getTask.bind(taskList),
-    getTaskById:         taskList.getTaskById.bind(taskList),
-    getTaskActive:       taskList.getTaskActive.bind(taskList),
-    getTaskIndexById:    taskList.getTaskIndexById.bind(taskList),
-    getLength:           taskList.getLength.bind(taskList),
-    isLoaded:            taskList.isLoaded.bind(taskList),
-    createTask:          taskList.createTask.bind(taskList)
+const TaskList = {
+    setTaskList:         TLWrapper.setTaskList.bind(TLWrapper),
+    clearTaskList:       TLWrapper.clearTaskList.bind(TLWrapper),
+    addTask:             TLWrapper.addTask.bind(TLWrapper),
+    removeTask:          TLWrapper.removeTask.bind(TLWrapper),
+    getTasklist:         TLWrapper.getTasklist.bind(TLWrapper),
+    getTask:             TLWrapper.getTask.bind(TLWrapper),
+    getTaskById:         TLWrapper.getTaskById.bind(TLWrapper),
+    getTaskActive:       TLWrapper.getTaskActive.bind(TLWrapper),
+    getTaskIndexById:    TLWrapper.getTaskIndexById.bind(TLWrapper),
+    getLength:           TLWrapper.getLength.bind(TLWrapper),
+    isLoaded:            TLWrapper.isLoaded.bind(TLWrapper)
 };
 
-export default taskListProxy;
+export { TaskList, Task };

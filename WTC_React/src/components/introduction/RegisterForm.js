@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Row, Col, FormGroup, FormControl, Button} from 'react-bootstrap';
-import user from '../../model/user';
+import UserService from '../../services/UserService';
 import PasswordInput from '../passwordInput/PasswordInput';
 
 // chybi popisek tridy
@@ -19,7 +19,7 @@ export default class RegisterForm extends Component {
     handleSubmit(e) {
         e.preventDefault();
         
-        user.register({
+        UserService.register({
                 userName: this.state.userName,
                 email: this.state.email,
                 password: this.state.password,
@@ -28,7 +28,7 @@ export default class RegisterForm extends Component {
             .then((response) => {
                 if (response.success) {
                     // go to login page with success msg
-                    this.props.goToLogin(response.msg);
+                    this.props.onLoginClick(response.msg);
                 }
                 else if (response.msg) {
                     // update result action message

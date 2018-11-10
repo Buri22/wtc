@@ -6,7 +6,8 @@ import PaginationBox from '../../components/PaginationBox';
 import Loading from '../../components/loading/Loading';
 import CreateTask from './CreateTask';
 
-import taskList from '../../model/task';
+import { TaskList } from '../../model/task';
+import TaskService from '../../services/TaskService';
 import TickingManager from './TickingManager';
 
 export default class Counter extends Component {
@@ -27,8 +28,8 @@ export default class Counter extends Component {
 
     componentDidMount() {
         TickingManager.switchRenderTicking(true, this.updateTaskSpentTime.bind(this));
-        if (!taskList.isLoaded()) {
-            taskList.loadTaskList().then(result => {
+        if (!TaskList.isLoaded()) {
+            TaskService.loadTaskList().then(result => {
                 if (result.success) {
                     this.setState({ taskListDataLoaded: true });
                     TickingManager.checkTickingItem(this.updateTaskSpentTime.bind(this));
@@ -87,44 +88,50 @@ export default class Counter extends Component {
     renderTaskList() {
         let tasks;
         if (this.state.taskListDataLoaded) {
-            let taskListData = taskList.getTasklist(),
+            // Render task list just in case user has at least one task
+            if (TaskList.getLength() > 0) {
+                let taskListData = TaskList.getTasklist(),
                 indexFrom = (this.state.currentPage - 1) * this.state.itemsPerPage,
                 indexTo = this.state.currentPage * this.state.itemsPerPage;
 
-            tasks = taskListData.map((listItemData, index) => {
-                if (indexFrom <= index && index < indexTo) {
-                    return (
-                        <ListGroupItem
-                            key={index}
-                            data-id={listItemData.id}
-                            className={listItemData.taskStarted == 1 ? 'active': ''}
-                        >
-                            <span className="taskIndex">{index + 1}.</span>
-                            <span className="name">{listItemData.name}</span>
-                            <span className="spentTime">{listItemData.spentTimeInHms()}</span>
-                            {TickingManager.isTicking() ?
-                                <Button className="start" bsStyle="success" disabled>Start</Button>
-                                : <Button className="start" bsStyle="success" onClick={this.handleStartBtn.bind(this)}>Start</Button>
-                            }
-                            <Button className="stop" bsStyle="primary" onClick={this.handleStopBtn.bind(this)}>Stop</Button>
-                            <span className="edit_animation_box"></span>
+                tasks = taskListData.map((listItemData, index) => {
+                    if (indexFrom <= index && index < indexTo) {
+                        return (
+                            <ListGroupItem
+                                key={index}
+                                data-id={listItemData.id}
+                                className={listItemData.taskStarted == 1 ? 'active': ''}
+                            >
+                                <span className="taskIndex">{index + 1}.</span>
+                                <span className="name">{listItemData.name}</span>
+                                <span className="spentTime">{listItemData.spentTimeInHms()}</span>
+                                {TickingManager.isTicking() ?
+                                    <Button className="start" bsStyle="success" disabled>Start</Button>
+                                    : <Button className="start" bsStyle="success" onClick={this.handleStartBtn.bind(this)}>Start</Button>
+                                }
+                                <Button className="stop" bsStyle="primary" onClick={this.handleStopBtn.bind(this)}>Stop</Button>
+                                <span className="edit_animation_box"></span>
+                            </ListGroupItem>
+                        )
+                    }
+                });
+                return (
+                    <ListGroup id="taskList">
+                        <ListGroupItem className="header">
+                            <span className="taskIndex">No.</span>
+                            <span className="name">Name</span>
+                            <span className="spentTime">Spent time</span>
                         </ListGroupItem>
-                    )
-                }
-            });
+                        {tasks}
+                    </ListGroup>
+                );
+            }
+            else {
+                return <span className="centered_flex">You have no tasks yet, can create one by clicking on Create button.</span>;
+            }
         } else {
-            tasks = <Loading />;
+            return <Loading />;
         }
-        return (
-            <ListGroup id="taskList">
-                <ListGroupItem className="header">
-                    <span className="taskIndex">No.</span>
-                    <span className="name">Name</span>
-                    <span className="spentTime">Spent time</span>
-                </ListGroupItem>
-                {tasks}
-            </ListGroup>
-        );
     }
 
     changeItemsPerPage(itemsPerPage) {
@@ -134,9 +141,9 @@ export default class Counter extends Component {
         this.setState({currentPage: currentPage});
     }
     renderPagination() {
-        if (this.state.taskListDataLoaded && taskList.getLength() > 20) {
+        if (this.state.taskListDataLoaded && TaskList.getLength() > 20) {
             return <PaginationBox 
-                        totalItems={taskList.getLength()}
+                        totalItems={TaskList.getLength()}
                         itemsPerPage={this.state.itemsPerPage}
                         currentPage={this.state.currentPage}
                         changeItemsPerPage={this.changeItemsPerPage.bind(this)}

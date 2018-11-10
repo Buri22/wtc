@@ -3,11 +3,11 @@ import {NavDropdown} from 'react-bootstrap';
 
 import AccountSettingsBtn from './AccountSettings';
 import LogOutBtn from './LogOut';
-import user from 'model/user';
+import User from 'model/user';
 
 export default class AccountMenuItem extends Component {
   state = {
-    userName: user.getProp('userName')
+    userName: User.getProp('userName')
   };
   handleUserNameChange(userName) {
     this.setState({userName: userName});

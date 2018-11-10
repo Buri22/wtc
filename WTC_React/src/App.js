@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import user from './model/user';
-import taskList from './model/task';
+import UserService from './services/UserService';
+import { TaskList } from './model/task';
 
 import Loading from './components/loading/Loading';
 import Menu from './components/mainMenu/Menu';
@@ -15,7 +15,7 @@ class App extends Component {
   };
 
   componentDidMount() {
-    user.isUserLoggedIn()
+    UserService.isUserLoggedIn()
       .then((response) => {
         this.setState({ loggedIn: response });
       });
@@ -29,7 +29,7 @@ class App extends Component {
       loggedIn: false,
       msg: msg
     });
-    taskList.clearTaskList();
+    TaskList.clearTaskList();
   }
 
   renderApp() {

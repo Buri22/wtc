@@ -1,7 +1,7 @@
 import { dataProvider } from '../../services/DataProvider';
 import { ERROR } from '../../constants';
 import LocalStorage from '../../services/LocalStorageService';
-import taskList from '../../model/task';
+import { TaskList } from '../../model/task';
 
 class TickingManager {
     constructor() {
@@ -29,15 +29,15 @@ class TickingManager {
             // LocalStorage Object exists
             let task;
 
-            if (!taskList.isLoaded()) {
-                // taskList is empty or user is logged out
+            if (!TaskList.isLoaded()) {
+                // TaskList is empty or user is logged out
                 task = {
                     id: LSTickingItem.task_id,
                     spentTime: LSTickingItem.spent_time + 1 // add 1 second
                 };
             }
             else {
-                task = taskList.getTaskById(LSTickingItem.task_id)
+                task = TaskList.getTaskById(LSTickingItem.task_id)
                 task.spentTime = LSTickingItem.spent_time + 1; // add 1 second
             }
 
@@ -56,7 +56,7 @@ class TickingManager {
 
         // Try to get ticking objects
         let LSTickingItem = LocalStorage.getItem() || null;
-        let TLTickingItem = taskList.getTaskActive() || null;
+        let TLTickingItem = TaskList.getTaskActive() || null;
 
         // If one of them exists, we'll start ticking
         if (LSTickingItem != null || TLTickingItem != null) {
@@ -104,12 +104,12 @@ class TickingManager {
                         return { msg: 'You were unexpectedly logged out.' };
                     }
                     else if (response.someTaskAlreadyStarted) {
-                        return { msg: `You are already working on <strong>${taskList.getTaskIndexById(response.Id) + 1}. ${response.Name}</strong>` };
+                        return { msg: `You are already working on <strong>${TaskList.getTaskIndexById(response.Id) + 1}. ${response.Name}</strong>` };
                     }
                     else if (response.Id) {
                         this.renderTicking = renderTickingCallback;
                         // Update model
-                        let task = taskList.getTaskById(id);
+                        let task = TaskList.getTaskById(id);
                         task.taskStarted = 1;
                         task.lastStart = data.last_start;
                         // Set interval for ticking
@@ -127,7 +127,7 @@ class TickingManager {
     }
 
     stopTicking(id) {
-        let task = taskList.getTaskById(id),
+        let task = TaskList.getTaskById(id),
             data = LocalStorage.getItem();
 
         // if LS data object is null or we try to stop task that is not ticking
@@ -148,7 +148,7 @@ class TickingManager {
                         return {msg: 'Parameters to stop the task are missing.'};
                     }
                     else if(response.otherTaskStarted) {
-                        return {msg: `You are already working on <strong>${taskList.getTaskIndexById(response.Id) + 1}. ${response.Name}</strong>`};
+                        return {msg: `You are already working on <strong>${TaskList.getTaskIndexById(response.Id) + 1}. ${response.Name}</strong>`};
                     }
                     else if (response) {                
                         // Update model

@@ -1,7 +1,7 @@
 /**
  * Static class that provides useful methods to work with date and time
  */
-class DateTimeHelper {
+export default class DateTimeHelper {
     /**
      * Converts time in seconds to H:m:s format
      * @param {int} seconds Time in seconds to be converted
@@ -36,4 +36,3 @@ class DateTimeHelper {
         return currDate + "." + currMonth + "." + currYear;
     }
 }
-export default DateTimeHelper;
