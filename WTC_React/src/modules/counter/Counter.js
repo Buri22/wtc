@@ -5,6 +5,7 @@ import ModalContentRenderer from '../../services/ModalContentRenderer';
 import PaginationBox from '../../components/PaginationBox';
 import Loading from '../../components/loading/Loading';
 import CreateTask from './CreateTask';
+import EditDeleteTask from './EditDeleteTask';
 
 import { TaskList } from '../../model/task';
 import TaskService from '../../services/TaskService';
@@ -74,14 +75,23 @@ export default class Counter extends Component {
             });
     }
     handleCreateBtn() {
-        //console.log('create task');
         this.modalContent = <CreateTask handleCloseModal={this.handleCloseModal.bind(this)} />;
         this.setState({ showModal: true });
     }
-    handleCloseModal(msg = null) {
+    handleTaskClick(e) {
+        // Continue just if user did not clicked on Start/Stop Button
+        if (e.target.type !== "button") {
+            this.modalContent = <EditDeleteTask 
+                    handleCloseModal={this.handleCloseModal.bind(this)} 
+                    taskId={e.currentTarget.dataset.id}
+                />;
+            this.setState({ showModal: true });
+        }
+    }
+    handleCloseModal(msg = '') {
         this.setState({ 
             showModal: false,
-            msg: msg || ''
+            msg: typeof msg === "string" ? msg : ''
         });
     }
 
@@ -101,16 +111,16 @@ export default class Counter extends Component {
                                 key={index}
                                 data-id={listItemData.id}
                                 className={listItemData.taskStarted == 1 ? 'active': ''}
+                                onClickCapture={this.handleTaskClick.bind(this)}
                             >
                                 <span className="taskIndex">{index + 1}.</span>
-                                <span className="name">{listItemData.name}</span>
+                                <span className="name">{listItemData.name}</span>{/* TODO: handle too long task names */}
                                 <span className="spentTime">{listItemData.spentTimeInHms()}</span>
                                 {TickingManager.isTicking() ?
                                     <Button className="start" bsStyle="success" disabled>Start</Button>
                                     : <Button className="start" bsStyle="success" onClick={this.handleStartBtn.bind(this)}>Start</Button>
                                 }
                                 <Button className="stop" bsStyle="primary" onClick={this.handleStopBtn.bind(this)}>Stop</Button>
-                                <span className="edit_animation_box"></span>
                             </ListGroupItem>
                         )
                     }

@@ -32,23 +32,26 @@ class TaskListWrapper {
     setTaskList(taskList) {
         this.taskList = taskList;
     }
+    setTask(task) {
+        this.taskList[this.taskList.findIndex(x => x.id == task.id)] = task;
+    }
     clearTaskList() {
         this.taskList = null;
     }
     addTask(task) {
         this.taskList.unshift(new Task(task));
     }
-    removeTask(taskIndex) {
-        this.taskList.splice(taskIndex, 1);
+    removeTask(id) {
+        this.taskList.splice(this.getTaskIndexById(id), 1);
     }
     getTasklist() {
         return this.taskList;
     }
-    getTask(taskIndex) {
-        return this.taskList[taskIndex];
-    }
+    // getTask(taskIndex) {
+    //     return this.taskList[taskIndex];
+    // }
     getTaskById(id) {
-        return this.taskList[this.taskList.findIndex(x => x.id == id)];
+        return this.taskList[this.getTaskIndexById(id)];
     }
     getTaskActive() {
         if (this.taskList == null) {
@@ -75,11 +78,12 @@ let TLWrapper = new TaskListWrapper();
 // Public methods exposed through taskListProxy
 const TaskList = {
     setTaskList:         TLWrapper.setTaskList.bind(TLWrapper),
+    setTask:             TLWrapper.setTask.bind(TLWrapper),
     clearTaskList:       TLWrapper.clearTaskList.bind(TLWrapper),
     addTask:             TLWrapper.addTask.bind(TLWrapper),
     removeTask:          TLWrapper.removeTask.bind(TLWrapper),
     getTasklist:         TLWrapper.getTasklist.bind(TLWrapper),
-    getTask:             TLWrapper.getTask.bind(TLWrapper),
+    //getTask:             TLWrapper.getTask.bind(TLWrapper),
     getTaskById:         TLWrapper.getTaskById.bind(TLWrapper),
     getTaskActive:       TLWrapper.getTaskActive.bind(TLWrapper),
     getTaskIndexById:    TLWrapper.getTaskIndexById.bind(TLWrapper),

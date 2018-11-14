@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { MenuItem, Modal, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col } from 'react-bootstrap';
+import { MenuItem, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col } from 'react-bootstrap';
+import PasswordInput from 'components/passwordInput/PasswordInput';
+import ModalContentRenderer from '../../services/ModalContentRenderer';
+import CustomModal from '../../components/CustomModal';
+
 import UserService from '../../services/UserService';
 import User from '../../model/user';
-import PasswordInput from 'components/passwordInput/PasswordInput';
 
 const passwordConfirmValidationResults = {
     OK: 'success',
@@ -26,7 +29,8 @@ export default class AccountSettings extends Component {
         };
 
         this.initialFormState = {};
-        this.setInitialFormState();
+        this.modalTitle = 'Account Settings';
+        this.modalSubmitBtn;
     }
 
     setInitialFormState() {
@@ -112,133 +116,128 @@ export default class AccountSettings extends Component {
     }
 
     render() {
+        if (this.state.showModal) {
+            this.modalSubmitBtn = <Button
+                    bsStyle='primary'
+                    type='submit'
+                    form='accountSettingsForm'
+                    disabled={!this.editEnabled()}
+                >Edit</Button>;
+        }
         return <React.Fragment>
             <MenuItem
                 onClick={this.handleShowModal.bind(this)}
-                title='Account Settings'
+                title={this.modalTitle}
             >
                 <span className='glyphicon glyphicon-user'></span>
                 <span> Account</span>
             </MenuItem>
 
-            <Modal show={this.state.showModal} onHide={this.handleCloseModal.bind(this)}>
-
-                <Modal.Header closeButton>
-                    <Modal.Title>Account settings</Modal.Title>
-                </Modal.Header>
-
-                <Modal.Body>
-                    <Form
-                        horizontal
-                        id='accountSettingsForm'
-                        onSubmit={this.handleSubmit.bind(this)}
+            {this.state.showModal && 
+                <ModalContentRenderer>
+                    <CustomModal
+                        title={this.modalTitle}
+                        submitBtn={this.modalSubmitBtn}
+                        handleCloseModal={this.handleCloseModal.bind(this)}
                     >
-                        <FormGroup controlId='userName'>
-                            <Col componentClass={ControlLabel} md={4}>User Name</Col>
-                            <Col md={6}>
-                                <FormControl
-                                    type='text'
-                                    name='userName'
-                                    value={this.state.userName}
-                                    onChange={this.handleUserInput.bind(this)}
-                                    autoComplete='username'
-                                    placeholder='Enter your User Name'
-                                    required='required'
-                                    autoFocus
-                                />
-                            </Col>
-                        </FormGroup>
-                        
-                        <FormGroup controlId='userEmail'>
-                            <Col componentClass={ControlLabel} md={4}>Email</Col>
-                            <Col md={6}>
-                                <FormControl
-                                    type='email'
-                                    name='email'
-                                    value={this.state.email}
-                                    onChange={this.handleUserInput.bind(this)}
-                                    autoComplete='email'
-                                    placeholder='Enter your Email'
-                                    required='required'
-                                />
-                            </Col>
-                        </FormGroup>
-
-                        <FormGroup controlId='changePassword'>
-                            <Col componentClass={ControlLabel} md={4}>Change Password</Col>
-                            <Col md={6}>
-                                <Checkbox
-                                    onChange={this.handleChangePassCheck.bind(this)}
-                                    checked={this.state.changePassword}
-                                ></Checkbox>
-                            </Col>
-                        </FormGroup>
-
-                        {this.state.changePassword && (
-                            <React.Fragment>
-                            <FormGroup controlId='currentPassword'>
-                                <Col componentClass={ControlLabel} md={4}>Current Password *</Col>
+                        <Form
+                            horizontal
+                            id='accountSettingsForm'
+                            onSubmit={this.handleSubmit.bind(this)}
+                        >
+                            <FormGroup controlId='userName'>
+                                <Col componentClass={ControlLabel} md={4}>User Name</Col>
                                 <Col md={6}>
                                     <FormControl
-                                        type='password'
-                                        name='passwordCurrent'
-                                        value={this.state.passwordCurrent}
+                                        type='text'
+                                        name='userName'
+                                        value={this.state.userName}
                                         onChange={this.handleUserInput.bind(this)}
-                                        autoComplete='current-password'
+                                        autoComplete='username'
+                                        placeholder='Enter your User Name'
+                                        required='required'
+                                        autoFocus
+                                    />
+                                </Col>
+                            </FormGroup>
+                            
+                            <FormGroup controlId='userEmail'>
+                                <Col componentClass={ControlLabel} md={4}>Email</Col>
+                                <Col md={6}>
+                                    <FormControl
+                                        type='email'
+                                        name='email'
+                                        value={this.state.email}
+                                        onChange={this.handleUserInput.bind(this)}
+                                        autoComplete='email'
+                                        placeholder='Enter your Email'
                                         required='required'
                                     />
                                 </Col>
                             </FormGroup>
 
-                            <Row className='lableAlignBottom'>
-                                <Col componentClass={ControlLabel} md={4}>New Password *</Col>
+                            <FormGroup controlId='changePassword'>
+                                <Col componentClass={ControlLabel} md={4}>Change Password</Col>
                                 <Col md={6}>
-                                    <PasswordInput
-                                        name='passwordNew'
-                                        controlId='newPassword'
-                                        passwordValue={this.state.passwordNew}
-                                        handlePasswordInput={this.handleUserInput.bind(this)}
-                                    />
-                                </Col>
-                            </Row>
-
-                            <FormGroup
-                                validationState={this.validatePasswordConfirm()}
-                                controlId='confirmNewPassword'
-                            >
-                                <Col componentClass={ControlLabel} md={4}>Confirm New Password *</Col>
-                                <Col md={6}>
-                                    <FormControl
-                                        type='password'
-                                        name='passwordNewConfirm'
-                                        value={this.state.passwordNewConfirm}
-                                        onChange={this.handleUserInput.bind(this)}
-                                        autoComplete='new-password'
-                                        required='required'
-                                    />
-                                    <FormControl.Feedback />
+                                    <Checkbox
+                                        onChange={this.handleChangePassCheck.bind(this)}
+                                        checked={this.state.changePassword}
+                                    ></Checkbox>
                                 </Col>
                             </FormGroup>
-                            </React.Fragment>
-                        )}
-                    </Form>
-                    {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
-                </Modal.Body>
 
-                <Modal.Footer>
-                    <Button
-                        onClick={this.handleCloseModal.bind(this)}
-                        className='left'
-                    >Close</Button>
-                    <Button
-                        bsStyle='primary'
-                        type='submit'
-                        form='accountSettingsForm'
-                        disabled={!this.editEnabled()}
-                    >Edit</Button>
-                </Modal.Footer>
+                            {this.state.changePassword && (
+                                <React.Fragment>
+                                <FormGroup controlId='currentPassword'>
+                                    <Col componentClass={ControlLabel} md={4}>Current Password *</Col>
+                                    <Col md={6}>
+                                        <FormControl
+                                            type='password'
+                                            name='passwordCurrent'
+                                            value={this.state.passwordCurrent}
+                                            onChange={this.handleUserInput.bind(this)}
+                                            autoComplete='current-password'
+                                            required='required'
+                                        />
+                                    </Col>
+                                </FormGroup>
 
-            </Modal>
+                                <Row className='lableAlignBottom'>
+                                    <Col componentClass={ControlLabel} md={4}>New Password *</Col>
+                                    <Col md={6}>
+                                        <PasswordInput
+                                            name='passwordNew'
+                                            controlId='newPassword'
+                                            passwordValue={this.state.passwordNew}
+                                            handlePasswordInput={this.handleUserInput.bind(this)}
+                                        />
+                                    </Col>
+                                </Row>
+
+                                <FormGroup
+                                    validationState={this.validatePasswordConfirm()}
+                                    controlId='confirmNewPassword'
+                                >
+                                    <Col componentClass={ControlLabel} md={4}>Confirm New Password *</Col>
+                                    <Col md={6}>
+                                        <FormControl
+                                            type='password'
+                                            name='passwordNewConfirm'
+                                            value={this.state.passwordNewConfirm}
+                                            onChange={this.handleUserInput.bind(this)}
+                                            autoComplete='new-password'
+                                            required='required'
+                                        />
+                                        <FormControl.Feedback />
+                                    </Col>
+                                </FormGroup>
+                                </React.Fragment>
+                            )}
+                        </Form>
+                        {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
+                    </CustomModal>
+                </ModalContentRenderer>
+            }
         </React.Fragment>;
     }
 }

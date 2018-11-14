@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Modal, Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import CustomModal from '../../components/CustomModal';
 
 import DateTimeHelper from '../../services/DateTimeHelper';
 import TaskService from '../../services/TaskService';
@@ -9,6 +10,15 @@ import TaskService from '../../services/TaskService';
 export default class CreateTask extends Component {
     constructor (props) {
         super(props);
+
+        this.modalTitle = 'Create new task';
+        this.modalSubmitBtn = <Button
+                bsStyle='primary'
+                type='submit'
+                form='createTaskForm'
+            >
+                Create
+            </Button>;
 
         this.state= {
             taskName:    '',
@@ -46,86 +56,63 @@ export default class CreateTask extends Component {
         });
     }
 
-    createTaskEnabled() {
-        return true;
-    }
-
     render() {
         return (
-            <Modal show={true} onHide={this.props.handleCloseModal}>
-
-                <Modal.Header closeButton>
-                    <Modal.Title>Create new task</Modal.Title>
-                </Modal.Header>
-
-                <Modal.Body>
-                    <Form
-                        horizontal
-                        id='createTaskForm'
-                        onSubmit={this.handleSubmit.bind(this)}
-                    >
-                        <FormGroup controlId='taskName'>
-                            <Col componentClass={ControlLabel} md={4}>Task Name</Col>
-                            <Col md={6}>
-                                <FormControl
-                                    type='text'
-                                    name='taskName'
-                                    value={this.state.taskName}
-                                    onChange={this.handleUserInput.bind(this)}
-                                    placeholder='Activity name'
-                                    required='required'
-                                    autoFocus
-                                />
-                            </Col>
-                        </FormGroup>
-                        
-                        <FormGroup controlId='spentTime'>
-                            <Col componentClass={ControlLabel} md={4}>Spent Time</Col>
-                            <Col md={6}>
-                                <FormControl
-                                    type='text'
-                                    name='spentTime'
-                                    value={this.state.spentTime}
-                                    onChange={this.handleUserInput.bind(this)}
-                                    placeholder='Allowed format is 00:00:00'
-                                />
-                            </Col>
-                        </FormGroup>
-                        
-                        <FormGroup controlId='dateCreated'>
-                            <Col componentClass={ControlLabel} md={4}>Date Created</Col>
-                            <Col md={6}>
-                                <FormControl
-                                    type='text'
-                                    name='dateCreated'
-                                    value={this.state.dateCreated}
-                                    onChange={this.handleUserInput.bind(this)}
-                                    placeholder='Allowed format is...'
-                                />
-                            </Col>
-                        </FormGroup>
-                    </Form>
-                    {this.state.msg && <span className='modalErrorMsg red'>{this.state.msg}</span>}
-                </Modal.Body>
-
-                <Modal.Footer>
-                    <Button
-                        onClick={this.props.handleCloseModal}
-                        className='left'
-                    >
-                        Close
-                    </Button>
-                    <Button
-                        bsStyle='primary'
-                        type='submit'
-                        form='createTaskForm'
-                        disabled={!this.createTaskEnabled()}
-                    >
-                        Create
-                    </Button>
-                </Modal.Footer>
-
-            </Modal>
+            <CustomModal
+                title={this.modalTitle}
+                submitBtn={this.modalSubmitBtn}
+                handleCloseModal={this.props.handleCloseModal}
+            >
+                <Form
+                    horizontal
+                    id='createTaskForm'
+                    onSubmit={this.handleSubmit.bind(this)}
+                >
+                    <FormGroup controlId='taskName'>
+                        <Col componentClass={ControlLabel} md={4}>Task Name</Col>
+                        <Col md={6}>
+                            <FormControl
+                                type='text'
+                                name='taskName'
+                                value={this.state.taskName}
+                                onChange={this.handleUserInput.bind(this)}
+                                placeholder='Activity name'
+                                required='required'
+                                autoFocus
+                            />
+                        </Col>
+                    </FormGroup>
+                    
+                    <FormGroup controlId='spentTime'>
+                        <Col componentClass={ControlLabel} md={4}>Spent Time</Col>
+                        <Col md={6}>
+                            <FormControl
+                                type='text'
+                                name='spentTime'
+                                value={this.state.spentTime}
+                                onChange={this.handleUserInput.bind(this)}
+                                placeholder='Allowed format is 00:00:00'
+                                required='required'
+                            />
+                        </Col>
+                    </FormGroup>
+                    
+                    <FormGroup controlId='dateCreated'>
+                        <Col componentClass={ControlLabel} md={4}>Date Created</Col>
+                        <Col md={6}>
+                            <FormControl
+                                type='text'
+                                name='dateCreated'
+                                value={this.state.dateCreated}
+                                onChange={this.handleUserInput.bind(this)}
+                                placeholder='Allowed format is...'
+                                required='required'
+                            />
+                        </Col>
+                    </FormGroup>
+                </Form>
+                {this.state.msg && <span className='modalErrorMsg red'>{this.state.msg}</span>}
+            </CustomModal>
         );
     };
 }

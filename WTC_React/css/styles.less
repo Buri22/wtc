@@ -105,17 +105,6 @@ ul.dropdown-menu[aria-labelledby="account-nav-dropdown"] {
 
         > span {
             display:inline-block;
-
-            &.edit_animation_box {
-                position: absolute;
-                width: 94%;
-                height: 36px;
-                margin: -8px;
-                left: 28px;
-                background-color: @blue;
-                border-radius: 4px;
-                opacity: 0;
-            }
         }
         > .taskIndex {
             margin-right: 5px;
@@ -335,6 +324,54 @@ button#login, button#register {
 // }
 .btn {
     min-width: 65px;
+}
+#edit_delete_tabs {
+    margin-top: -15px;
+
+    & > .navbar-nav {
+        float: none;
+        display: flex;
+        justify-content: center;
+        border-bottom: none;
+        margin-bottom: 15px;
+
+        li {
+            margin-top: -2px;
+            margin-right: 5px;
+            min-width: 75px;
+            text-align: center;
+
+            a {
+                color: #333;
+                background-color: @white;
+                border-color: #ddd;
+                border-top: none;
+                border-radius: 0 0 4px 4px;
+                padding: 6px 15px;
+
+                &:focus {
+                    outline: none;
+                }
+            }
+            &.active a {
+                color: @white;
+
+                &#edit_delete_tabs-tab-1 {
+                    background-color: @green;
+                    border-color: darken(@green, 5%);
+                }
+                &#edit_delete_tabs-tab-2 {
+                    background-color: @red;
+                    border-color: darken(@red, 5%);
+                }
+            }
+        }
+    }
+    #edit_delete_tabs-pane-2 .info {
+        display: block;
+        margin: 15px;
+        text-align: center;
+    }
 }
 
 /*==================== Media ======================*/

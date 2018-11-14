@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import { NavItem, Modal, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Col } from 'react-bootstrap';
+import { NavItem, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Col } from 'react-bootstrap';
+import ModalContentRenderer from '../../services/ModalContentRenderer';
+import CustomModal from '../CustomModal';
+
 import UserService from '../../services/UserService';
 import User from '../../model/user';
 import { APP_SETTINGS_OPTIONS } from '../../constants';
@@ -24,6 +27,8 @@ export default class AppSettings extends Component {
         };
 
         this.initialFormState = {};
+        this.modalTitle = 'App settings';
+        this.modalSubmitBtn;
     }
 
     componentWillMount() {
@@ -95,85 +100,80 @@ export default class AppSettings extends Component {
     }
 
     render() {
+        if (this.state.showModal) {
+            this.modalSubmitBtn = <Button
+                bsStyle='primary'
+                type='submit'
+                form='appSettingsForm'
+                disabled={!this.editEnabled()}
+            >Edit</Button>;
+        }
         return <React.Fragment>
             <NavItem
                 onClick={this.handleShowModal.bind(this)}
-                title='App Settings'
+                title={this.modalTitle}
             >
                 <span className='glyphicon glyphicon-cog'></span>
             </NavItem>
 
-            <Modal show={this.state.showModal} onHide={this.handleCloseModal.bind(this)}>
-
-                <Modal.Header closeButton>
-                    <Modal.Title>App settings</Modal.Title>
-                </Modal.Header>
-
-                <Modal.Body>
-                    <Form
-                        horizontal
-                        id='appSettingsForm'
-                        onSubmit={this.handleSubmit.bind(this)}
+            {this.state.showModal && 
+                <ModalContentRenderer>
+                    <CustomModal
+                        title={this.modalTitle}
+                        submitBtn={this.modalSubmitBtn}
+                        handleCloseModal={this.handleCloseModal.bind(this)}
                     >
-                        <FormGroup controlId='themeColorSelect'>
-                            <Col componentClass={ControlLabel} md={4}>Theme Color</Col>
-                            <Col md={6}>
-                                <FormControl
-                                    componentClass='select'
-                                    name='themeColor'
-                                    value={this.state.themeColor}
-                                    onChange={this.handleUserInput.bind(this)}
-                                >
-                                    <RenderOptions options={APP_SETTINGS_OPTIONS.themeColors}/>
-                                </FormControl>
-                            </Col>
-                        </FormGroup>
+                        <Form
+                            horizontal
+                            id='appSettingsForm'
+                            onSubmit={this.handleSubmit.bind(this)}
+                        >
+                            <FormGroup controlId='themeColorSelect'>
+                                <Col componentClass={ControlLabel} md={4}>Theme Color</Col>
+                                <Col md={6}>
+                                    <FormControl
+                                        componentClass='select'
+                                        name='themeColor'
+                                        value={this.state.themeColor}
+                                        onChange={this.handleUserInput.bind(this)}
+                                    >
+                                        <RenderOptions options={APP_SETTINGS_OPTIONS.themeColors}/>
+                                    </FormControl>
+                                </Col>
+                            </FormGroup>
 
-                        <FormGroup controlId='sideMenuActive'>
-                            <Col componentClass={ControlLabel} md={4}>Side Menu Active</Col>
-                            <Col md={6}>
-                                <Checkbox
-                                    onChange={this.handleSideMenuActive.bind(this)}
-                                    checked={this.state.sideMenuIsActive}
-                                ></Checkbox>
-                            </Col>
-                        </FormGroup>
+                            <FormGroup controlId='sideMenuActive'>
+                                <Col componentClass={ControlLabel} md={4}>Side Menu Active</Col>
+                                <Col md={6}>
+                                    <Checkbox
+                                        onChange={this.handleSideMenuActive.bind(this)}
+                                        checked={this.state.sideMenuIsActive}
+                                    ></Checkbox>
+                                </Col>
+                            </FormGroup>
 
-                        {this.state.sideMenuIsActive && (
-                            <React.Fragment>
-                                <FormGroup controlId='sideMenuPositionSelect'>
-                                    <Col componentClass={ControlLabel} md={4}>Side Menu Position</Col>
-                                    <Col md={6}>
-                                        <FormControl
-                                            componentClass='select'
-                                            name='sideMenuPosition'
-                                            value={this.state.sideMenuPosition}
-                                            onChange={this.handleUserInput.bind(this)}
-                                        >
-                                            <RenderOptions options={APP_SETTINGS_OPTIONS.sideMenuPositions}/>
-                                        </FormControl>
-                                    </Col>
-                                </FormGroup>
-                            </React.Fragment>
-                        )}
-                    </Form>
-                    {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
-                </Modal.Body>
-
-                <Modal.Footer>
-                    <Button
-                        onClick={this.handleCloseModal.bind(this)}
-                        className='left'
-                    >Close</Button>
-                    <Button
-                        bsStyle='primary'
-                        type='submit'
-                        form='appSettingsForm'
-                        disabled={!this.editEnabled()}
-                    >Edit</Button>
-                </Modal.Footer>
-
-            </Modal>
+                            {this.state.sideMenuIsActive && (
+                                <React.Fragment>
+                                    <FormGroup controlId='sideMenuPositionSelect'>
+                                        <Col componentClass={ControlLabel} md={4}>Side Menu Position</Col>
+                                        <Col md={6}>
+                                            <FormControl
+                                                componentClass='select'
+                                                name='sideMenuPosition'
+                                                value={this.state.sideMenuPosition}
+                                                onChange={this.handleUserInput.bind(this)}
+                                            >
+                                                <RenderOptions options={APP_SETTINGS_OPTIONS.sideMenuPositions}/>
+                                            </FormControl>
+                                        </Col>
+                                    </FormGroup>
+                                </React.Fragment>
+                            )}
+                        </Form>
+                        {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
+                    </CustomModal>
+                </ModalContentRenderer>
+            }
         </React.Fragment>;
     }
 }
