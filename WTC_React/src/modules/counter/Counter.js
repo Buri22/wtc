@@ -27,7 +27,7 @@ export default class Counter extends Component {
         this.modalContent = null;
     }
 
-    componentDidMount() {
+    componentWillMount() {
         TickingManager.switchRenderTicking(true, this.updateTaskSpentTime.bind(this));
         if (!TaskList.isLoaded()) {
             TaskService.loadTaskList().then(result => {

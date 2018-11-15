@@ -13,6 +13,9 @@ const passwordConfirmValidationResults = {
     UNDEFINED: null
 };
 
+/**
+ * Renders AccountSettings menu item and modal window with form to edit them
+ */
 export default class AccountSettings extends Component {
     constructor (props) {
         super(props);

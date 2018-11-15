@@ -13,7 +13,9 @@ const RenderOptions = ({ options }) => (
     })
 );
 
-// chybi popisek tridy
+/**
+ * Renders AppSettings menu item and modal window with form to edit them
+ */
 export default class AppSettings extends Component {
     constructor (props) {
         super(props);

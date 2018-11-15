@@ -11,6 +11,7 @@ class TickingManager {
     }
 
     _startWTCTicker(task) {
+        this.isItemTicking = true;
         // Create LocalStorage data object
         LocalStorage.setItem(task);
         // Create window object that will tick
@@ -18,38 +19,60 @@ class TickingManager {
             this._executeTick();
         }, 1000);
         this._executeTick();
-        this.isItemTicking = true;
     }
     _executeTick() {
-        let LSTickingItem = LocalStorage.getItem();
-        if (LSTickingItem == null) { 
-            console.log('Class: TickingManager; Method: _executeTick(); LocalStorage ticking item is null.');
-        }
-        else {
-            // LocalStorage Object exists
-            let task;
+        let LSTickingItem = LocalStorage.getItem() || null;
 
-            if (!TaskList.isLoaded()) {
-                // TaskList is empty or user is logged out
-                task = {
-                    id: LSTickingItem.task_id,
-                    spentTime: LSTickingItem.spent_time + 1 // add 1 second
-                };
+        if (TaskList.isLoaded()) {
+            let TLTickingItem = TaskList.getTaskActive() || null;
+
+            if (TLTickingItem == null) {
+                this.clearTickingObjects();
+                return;
+            }
+            else if (LSTickingItem != null) {
+                // LocalStorage ticking object exists
+                TLTickingItem.spentTime = LSTickingItem.spent_time + 1;
+    
+                // update spent time in LS
+                LocalStorage.setItem(TLTickingItem);
+    
+                if (this.doRenderTicking) {
+                    // rerender spent time
+                    this.renderTicking(TLTickingItem);
+                }
             }
             else {
-                task = TaskList.getTaskById(LSTickingItem.task_id)
-                task.spentTime = LSTickingItem.spent_time + 1; // add 1 second
-            }
+                // Just TaskList ticking item exists
+                TLTickingItem.spentTime = Math.round(new Date().getTime() / 1000) - TLTickingItem.lastStart + 1;
 
-            // update spent time in LS
-            LocalStorage.setItem(task);
-
-            if (this.doRenderTicking) {
-                // rerender spent time
-                this.renderTicking(task);
+                // Create LSTicking object
+                LocalStorage.setItem(TLTickingItem);
+    
+                if (this.doRenderTicking) {
+                    // rerender spent time
+                    this.renderTicking(TLTickingItem);
+                }
             }
         }
+        // TaskList is not loaded yet
+        else if (LSTickingItem != null) {
+            LocalStorage.setItem({
+                id: LSTickingItem.task_id,
+                spentTime: LSTickingItem.spent_time + 1 // add 1 second
+            });
+        }
+        else {
+            // TaskList is not loaded and LocalStorage object does not exist
+            return;
+        }
     }
+
+    /**
+     * Checks whether we have some ticking objects
+     * Call this method only if you're sure that taskList is loaded
+     * @param {func} renderTickingCallback callback executing rerender of component Counter
+     */
     checkTickingItem(renderTickingCallback) {
         // If we're already ticking, return
         if (this.isItemTicking) return;
@@ -66,7 +89,7 @@ class TickingManager {
             }
             else if (TLTickingItem != null) {
                 // We have just the TaskList ticking object data
-                TLTickingItem.spentTime = Math.round((new Date().getTime() - TLTickingItem.lastStart) / 1000);
+                TLTickingItem.spentTime = Math.round(new Date().getTime() / 1000) - TLTickingItem.lastStart;
             }
             else if (LSTickingItem != null) {
                 // We have just the LocalStorage ticking object data
@@ -154,11 +177,7 @@ class TickingManager {
                         // Update model
                         task.spentTime = response.SpentTime || 0;
                         task.taskStarted = 0;
-                        // Remove LS object
-                        LocalStorage.removeItem();
-                        // Clear window.wtcTicker
-                        clearInterval(window.wtcTicker);   // Stop ticking
-                        this.isItemTicking = false;
+                        this.clearTickingObjects();
                         // mediator.publish('RemoveItemFromSideMenu', this.$sideMenuItem.attr('id'));
                         
                         return {success: true, msg: '<strong>' + task.name + '</strong> stopped successfully!'};
@@ -168,6 +187,14 @@ class TickingManager {
                     }
                 });
 
+    }
+
+    clearTickingObjects() {
+        // Remove LS object
+        LocalStorage.removeItem();
+        // Clear window.wtcTicker
+        clearInterval(window.wtcTicker);   // Stop ticking
+        this.isItemTicking = false;
     }
 
     isTicking() {
