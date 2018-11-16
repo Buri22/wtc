@@ -1,6 +1,5 @@
-import { dataProvider } from '../services/DataProvider';
 import DateTimeHelper from '../services/DateTimeHelper';
-import { ERROR } from '../constants';
+import Mediator from '../services/Mediator';
 
 /**
  * Task model
@@ -27,6 +26,9 @@ class TaskListWrapper {
 
     constructor() {
         this.taskList = null;
+
+        // Subscribe for global events
+        Mediator.subscribe('logout', this.clearTaskList.bind(this));
     }
 
     setTaskList(taskList) {
@@ -79,7 +81,7 @@ let TLWrapper = new TaskListWrapper();
 const TaskList = {
     setTaskList:         TLWrapper.setTaskList.bind(TLWrapper),
     setTask:             TLWrapper.setTask.bind(TLWrapper),
-    clearTaskList:       TLWrapper.clearTaskList.bind(TLWrapper),
+    //clearTaskList:       TLWrapper.clearTaskList.bind(TLWrapper),
     addTask:             TLWrapper.addTask.bind(TLWrapper),
     removeTask:          TLWrapper.removeTask.bind(TLWrapper),
     getTasklist:         TLWrapper.getTasklist.bind(TLWrapper),

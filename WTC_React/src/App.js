@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import UserService from './services/UserService';
-import { TaskList } from './model/task';
-
 import Loading from './components/loading/Loading';
 import Menu from './components/mainMenu/Menu';
 import Page from './components/Page';
 import Introduction from './components/introduction/Introduction';
+
+import Mediator from './services/Mediator';
+import UserService from './services/UserService';
+import { TaskList } from './model/task';
 
 class App extends Component {
 
@@ -25,11 +26,12 @@ class App extends Component {
     this.setState({ loggedIn: true });
   }
   logout(msg) {
+    Mediator.publish('logout');
     this.setState({
       loggedIn: false,
       msg: msg
     });
-    TaskList.clearTaskList();
+    //TaskList.clearTaskList();
   }
 
   renderApp() {

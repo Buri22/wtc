@@ -2,12 +2,16 @@ import { dataProvider } from '../../services/DataProvider';
 import { ERROR } from '../../constants';
 import LocalStorage from '../../services/LocalStorageService';
 import { TaskList } from '../../model/task';
+import Mediator from '../../services/Mediator';
 
 class TickingManager {
     constructor() {
         this.renderTicking = null;      // callback function that renders ticking in Counter
         this.doRenderTicking = true;    // Boolean indicating whether render ticking is needed
         this.isItemTicking = false;     // Boolean indicating whether item is ticking
+
+        // Subscribe for global events
+        Mediator.subscribe('logout', this.clearTickingObjects.bind(this));
     }
 
     _startWTCTicker(task) {
@@ -44,7 +48,7 @@ class TickingManager {
             }
             else {
                 // Just TaskList ticking item exists
-                TLTickingItem.spentTime = Math.round(new Date().getTime() / 1000) - TLTickingItem.lastStart + 1;
+                TLTickingItem.spentTime = TLTickingItem.spentTime + 1;
 
                 // Create LSTicking object
                 LocalStorage.setItem(TLTickingItem);
@@ -89,7 +93,7 @@ class TickingManager {
             }
             else if (TLTickingItem != null) {
                 // We have just the TaskList ticking object data
-                TLTickingItem.spentTime = Math.round(new Date().getTime() / 1000) - TLTickingItem.lastStart;
+                TLTickingItem.spentTime = TLTickingItem.spentTime + Math.round(new Date().getTime() / 1000) - TLTickingItem.lastStart;
             }
             else if (LSTickingItem != null) {
                 // We have just the LocalStorage ticking object data
