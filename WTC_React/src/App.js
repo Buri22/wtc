@@ -26,12 +26,18 @@ class App extends Component {
     this.setState({ loggedIn: true });
   }
   logout(msg) {
+    // Get confirmation from user that he wants to logout with ticking task, if some is ticking
+    if (TaskList.getTaskActive()) {
+      let confirmation = confirm('Do you really wont to log out with ticking task?');
+      if (confirmation == false) return;
+    }
+
     Mediator.publish('logout');
+
     this.setState({
       loggedIn: false,
       msg: msg
     });
-    //TaskList.clearTaskList();
   }
 
   renderApp() {

@@ -55,6 +55,11 @@ class TaskListWrapper {
     getTaskById(id) {
         return this.taskList[this.getTaskIndexById(id)];
     }
+    /**
+     * Returns false when taskList is not loaded
+     * Returns undefined when there is no task ticking
+     * Returns ticking task if there is one
+     */
     getTaskActive() {
         if (this.taskList == null) {
             return false;
