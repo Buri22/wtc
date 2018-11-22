@@ -2,28 +2,51 @@ import React, { Component } from 'react';
 import Loading from './components/loading/Loading';
 import Menu from './components/mainMenu/Menu';
 import Page from './components/Page';
+import SideMenu from './components/SideMenu';
 import Introduction from './components/introduction/Introduction';
 
 import Mediator from './services/Mediator';
+import User from './model/user';
 import UserService from './services/UserService';
 import { TaskList } from './model/task';
+import { APP_CONTEXT } from './constants';
 
 class App extends Component {
 
-  state = {
-    loggedIn: null,
-    msg: ''
-  };
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      loggedIn: null,
+      msg: '',
+      themeColor: APP_CONTEXT.themeColor,
+      sideMenuIsActive: APP_CONTEXT.sideMenuIsActive,
+      sideMenuPosition: APP_CONTEXT.sideMenuPosition
+    };
+  }
 
   componentDidMount() {
     UserService.isUserLoggedIn()
       .then((response) => {
-        this.setState({ loggedIn: response });
+        this.setAppSettings(response);
       });
+  }
+  setAppSettings(isLoggedIn) {
+    let appSettings = null;
+    if (isLoggedIn) {
+      appSettings = User.getProp('appSettings');
+    }
+    this.setState({
+      loggedIn: isLoggedIn,
+      msg: '',
+      themeColor: appSettings ? appSettings.theme.color : null,
+      sideMenuIsActive: appSettings ? appSettings.sideMenu.active : null,
+      sideMenuPosition: (appSettings && appSettings.sideMenu.active) ? appSettings.sideMenu.position : null
+    });
   }
 
   loginSuccess() {
-    this.setState({ loggedIn: true });
+    this.setAppSettings(true);
   }
   logout(msg) {
     // Get confirmation from user that he wants to logout with ticking task, if some is ticking
@@ -32,11 +55,14 @@ class App extends Component {
       if (confirmation == false) return;
     }
 
-    Mediator.publish('logout');
+    Mediator.publish('Logout');
 
     this.setState({
       loggedIn: false,
-      msg: msg
+      msg: msg,
+      themeColor: APP_CONTEXT.themeColor,
+      sideMenuIsActive: APP_CONTEXT.sideMenuIsActive,
+      sideMenuPosition: APP_CONTEXT.sideMenuPosition
     });
   }
 
@@ -48,10 +74,16 @@ class App extends Component {
     }
     else if (this.state.loggedIn) {
       appContent =
-        <React.Fragment>
-          <Menu logout={this.logout.bind(this)} />
-          <Page />
-        </React.Fragment>;
+        <APP_CONTEXT.Provider value={this.state}>
+          <Menu 
+            logout={this.logout.bind(this)}
+            onAppSettingsChange={this.setAppSettings.bind(this)}
+          />
+          <Page compressed={this.state.sideMenuIsActive} />
+          {this.state.sideMenuIsActive && 
+            <SideMenu position={this.state.sideMenuPosition} />
+          }
+        </APP_CONTEXT.Provider>;
     }
     else {
       appContent = 

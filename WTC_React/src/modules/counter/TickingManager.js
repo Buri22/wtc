@@ -7,11 +7,12 @@ import Mediator from '../../services/Mediator';
 class TickingManager {
     constructor() {
         this.renderTicking = null;      // callback function that renders ticking in Counter
+        this.stopCounterTicking = null  // callback function that renders no ticking task in Counter
         this.doRenderTicking = true;    // Boolean indicating whether render ticking is needed
         this.isItemTicking = false;     // Boolean indicating whether item is ticking
 
         // Subscribe for global events
-        Mediator.subscribe('logout', this.clearTickingObjects.bind(this));
+        Mediator.subscribe('Logout', this.clearTickingObjects.bind(this));
     }
 
     _startWTCTicker(task) {
@@ -58,6 +59,13 @@ class TickingManager {
                     this.renderTicking(TLTickingItem);
                 }
             }
+                
+            // In case sideMenu is active, this will update counterSideMenuItem
+            Mediator.publish('UpdateModuleItem', 'Counter', {
+                task: TLTickingItem,
+                taskIndex: TaskList.getTaskIndexById(TLTickingItem.id) + 1,
+                onStopBtnClick: this.stopTicking.bind(this)
+            });
         }
         // TaskList is not loaded yet
         else if (LSTickingItem != null) {
@@ -75,9 +83,8 @@ class TickingManager {
     /**
      * Checks whether we have some ticking objects
      * Call this method only if you're sure that taskList is loaded
-     * @param {func} renderTickingCallback callback executing rerender of component Counter
      */
-    checkTickingItem(renderTickingCallback) {
+    checkTickingItem() {
         // If we're already ticking, return
         if (this.isItemTicking) return;
 
@@ -103,20 +110,29 @@ class TickingManager {
                 };
             }
 
-            this.renderTicking = renderTickingCallback; // we should render ticking
+            //this.renderTicking = renderTickingCallback; // we should render ticking
             this._startWTCTicker(TLTickingItem);        // start ticking
         }
     }
 
-    // Set property defining if we do render ticking
-    switchRenderTicking(bool, renderTickingCallback = null) {
+    /**
+     * Set property defining if we do render ticking
+     * This methos is called just when Counter component WillMount and WillUnmount
+     * @param {Boolean} doRender 
+     * @param {Function} renderTickingCallback 
+     * @param {Function} stopCounterTicking 
+     */
+    switchRenderTicking(doRender, renderTickingCallback = null, stopCounterTicking = null) {
         if (renderTickingCallback) {
             this.renderTicking = renderTickingCallback;
         }
-        this.doRenderTicking = bool;
+        if (stopCounterTicking) {
+            this.stopCounterTicking = stopCounterTicking;
+        }
+        this.doRenderTicking = doRender;
     }
     
-    startTicking(id, renderTickingCallback) {
+    startTicking(id) {
         let data = {
             task_id: id,
             last_start: Math.round(new Date().getTime() / 1000) // We store time in seconds
@@ -134,7 +150,6 @@ class TickingManager {
                         return { msg: `You are already working on <strong>${TaskList.getTaskIndexById(response.Id) + 1}. ${response.Name}</strong>` };
                     }
                     else if (response.Id) {
-                        this.renderTicking = renderTickingCallback;
                         // Update model
                         let task = TaskList.getTaskById(id);
                         task.taskStarted = 1;
@@ -142,7 +157,11 @@ class TickingManager {
                         // Set interval for ticking
                         this._startWTCTicker(task);
 
-                        // mediator.publish('AddItemToSideMenu', this.getTickingSideMenuItem(itemIndex));
+                        Mediator.publish('UpdateModuleItem', 'Counter', {
+                            task: task,
+                            taskIndex: TaskList.getTaskIndexById(id),
+                            onStopBtnClick: this.stopTicking.bind(this)
+                        });
 
                         return {success: true, msg: 'Started successfully!'};
                     }
@@ -165,29 +184,34 @@ class TickingManager {
 
         return dataProvider.provide("stopTask", data)
                 .then((response) => {
+                    let result;
                     if (response == ERROR.LogOut) {    // User isn`t logged in
-                        return {msg: 'You were unexpectedly logged out.'};
+                        result = {msg: 'You were unexpectedly logged out.'};
                     }
                     else if (response == ERROR.TaskStarted) {
-                        return {msg: 'You have to start some task first.'};
+                        result = {msg: 'You have to start some task first.'};
                     }
                     else if (response == ERROR.Input) {
-                        return {msg: 'Parameters to stop the task are missing.'};
+                        result = {msg: 'Parameters to stop the task are missing.'};
                     }
                     else if(response.otherTaskStarted) {
-                        return {msg: `You are already working on <strong>${TaskList.getTaskIndexById(response.Id) + 1}. ${response.Name}</strong>`};
+                        result = {msg: `You are already working on <strong>${TaskList.getTaskIndexById(response.Id) + 1}. ${response.Name}</strong>`};
                     }
                     else if (response) {                
                         // Update model
                         task.spentTime = response.SpentTime || 0;
                         task.taskStarted = 0;
                         this.clearTickingObjects();
-                        // mediator.publish('RemoveItemFromSideMenu', this.$sideMenuItem.attr('id'));
+
+                        Mediator.publish('UpdateModuleItem', 'Counter', false);
                         
-                        return {success: true, msg: '<strong>' + task.name + '</strong> stopped successfully!'};
+                        result = {success: true, msg: '<strong>' + task.name + '</strong> stopped successfully!'};
                     }
                     else {
-                        return {msg: 'Stopping failed!'};
+                        result = {msg: 'Stopping failed!'};
+                    }
+                    if (this.doRenderTicking) {
+                        this.stopCounterTicking(result);
                     }
                 });
 

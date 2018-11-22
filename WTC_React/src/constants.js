@@ -1,3 +1,5 @@
+import React from 'react';
+
 const ERROR = Object.freeze({
     OK: 1,
 
@@ -30,8 +32,16 @@ const APP_SETTINGS_OPTIONS = {
         { id: 2, name: 'right' }
     ]
 };
+const APP_CONTEXT = React.createContext({
+    themeColor:       1,
+    sideMenuIsActive: true,
+    sideMenuPosition: 1,
+    changeAppSettings: () => {}
+});
 const DEFAULT_MODULE = 'Counter';
+
 const PAGE_CONTAINER = 'pageContent';
+const SIDE_MENU_CONTAINER = 'sideMenuContent';
 const MODAL_CONTAINER = 'modalContainer';
 
-export { ERROR, APP_SETTINGS_OPTIONS, DEFAULT_MODULE, PAGE_CONTAINER, MODAL_CONTAINER };
+export { ERROR, APP_SETTINGS_OPTIONS, APP_CONTEXT, DEFAULT_MODULE, PAGE_CONTAINER, SIDE_MENU_CONTAINER, MODAL_CONTAINER };

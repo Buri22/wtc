@@ -9,6 +9,9 @@
 
 @red: #d9534f;
 
+/************** Variables ***************/
+@sideMenuWidth: 300px;
+
 /************** Mixins ***************/
 .highlight-item (@shadow_width, @color: @green) {
     -moz-box-shadow:    inset 0 0 @shadow_width @color;
@@ -136,6 +139,18 @@ ul.dropdown-menu[aria-labelledby="account-nav-dropdown"] {
 
 #pageContent {
 
+    &.compressed {
+        width: calc(100% - @sideMenuWidth);
+        display: inline-block;
+
+        .col-md-8 {
+            width: 100%;
+        }
+        .col-md-offset-2 {
+            margin-left: 0;
+        }
+    }
+
     .paginationBox {
         display: flex;
         align-items: center;
@@ -179,34 +194,39 @@ button#login, button#register {
 }
 
 // /*========== Side Menu ==========*/
-// #sideMenu > * {
-//     width: 100%;
-//     margin-bottom: 15px;
-// }
-// #counter_side_menu_active_item {
-//     background-color: transparent;
-//     border-radius: 6px;
-//     .highlight-item(50px);
+#sideMenuContent {
+    width: @sideMenuWidth;
+    min-height: @sideMenuWidth;
 
-//     span {
-//         display: block;
-//         text-align: center;
-//         padding: 5px 20px;
-//     }
-//     .name {
-//         font-size: 20px;
-//         padding-top: 20px;
-//     }
-//     .spent_time {
-//         font-size: 35px;
-//         padding-bottom: 15px;
-//     }
-//     .stop {
-//         width: 100%;
-//         border-top-left-radius: 0;
-//         border-top-right-radius: 0;
-//     }
-// }
+    & > * {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+}
+#counter_side_menu_active_item {
+    background-color: transparent;
+    border-radius: 6px;
+    .highlight-item(50px);
+
+    span {
+        display: block;
+        text-align: center;
+        padding: 5px 15px;
+    }
+    .name {
+        font-size: 20px;
+        padding-top: 15px;
+    }
+    .spent_time {
+        font-size: 35px;
+        padding-bottom: 15px;
+    }
+    .stop {
+        width: 100%;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+}
 
 /*========== Modal Window ==========*/
 .modalErrorMsg {

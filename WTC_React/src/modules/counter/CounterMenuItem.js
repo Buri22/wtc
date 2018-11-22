@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {NavItem} from 'react-bootstrap';
-import ModuleContentRenderer from '../../services/ModuleContentRenderer';
+import { PAGE_CONTAINER } from '../../constants';
+import PortalRenderer from '../../services/PortalRenderer';
 import Counter from './Counter';
 
 // TODO: refactor menu items to extend some base menu item component with common functionality
@@ -21,9 +22,9 @@ export default class CounterMenuItem extends Component {
         
         if (this.props.activeModule == 'Counter') {
             this.isActive = true;
-            moduleContent = <ModuleContentRenderer>
+            moduleContent = <PortalRenderer container={PAGE_CONTAINER}>
                                 <Counter />
-                            </ModuleContentRenderer>;
+                            </PortalRenderer>;
         }
 
         return (

@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { NavItem, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Col } from 'react-bootstrap';
-import ModalContentRenderer from '../../services/ModalContentRenderer';
+import { MODAL_CONTAINER } from '../../constants';
+import PortalRenderer from '../../services/PortalRenderer';
 import CustomModal from '../CustomModal';
 
 import UserService from '../../services/UserService';
 import User from '../../model/user';
-import { APP_SETTINGS_OPTIONS } from '../../constants';
+import { APP_SETTINGS_OPTIONS, APP_CONTEXT } from '../../constants';
 
 const RenderOptions = ({ options }) => (
     options.map((option, index) => {
@@ -23,9 +24,9 @@ export default class AppSettings extends Component {
         this.state = { 
             showModal:        false,
             msg:              '',
-            themeColor:       1,
-            sideMenuIsActive: true,
-            sideMenuPosition: 1
+            themeColor:       APP_CONTEXT.themeColor,
+            sideMenuIsActive: APP_CONTEXT.sideMenuIsActive,
+            sideMenuPosition: APP_CONTEXT.sideMenuPosition
         };
 
         this.initialFormState = {};
@@ -89,6 +90,7 @@ export default class AppSettings extends Component {
                     // hide modal window
                     this.setState({ showModal: false });
                     this.setInitialFormState();
+                    this.props.onAppSettingsChange(true);
                     // TODO: rerender App to demonstrate the changes - use context to provide app theme data to components
                     // TODO: set result message with mediator into some general result message box
                 }
@@ -119,7 +121,7 @@ export default class AppSettings extends Component {
             </NavItem>
 
             {this.state.showModal && 
-                <ModalContentRenderer>
+                <PortalRenderer container={MODAL_CONTAINER}>
                     <CustomModal
                         title={this.modalTitle}
                         submitBtn={this.modalSubmitBtn}
@@ -174,7 +176,7 @@ export default class AppSettings extends Component {
                         </Form>
                         {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
                     </CustomModal>
-                </ModalContentRenderer>
+                </PortalRenderer>
             }
         </React.Fragment>;
     }

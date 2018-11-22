@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Navbar, Nav, NavItem} from 'react-bootstrap';
+import {Navbar, Nav} from 'react-bootstrap';
 
 import {DEFAULT_MODULE} from '../../constants';
 import MenuItemRenderer from '../../services/MenuItemRenderer';
@@ -18,7 +18,7 @@ export default class Menu extends Component {
 
   render () {
     return (
-      <Navbar fluid collapseOnSelect className="row">
+      <Navbar fluid collapseOnSelect>
         <Navbar.Header>
           <Navbar.Brand>
             <a href="#brand">Work Time Counter</a>
@@ -35,7 +35,10 @@ export default class Menu extends Component {
           </Nav>
           <Nav pullRight>
             <MenuItemRenderer position="right" logout={this.props.logout} />
-            <AppSettings logout={this.props.logout} />
+            <AppSettings
+              logout={this.props.logout}
+              onAppSettingsChange={this.props.onAppSettingsChange}
+            />
           </Nav>
         </Navbar.Collapse>
       </Navbar>

@@ -28,7 +28,7 @@ class TaskListWrapper {
         this.taskList = null;
 
         // Subscribe for global events
-        Mediator.subscribe('logout', this.clearTaskList.bind(this));
+        Mediator.subscribe('Logout', this.clearTaskList.bind(this));
     }
 
     setTaskList(taskList) {
@@ -66,6 +66,10 @@ class TaskListWrapper {
         }
         return this.taskList[this.taskList.findIndex(x => x.taskStarted == 1)];
     }
+    getTaskActiveId() {
+        let activeTask = this.getTaskActive() || null;
+        return activeTask != null ? activeTask.id : null;
+    }
     getTaskIndexById(id) {
         return this.taskList.findIndex(x => x.id == id);
     }
@@ -93,6 +97,7 @@ const TaskList = {
     //getTask:             TLWrapper.getTask.bind(TLWrapper),
     getTaskById:         TLWrapper.getTaskById.bind(TLWrapper),
     getTaskActive:       TLWrapper.getTaskActive.bind(TLWrapper),
+    getTaskActiveId:     TLWrapper.getTaskActiveId.bind(TLWrapper),
     getTaskIndexById:    TLWrapper.getTaskIndexById.bind(TLWrapper),
     getLength:           TLWrapper.getLength.bind(TLWrapper),
     isLoaded:            TLWrapper.isLoaded.bind(TLWrapper)

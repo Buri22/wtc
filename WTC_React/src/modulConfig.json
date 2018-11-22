@@ -7,7 +7,8 @@
     {
         "name": "Counter",
         "menuItemPath": "modules/counter/CounterMenuItem",
-        "menuItemPosition": "left"
+        "menuItemPosition": "left",
+        "sideMenuItemPath": "modules/counter/CounterSideMenuItem"
     },
     {
         "name": "Statistics",

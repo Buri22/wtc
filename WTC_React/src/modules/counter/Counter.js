@@ -1,15 +1,17 @@
 import React, {Component} from 'react';
 import {Row, Col, Button, ListGroup, ListGroupItem} from 'react-bootstrap';
 
-import ModalContentRenderer from '../../services/ModalContentRenderer';
+import PortalRenderer from '../../services/PortalRenderer';
 import PaginationBox from '../../components/PaginationBox';
 import Loading from '../../components/loading/Loading';
 import CreateTask from './CreateTask';
 import EditDeleteTask from './EditDeleteTask';
+import CounterSideMenuItem from './CounterSideMenuItem';
 
 import { TaskList } from '../../model/task';
 import TaskService from '../../services/TaskService';
 import TickingManager from './TickingManager';
+import { MODAL_CONTAINER, SIDE_MENU_CONTAINER, APP_CONTEXT } from '../../constants';
 
 export default class Counter extends Component {
 
@@ -28,18 +30,18 @@ export default class Counter extends Component {
     }
 
     componentWillMount() {
-        TickingManager.switchRenderTicking(true, this.updateTaskSpentTime.bind(this));
+        TickingManager.switchRenderTicking(true, this.updateTaskSpentTime.bind(this), this.handleStopBtnResponse.bind(this));
         if (!TaskList.isLoaded()) {
             TaskService.loadTaskList().then(result => {
                 if (result.success) {
                     this.setState({ taskListDataLoaded: true });
-                    TickingManager.checkTickingItem(this.updateTaskSpentTime.bind(this));
+                    TickingManager.checkTickingItem();
                 }
             });
         }
         else {
             this.setState({ taskListDataLoaded: true });
-            TickingManager.checkTickingItem(this.updateTaskSpentTime.bind(this));
+            TickingManager.checkTickingItem();
         }
     }
     componentWillUnmount() {
@@ -51,29 +53,25 @@ export default class Counter extends Component {
     }
     handleStartBtn(e) {
         let listItem = e.currentTarget.parentElement;
-        TickingManager.startTicking(Number(listItem.dataset.id), this.updateTaskSpentTime.bind(this))
+        TickingManager.startTicking(Number(listItem.dataset.id))
             .then(response => {
                 if (response.success) {
                     // make item active highlighted
                     listItem.classList.add("active");
                 }
-                this.setState({msg: response.msg});
+                this.setState({ msg: response.msg });
             });
     }
     handleStopBtn(e) {
         let listItem = e.currentTarget.parentElement;
-        TickingManager.stopTicking(Number(listItem.dataset.id))
-            .then(response => {
-                if (response.success) {
-                    // remove item active highlight
-                    listItem.classList.remove("active");
-                }
-                this.setState({
-                    msg: response.msg,
-                    tickingTime: response.success ? null : this.state.tickingTime
-                });
-            });
+        TickingManager.stopTicking(Number(listItem.dataset.id));
     }
+    handleStopBtnResponse(response) {
+        this.setState({
+            msg: response.msg,
+            tickingTime: response.success ? null : this.state.tickingTime
+        });
+    };
     handleCreateBtn() {
         this.modalContent = <CreateTask handleCloseModal={this.handleCloseModal.bind(this)} />;
         this.setState({ showModal: true });
@@ -104,18 +102,18 @@ export default class Counter extends Component {
                 indexFrom = (this.state.currentPage - 1) * this.state.itemsPerPage,
                 indexTo = this.state.currentPage * this.state.itemsPerPage;
 
-                tasks = taskListData.map((listItemData, index) => {
+                tasks = taskListData.map((taskData, index) => {
                     if (indexFrom <= index && index < indexTo) {
                         return (
                             <ListGroupItem
                                 key={index}
-                                data-id={listItemData.id}
-                                className={listItemData.taskStarted == 1 ? 'active': ''}
+                                data-id={taskData.id}
+                                className={taskData.taskStarted == 1 ? 'active': ''}
                                 onClickCapture={this.handleTaskClick.bind(this)}
                             >
                                 <span className="taskIndex">{index + 1}.</span>
-                                <span className="name">{listItemData.name}</span>{/* TODO: handle too long task names */}
-                                <span className="spentTime">{listItemData.spentTimeInHms()}</span>
+                                <span className="name">{taskData.name}</span>{/* TODO: handle too long task names */}
+                                <span className="spentTime">{taskData.spentTimeInHms()}</span>
                                 {TickingManager.isTicking() ?
                                     <Button className="start" bsStyle="success" disabled>Start</Button>
                                     : <Button className="start" bsStyle="success" onClick={this.handleStartBtn.bind(this)}>Start</Button>
@@ -164,7 +162,7 @@ export default class Counter extends Component {
 
     render(){
         return (
-            <Row>
+            <React.Fragment>
                 <h2 className="text-center">Tasks</h2>
 
                 {this.state.msg && <span className='result_msg centered_flex'>{this.state.msg}</span>}
@@ -185,12 +183,12 @@ export default class Counter extends Component {
                 </Col>
 
                 {this.state.showModal && 
-                    <ModalContentRenderer>
+                    <PortalRenderer container={MODAL_CONTAINER}>
                         {this.modalContent}
-                    </ModalContentRenderer>
+                    </PortalRenderer>
                 }
 
-            </Row>
+            </React.Fragment>
         );
     }
 }

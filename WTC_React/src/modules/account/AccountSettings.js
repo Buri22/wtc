@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { MenuItem, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Row, Col } from 'react-bootstrap';
 import PasswordInput from 'components/passwordInput/PasswordInput';
-import ModalContentRenderer from '../../services/ModalContentRenderer';
+import { MODAL_CONTAINER } from '../../constants';
+import PortalRenderer from '../../services/PortalRenderer';
 import CustomModal from '../../components/CustomModal';
 
 import UserService from '../../services/UserService';
@@ -137,7 +138,7 @@ export default class AccountSettings extends Component {
             </MenuItem>
 
             {this.state.showModal && 
-                <ModalContentRenderer>
+                <PortalRenderer container={MODAL_CONTAINER}>
                     <CustomModal
                         title={this.modalTitle}
                         submitBtn={this.modalSubmitBtn}
@@ -239,7 +240,7 @@ export default class AccountSettings extends Component {
                         </Form>
                         {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
                     </CustomModal>
-                </ModalContentRenderer>
+                </PortalRenderer>
             }
         </React.Fragment>;
     }

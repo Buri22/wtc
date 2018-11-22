@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {NavItem} from 'react-bootstrap';
-import ModuleContentRenderer from '../../services/ModuleContentRenderer';
+import { PAGE_CONTAINER } from '../../constants';
+import PortalRenderer from '../../services/PortalRenderer';
 import Statistics from './Statistics';
 
 export default class StatisticsMenuItem extends Component {
@@ -19,9 +20,9 @@ export default class StatisticsMenuItem extends Component {
         
         if (this.props.activeModule == 'Statistics') {
             this.isActive = true;
-            moduleContent = <ModuleContentRenderer>
+            moduleContent = <PortalRenderer container={PAGE_CONTAINER}>
                                 <Statistics />
-                            </ModuleContentRenderer>;
+                            </PortalRenderer>;
         }
 
         return (
