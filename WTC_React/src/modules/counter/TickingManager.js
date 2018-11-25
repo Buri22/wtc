@@ -12,6 +12,7 @@ class TickingManager {
         this.isItemTicking = false;     // Boolean indicating whether item is ticking
 
         // Subscribe for global events
+        // TODO: nazvy eventu predelat do constants
         Mediator.subscribe('Logout', this.clearTickingObjects.bind(this));
     }
 

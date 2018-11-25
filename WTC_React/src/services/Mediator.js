@@ -7,6 +7,7 @@ class Mediator {
         /**
          * Storage of events that can be broadcast or listened to
          */
+        // TODO: predelat objekt do mapy - https://medium.com/front-end-hacking/es6-map-vs-object-what-and-when-b80621932373
         this.events = {}
     }
 
