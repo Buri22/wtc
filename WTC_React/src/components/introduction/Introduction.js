@@ -3,6 +3,7 @@ import {Row, Col} from 'react-bootstrap';
 
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
+import { GLOBAL_MSG_CONTAINER } from '../../constants';
 
 /**
  * Renders Login or Register page
@@ -56,6 +57,7 @@ export default class Introduction extends Component {
                 <Row>
                     <Col lg={12}>
                         <h1 className="text-center">Work Time Counter</h1>
+                        <div id={GLOBAL_MSG_CONTAINER}></div>
                     </Col>
                 </Row>
                 <Row>

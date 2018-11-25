@@ -9,7 +9,7 @@ import Mediator from './services/Mediator';
 import User from './model/user';
 import UserService from './services/UserService';
 import { TaskList } from './model/task';
-import { APP_CONTEXT } from './constants';
+import { APP_CONTEXT, GLOBAL_MSG_CONTAINER } from './constants';
 
 class App extends Component {
 
@@ -79,6 +79,7 @@ class App extends Component {
             logout={this.logout.bind(this)}
             onAppSettingsChange={this.setAppSettings.bind(this)}
           />
+          <div id={GLOBAL_MSG_CONTAINER}></div>
           <Page compressed={this.state.sideMenuIsActive} />
           {this.state.sideMenuIsActive && 
             <SideMenu position={this.state.sideMenuPosition} />

@@ -6,7 +6,7 @@ import PaginationBox from '../../components/PaginationBox';
 import Loading from '../../components/loading/Loading';
 import CreateTask from './CreateTask';
 import EditDeleteTask from './EditDeleteTask';
-import CounterSideMenuItem from './CounterSideMenuItem';
+import ResultMsg from '../../components/GlobalResultMessage';
 
 import { TaskList } from '../../model/task';
 import TaskService from '../../services/TaskService';
@@ -163,30 +163,36 @@ export default class Counter extends Component {
     render(){
         return (
             <React.Fragment>
-                <h2 className="text-center">Tasks</h2>
+            <h2 className="text-center">Tasks</h2>
 
-                {this.state.msg && <span className='result_msg centered_flex'>{this.state.msg}</span>}
+            {/* {this.state.msg && <span className='result_msg centered_flex'>{this.state.msg}</span>} */}
+            {this.state.msg && 
+                <ResultMsg 
+                    bsStyle="info"
+                    msg={this.state.msg}
+                />
+            }
 
-                <Button 
-                    bsStyle="success"
-                    bsSize="large"
-                    id="newTaskBtn"
-                    onClick={this.handleCreateBtn.bind(this)}
-                >
-                    Create
-                </Button>
+            <Button 
+                bsStyle="success"
+                bsSize="large"
+                id="newTaskBtn"
+                onClick={this.handleCreateBtn.bind(this)}
+            >
+                Create
+            </Button>
 
-                <Col sm={12} md={8} mdOffset={2}>
-                    {this.renderPagination()}
-                    {this.renderTaskList()}
-                    {this.renderPagination()}
-                </Col>
+            <Col sm={12} md={8} mdOffset={2}>
+                {this.renderPagination()}
+                {this.renderTaskList()}
+                {this.renderPagination()}
+            </Col>
 
-                {this.state.showModal && 
-                    <PortalRenderer container={MODAL_CONTAINER}>
-                        {this.modalContent}
-                    </PortalRenderer>
-                }
+            {this.state.showModal && 
+                <PortalRenderer container={MODAL_CONTAINER}>
+                    {this.modalContent}
+                </PortalRenderer>
+            }
 
             </React.Fragment>
         );
