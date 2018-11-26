@@ -9,7 +9,7 @@ export default class CounterSideMenuItem extends Component {
     }
 
     render() {
-        let result = '';
+        let result = null;
         if (this.props.data) {
             // Render sideMenuItem just when we have data available
             result = 
