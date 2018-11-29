@@ -1,17 +1,17 @@
 import React, {Component} from 'react';
-import {Row, Col, Button, ListGroup, ListGroupItem} from 'react-bootstrap';
+import { Col, Button, ListGroup, ListGroupItem} from 'react-bootstrap';
 
 import PortalRenderer from '../../services/PortalRenderer';
 import PaginationBox from '../../components/PaginationBox';
-import Loading from '../../components/loading/Loading';
+import Loading from '../../components/Loading';
 import CreateTask from './CreateTask';
 import EditDeleteTask from './EditDeleteTask';
-import ResultMsg from '../../components/GlobalResultMessage';
+//import ResultMsg from '../../components/GlobalResultMessage';
 
 import { TaskList } from '../../model/task';
 import TaskService from '../../services/TaskService';
 import TickingManager from './TickingManager';
-import { MODAL_CONTAINER, SIDE_MENU_CONTAINER, APP_CONTEXT } from '../../constants';
+import { MODAL_CONTAINER } from '../../constants';
 
 export default class Counter extends Component {
 
@@ -165,13 +165,7 @@ export default class Counter extends Component {
             <React.Fragment>
             <h2 className="text-center">Tasks</h2>
 
-            {/* {this.state.msg && <span className='result_msg centered_flex'>{this.state.msg}</span>} */}
-            {this.state.msg && 
-                <ResultMsg 
-                    bsStyle="info"
-                    msg={this.state.msg}
-                />
-            }
+            {this.state.msg && <span className='result_msg centered_flex'>{this.state.msg}</span>}
 
             <Button 
                 bsStyle="success"

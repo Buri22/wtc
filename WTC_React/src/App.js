@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Loading from './components/loading/Loading';
+import Loading from './components/Loading';
 import Menu from './components/mainMenu/Menu';
 import Page from './components/Page';
 import SideMenu from './components/SideMenu';
@@ -9,7 +9,8 @@ import Mediator from './services/Mediator';
 import User from './model/user';
 import UserService from './services/UserService';
 import { TaskList } from './model/task';
-import { APP_CONTEXT, GLOBAL_MSG_CONTAINER } from './constants';
+import { APP_CONTEXT } from './globals';
+import { GLOBAL_MSG_CONTAINER } from './constants';
 
 class App extends Component {
 

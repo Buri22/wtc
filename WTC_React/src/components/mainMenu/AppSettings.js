@@ -6,7 +6,8 @@ import CustomModal from '../CustomModal';
 
 import UserService from '../../services/UserService';
 import User from '../../model/user';
-import { APP_SETTINGS_OPTIONS, APP_CONTEXT } from '../../constants';
+import { APP_SETTINGS_OPTIONS } from '../../constants';
+import {  APP_CONTEXT } from '../../globals';
 
 const RenderOptions = ({ options }) => (
     options.map((option, index) => {
