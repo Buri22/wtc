@@ -6,13 +6,15 @@ import axios from 'axios';
 class DataProvider {
 
     constructor() {
-        /**
-         * 
-         */
         this.getActions = {}
 
         // Set Axios default request params
-        axios.defaults.baseURL = 'http://localhost/WTC_JS_OOP/WTC_React';
+        if (window.location.hostname == 'localhost') {
+            axios.defaults.baseURL = 'http://localhost/WTC_JS_OOP/WTC_React';
+        }
+        else {
+            axios.defaults.baseURL = 'http://buridevelopment.cz/wtc';
+        }
         axios.defaults.method = 'post';
         axios.defaults.url = '/server/wtc_ajax.php';
         axios.defaults.withCredentials = true;
