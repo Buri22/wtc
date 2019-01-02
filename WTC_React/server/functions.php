@@ -107,7 +107,73 @@ function getUserForJS($user) {
     $result['UserName']    = $user['UserName'];
     $result['Email']       = $user['Email'];
     $result['AppSettings'] = $user['AppSettings'];
+    $result['Categories']  = getUserCategories($user['Id']);
 
+    return $result;
+}
+
+function getUserCategories($userId) {
+
+    $result = Db::queryAll('
+                        SELECT *
+                        FROM category
+                        WHERE UserId = ?
+                    ', $userId);
+
+    return $result;
+}
+
+function createCategory() {
+    // Check if all inputs were entered
+    if (!isset($_POST['categoryName']) || empty($_POST['categoryName'])) { 
+        return WTCError::Input;
+    }
+    // Get current user
+    $user = checkLogin();
+    if (!$user) { return WTCError::Login; }
+
+    // Define data for insert query
+    $data = array();
+    $data['Name']   = trim($_POST['categoryName']);
+    $data['UserId'] = $user['Id'];
+    if (isset($_POST['parentId']) && !empty($_POST['parentId'])) {
+        $data['ParentId'] = $_POST['parentId'];
+    }
+
+    $newCategory = Db::insert('category', $data);
+
+    return $newCategory;
+}
+function updateCategory() {
+    // Check if all inputs were entered
+    if (!isset($_POST['categoryId']) || empty($_POST['categoryId'])
+        || !isset($_POST['categoryName']) || empty($_POST['categoryName'])) {
+        return WTCError::Input;
+    }
+
+    // Define data for update query
+    $data = array(
+        'Name' => trim($_POST['categoryName'])
+    );
+    if (isset($_POST['parentId']) && !empty($_POST['parentId'])) {
+        $data['ParentId'] = $_POST['parentId'];
+    }
+    $condition = 'WHERE Id = ' . $_POST['categoryId'];
+
+    $result = Db::update('category', $data, $condition);
+	
+	return $result;
+}
+function deleteCategory() {
+    // Check if all inputs were entered
+    if (!isset($_POST['categoryId']) || empty($_POST['categoryId'])) { 
+        return WTCError::Input;
+    }
+
+    $result = Db::queryOne('
+                    DELETE FROM category
+                    WHERE Id = ?
+                  ', $_POST['categoryId']);
     return $result;
 }
 
@@ -134,13 +200,23 @@ function register() {
 
     if ($registered) { return WTCError::Registered; }
 
-    $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
-    $app_settings = json_encode(unserialize(DEFAULT_APP_SETTINGS));
-    $new_user = Db::query('
-                    INSERT INTO user (UserName, Password, Email, AppSettings)
-                    VALUES (?, ?, ?, ?)
-                ', trim($_POST['userName']), $password, trim($_POST['email']), $app_settings);
-    return $new_user;
+    // $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
+    // $app_settings = json_encode(unserialize(DEFAULT_APP_SETTINGS));
+    // $new_user = Db::query('
+    //                 INSERT INTO user (UserName, Password, Email, AppSettings)
+    //                 VALUES (?, ?, ?, ?)
+    //             ', trim($_POST['userName']), $password, trim($_POST['email']), $app_settings);
+
+    // Define data for insert query
+    $data = array();
+    $data['UserName']    = trim($_POST['userName']);
+    $data['Password']    = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
+    $data['Email']       = trim($_POST['email']);
+    $data['AppSettings'] = json_encode(unserialize(DEFAULT_APP_SETTINGS));
+
+    $newUser = Db::insert('user', $data);
+
+    return $newUser;
 }
 
 function login() {
