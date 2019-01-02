@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { NavItem, Button, Form, FormGroup, FormControl, ControlLabel, Checkbox, Col } from 'react-bootstrap';
-import TreeView from 'treeview-react-bootstrap';
 import { MODAL_CONTAINER } from '../../constants';
 import PortalRenderer from '../../services/PortalRenderer';
 import CustomModal from '../CustomModal';
@@ -175,8 +174,6 @@ export default class AppSettings extends Component {
                                     </FormGroup>
                                 </React.Fragment>
                             )}
-
-                            <TreeView data={data} />
                         </Form>
                         {this.state.msg && <span className='modalErrorMsg right red'>{this.state.msg}</span>}
                     </CustomModal>
