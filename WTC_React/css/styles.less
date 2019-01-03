@@ -193,6 +193,38 @@ button#login, button#register {
     margin: 25px 0 10px 0;
 }
 
+// /*========== Category modal ==========*/
+#categoryList {
+    &.list-group {
+        margin-bottom: 0;
+
+        .list-group {
+            margin-left: 10px;
+            margin-bottom: 0;
+        }
+    }
+    .list-group-item {
+        padding: 0 10px;
+        min-height: 36px;
+
+        .categoryName {
+            line-height: 34px;
+        }
+        .addCategory, .removeCategory {
+            position: absolute;
+            z-index: 1000;
+            padding: 6px;
+            min-width: 40px;
+        }
+        .addCategory {
+            right: 40px;
+        }
+        .removeCategory {
+            right: 0;
+        }
+    }
+}
+
 // /*========== Side Menu ==========*/
 #sideMenuContent {
     width: @sideMenuWidth;
@@ -312,9 +344,9 @@ button#login, button#register {
 .right {
     float: right;
 }
-// .clear {
-//     clear: both;
-// }
+.clear {
+    clear: both;
+}
 .centered_flex {
     display: flex;
     align-items: center;

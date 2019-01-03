@@ -164,17 +164,58 @@ function updateCategory() {
 	
 	return $result;
 }
-function deleteCategory() {
-    // Check if all inputs were entered
-    if (!isset($_POST['categoryId']) || empty($_POST['categoryId'])) { 
-        return WTCError::Input;
+function deleteCategories($categoriesToRemove, &$response) {
+    $categoryIdsToRemove = '(';
+    foreach ($categoriesToRemove as $categoryId) {
+        if (!is_int($categoryId)) {
+            // Make record to result errors
+            array_push($response["errors"], 'Category Id is not a integer: ' . $categoryId);
+        }
+        else {
+            $categoryIdsToRemove += $categoryId . ', ';
+        }
+    }
+    $categoryIdsToRemove = substr($categoryIdsToRemove, 0, -2) . ')';
+
+    // TODO: check if deleted category is parent/has children, if yes, get its parent id (may be null) and put it to its children parentIds
+    
+    $result = Db::queryOne('
+                DELETE FROM category
+                WHERE Id IN ?
+            ', $categoryIdsToRemove);
+    
+    // Add result to response
+    array_push($response["results"]["delete"][$categoryId], $result);
+}
+function updateCategories() {
+    $response = array(
+        "results" => array(
+            "new" => array(),
+            "edit" => array(),
+            "delete" => array()
+        ),
+        "errors" => array()
+    );
+
+    // Create new categories
+    if (isset($_POST['newCategories']) && is_array($_POST['newCategories'])) {
+
+    }
+    else {
+
     }
 
-    $result = Db::queryOne('
-                    DELETE FROM category
-                    WHERE Id = ?
-                  ', $_POST['categoryId']);
-    return $result;
+    // Edit edited categories
+    if (isset($_POST['categoriesToEdit']) && is_array($_POST['categoriesToEdit'])) {
+        
+    }
+
+    // Remove deleted categories
+    if (isset($_POST['categoriesToRemove']) && is_array($_POST['categoriesToRemove'])) {
+        deleteCategories($_POST['categoriesToRemove'], $response);
+    }
+
+    return $response;
 }
 
 function register() {

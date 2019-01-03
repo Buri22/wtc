@@ -94,7 +94,6 @@ export default class Counter extends Component {
     }
 
     renderTaskList() {
-        let tasks;
         if (this.state.taskListDataLoaded) {
             // Render task list just in case user has at least one task
             if (TaskList.getLength() > 0) {
@@ -102,7 +101,7 @@ export default class Counter extends Component {
                 indexFrom = (this.state.currentPage - 1) * this.state.itemsPerPage,
                 indexTo = this.state.currentPage * this.state.itemsPerPage;
 
-                tasks = taskListData.map((taskData, index) => {
+                let tasks = taskListData.map((taskData, index) => {
                     if (indexFrom <= index && index < indexTo) {
                         return (
                             <ListGroupItem

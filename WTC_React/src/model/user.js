@@ -1,5 +1,4 @@
-import { dataProvider } from '../services/DataProvider';
-import { ERROR } from '../constants';
+import CategoryList from './category';
 
 /**
  * User model and logic related to it
@@ -21,6 +20,10 @@ class User {
         this.userName    = userData.UserName;
         this.email       = userData.Email;
         this.appSettings = new AppSettingsModel(userData.AppSettings);
+        
+        // Set categories
+        CategoryList.setCategoryList(userData.Categories);
+        //this.categoryList = CategoryList;
     }
     setProp(name, value) {
         this[name] = value;

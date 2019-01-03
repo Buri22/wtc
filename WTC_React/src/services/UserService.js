@@ -141,4 +141,21 @@ export default class UserService {
                 }
             });
     }
+
+    static updateCategories(data) {
+        return dataProvider.provide('updateCategories', data)
+            .then(response => {
+                // TODO: handle custom categories response data
+                
+                // if (response == false) {
+                //     // Update model
+                //     TaskList.removeTask(data.task_id);
+
+                //     return { success: true, msg: 'Category was deleted successfully.' };
+                // }
+                // else if(response == ERROR.Input) {
+                //     return { msg: 'Some information is missing.' };
+                // }
+            })
+    }
 }

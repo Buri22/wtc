@@ -71,16 +71,8 @@ if (is_ajax($headers) && $action != null) {
             echo json_encode(stopCounting());
             break;
 
-        case "createCategory":
-            echo json_encode(createCategory());
-            break;
-
-        case "updateCategory":
-            echo json_encode(updateCategory());
-            break;
-
-        case "deleteCategory":
-            echo json_encode(deleteCategory());
+        case "updateCategories":
+            echo json_encode(updateCategories());
             break;
 
         default:
