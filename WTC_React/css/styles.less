@@ -206,6 +206,9 @@ button#login, button#register {
     .list-group-item {
         padding: 0 10px;
         min-height: 36px;
+        &:not(.edited) {
+            cursor: pointer;
+        }
 
         .categoryName {
             line-height: 34px;
@@ -222,6 +225,9 @@ button#login, button#register {
         .removeCategory {
             right: 0;
         }
+    }
+    #editCategoryForm {
+        padding-top: 15px;
     }
 }
 
@@ -351,6 +357,10 @@ button#login, button#register {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.centered {
+    display: block;
+    margin: 0 auto;
 }
 
 /* Bootstrap styles */

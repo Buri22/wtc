@@ -25,6 +25,8 @@ export default class AccountCategories extends Component {
 
             newCategoryName:  '',
             newCategoryParentId: '',
+            newEditedCategoryName: '',
+            newEditedCategoryParentId: ''
         };
 
         this.initialFormState = {};
@@ -55,9 +57,11 @@ export default class AccountCategories extends Component {
             categoriesToEdit: [],
             newCategories: [],
         });
+        document.addEventListener('mousedown', this.handleClickOutsideCategoryTree.bind(this));
     }
     handleCloseModal() {
         this.setState({ showModal: false });
+        document.removeEventListener('mousedown', this.handleClickOutsideCategoryTree.bind(this));
     }
     handleUserInput (e) {
         let name = e.target.name;
@@ -115,22 +119,64 @@ export default class AccountCategories extends Component {
             newCategoryName:  '',
             newCategoryParentId: '',
         });
-
-        console.log('We should handle create new category submit form.')
     }
 
-    handleCategoryClick(e) {
+    saveEditedCategoryData() {
+        let updatedCategoryList = this.state.categoryList;
+        let previousEditedCategory = updatedCategoryList.find(cat => cat.isEdited == true);
+        // Check if some category was edited
+        if (previousEditedCategory != undefined) {
+            previousEditedCategory.isEdited = false;
+            // Save its changes
+            previousEditedCategory.name = this.state.newEditedCategoryName;
+            // TODO: there has to be at least one root category, that has parentId null
+            // TODO: check if parentId references create loop => memory leak
+            previousEditedCategory.parentId = this.state.newEditedCategoryParentId == "" ? null : Number(this.state.newEditedCategoryParentId);
+
+            // Add/Edit record of edited category in correct array
+            let newEditedCategory = this.state.newCategories.find(category => category.id == previousEditedCategory.id);
+            let recordedEditedCategory = this.state.categoriesToEdit.find(category => category.id == previousEditedCategory.id);
+            // Edited category is not recorded yet, add record to categoriesToEdit
+            if (newEditedCategory == undefined && recordedEditedCategory == undefined) { 
+                this.state.categoriesToEdit.push(previousEditedCategory); 
+            }
+        }
+    }
+
+    handleCategoryTileClick(e) {
         if (e.target.type !== "button" && e.target.parentElement.type !== "button") {
-            console.log('We should handle click on category tile.');
+            // Check if another category is already edited
+            this.saveEditedCategoryData();
+
+            let updatedCategoryList = this.state.categoryList;
+            let categoryToEdit = updatedCategoryList.find(cat => cat.id == Number(e.currentTarget.dataset.id));
+
+            // Mark clicked category to render as form
+            categoryToEdit.isEdited = true;
+            // Set state to rerender view
+            this.setState({ 
+                categoryList: updatedCategoryList,
+                newEditedCategoryName: categoryToEdit.name,
+                newEditedCategoryParentId: categoryToEdit.parentId
+            });
+        }
+    }
+    handleClickOutsideCategoryTree(e) {
+        if (e.target.closest('#categoryList') == null) {
+            let previousCategoryList = JSON.stringify(this.state.categoryList);
+            this.saveEditedCategoryData();
+            if (previousCategoryList != JSON.stringify(this.state.categoryList)) {
+                this.setState({ categoryList: this.state.categoryList })
+            }
         }
     }
     handleAddCategoryBtn() {
         console.log('We should handle click on AddChildCategoryBtn.');
     }
     handleRemoveCategoryBtn(e) {
-        let categoryToRemoveId = e.currentTarget.parentElement.dataset.id;
-        let categoriesToRemove = this.state.categoriesToRemove;
         let updatedCategoryList = this.state.categoryList;
+        let categoriesToRemove = this.state.categoriesToRemove;
+        let categoryToRemoveId = e.currentTarget.parentElement.dataset.id;
         let categoryToRemoveIndex = updatedCategoryList.findIndex(cat => cat.id == Number(categoryToRemoveId));
 
         // Extend array of category ids to remove
@@ -148,8 +194,6 @@ export default class AccountCategories extends Component {
             categoryList: updatedCategoryList,
             categoriesToRemove: categoriesToRemove
         });
-
-        console.log('Categories to remove are: ' + categoriesToRemove);
     }
 
     renderCategoryTree() {
@@ -168,20 +212,61 @@ export default class AccountCategories extends Component {
     renderCategoryChild(category) {
         let categoryChildrenComponents = null;
         let categoryChildrenData = this.state.categoryList.filter(child => child.parentId == category.id)
-
         if (categoryChildrenData.length > 0) {
             categoryChildrenComponents = <ListGroup>
                 {categoryChildrenData.map(child => this.renderCategoryChild(child))}
             </ListGroup>;
         }
 
-        return (
-            <React.Fragment
-                key={category.id}
-            >
-                <ListGroupItem
+        let categoryListGroupItem;
+        if (category.isEdited) {
+            categoryListGroupItem = <ListGroupItem
                     data-id={category.id}
-                    onClickCapture={this.handleCategoryClick.bind(this)}
+                    className="edited"
+                >
+                    <Form
+                        horizontal
+                        id='editCategoryForm'
+                    >
+                        <FormGroup controlId='newEditedCategoryName'>
+                            <Col componentClass={ControlLabel} md={4}>Category name</Col>
+                            <Col md={6}>
+                                <FormControl
+                                    type='text'
+                                    name='newEditedCategoryName'
+                                    value={this.state.newEditedCategoryName}
+                                    onChange={this.handleUserInput.bind(this)}
+                                    placeholder='Edit previous category name'
+                                    autoFocus
+                                />
+                            </Col>
+                        </FormGroup>
+                        <FormGroup controlId='newEditedCategoryParent'>
+                            <Col componentClass={ControlLabel} md={4}>Category parent</Col>
+                            <Col md={6}>
+                                <FormControl
+                                    componentClass='select'
+                                    name='newEditedCategoryParentId'
+                                    value={this.state.newEditedCategoryParentId}
+                                    onChange={this.handleUserInput.bind(this)}
+                                >
+                                    <option key="-1" value="">None</option>
+                                    {this.state.categoryList.map((option, index) => {
+                                        if (option.parentId != null && this.state.newEditedCategoryParentId == option.parentId) {
+                                            return (<option key={index} value={option.id} selected>{option.name}</option>);
+                                        }
+                                        return (<option key={index} value={option.id}>{option.name}</option>);
+                                    })}
+                                </FormControl>
+                            </Col>
+                        </FormGroup>
+                    </Form>
+                </ListGroupItem>;
+        }
+        else {
+            categoryListGroupItem = <ListGroupItem
+                    data-id={category.id}
+                    onClickCapture={this.handleCategoryTileClick.bind(this)}
                 >
                     <span className="categoryName">{category.name}</span>
                     <Button
@@ -198,7 +283,14 @@ export default class AccountCategories extends Component {
                     >
                         <span className="glyphicon glyphicon-remove"></span>
                     </Button>
-                </ListGroupItem>
+                </ListGroupItem>;
+        }
+
+        return (
+            <React.Fragment
+                key={category.id}
+            >
+                {categoryListGroupItem}
                 {categoryChildrenComponents}
             </React.Fragment>
         );
@@ -243,7 +335,6 @@ export default class AccountCategories extends Component {
                                         name='newCategoryName'
                                         value={this.state.newCategoryName}
                                         onChange={this.handleUserInput.bind(this)}
-                                        autoComplete='username'
                                         placeholder='Enter new category name'
                                         autoFocus
                                     />
@@ -270,7 +361,7 @@ export default class AccountCategories extends Component {
 
                             <Button
                                 bsStyle='success'
-                                className="centered_flex"
+                                className="centered"
                                 type='submit'
                             >Create</Button>
                         </Form>
