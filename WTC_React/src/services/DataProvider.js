@@ -48,7 +48,11 @@ class DataProvider {
     provide(action, data = {}) {
         let bodyFormData = new FormData();
         for (let key in data) {
-            bodyFormData.set(key, data[key]);
+            let tmpDataValue = data[key];
+            if (Array.isArray(tmpDataValue)) {
+                tmpDataValue = JSON.stringify(tmpDataValue);
+            }
+            bodyFormData.set(key, tmpDataValue);
         }
         return axios({
                 headers: {

@@ -15,12 +15,17 @@ class Category {
 class CategoryListWrapper {
     constructor() {
         this.catList = null;
-        this.catListTree = null;
+        //this.catListTree = null;
+        this.maxTmpId = 0;
     }
 
     setCategoryList(catListData) {
         this.catList = Array.from(catListData, catData => new Category(catData));
-        this.catListTree = this.recreateCategoryListTree(this.catList);
+        //this.catListTree = this.recreateCategoryListTree(this.catList);
+        // Hold maximum category id
+        this.catList.forEach(cat => { 
+            if (cat.id > this.maxTmpId) this.maxTmpId = cat.id;
+        })
     }
     recreateCategoryListTree(catList) {
         if (catList != null && catList.length > 0) {
@@ -46,21 +51,22 @@ class CategoryListWrapper {
     }
     setCategory(cat) {
         this.catList[this.catList.findIndex(x => x.id == cat.id)] = cat;
-        this.catListTree = this.recreateCategoryListTree(this.catList);
+        //this.catListTree = this.recreateCategoryListTree(this.catList);
     }
     clearCategoryList() {
         this.catList = null;
     }
-    addCategory(cat) {
-        this.catList.push(new Category(cat));
-        this.catListTree = this.recreateCategoryListTree(this.catList);
+    createCategory(catData) {
+        this.maxTmpId++
+        catData.Id = this.maxTmpId;
+        return new Category(catData);
     }
     getCategoryList() {
         return this.catList;
     }
-    getCategoryListTree() {
-        return this.catListTree;
-    }
+    // getCategoryListTree() {
+    //     return this.catListTree;
+    // }
     getLength() {
         return this.catList.length;
     }
@@ -73,9 +79,9 @@ const CategoryList = {
     setCategory:              CLWrapper.setCategory.bind(CLWrapper),
     recreateCategoryListTree: CLWrapper.recreateCategoryListTree.bind(CLWrapper),
     clearCategoryList:        CLWrapper.clearCategoryList.bind(CLWrapper),
-    addCategory:              CLWrapper.addCategory.bind(CLWrapper),
+    createCategory:           CLWrapper.createCategory.bind(CLWrapper),
     getCategoryList:          CLWrapper.getCategoryList.bind(CLWrapper),
-    getCategoryListTree:      CLWrapper.getCategoryListTree.bind(CLWrapper),
+    //getCategoryListTree:      CLWrapper.getCategoryListTree.bind(CLWrapper),
     getLength:                CLWrapper.getLength.bind(CLWrapper)
 }
 

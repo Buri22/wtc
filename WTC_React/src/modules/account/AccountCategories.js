@@ -17,8 +17,8 @@ export default class AccountCategories extends Component {
         this.state = { 
             showModal: false,
             msg:       '',
+
             categoryList: [],
-            categoryListTree: [],
             categoriesToRemove: [],
             categoriesToEdit: [],
             newCategories: [],
@@ -51,7 +51,6 @@ export default class AccountCategories extends Component {
         this.setState({ 
             showModal: true,
             categoryList: JSON.parse(JSON.stringify(CategoryList.getCategoryList())),
-            categoryListTree: CategoryList.getCategoryListTree(),
             categoriesToRemove: [],
             categoriesToEdit: [],
             newCategories: [],
@@ -73,6 +72,7 @@ export default class AccountCategories extends Component {
             categoriesToEdit: this.state.categoriesToEdit,
             categoriesToRemove: this.state.categoriesToRemove
         });
+        // TODO: handle response
 
         // UserService.editAccountData({
         //         newCategoryName: this.state.newCategoryName,
@@ -95,7 +95,27 @@ export default class AccountCategories extends Component {
         //         }
         //     });
     }
-    handleCreateCategoryFormSubmit() {
+    handleCreateCategoryFormSubmit(e) {
+        e.preventDefault();
+
+        let categoryList = this.state.categoryList;
+        let newcategories = this.state.newCategories;
+        let newCategory = CategoryList.createCategory({
+            Name: this.state.newCategoryName,
+            ParentId: this.state.newCategoryParentId == '' ? null : this.state.newCategoryParentId
+        });
+        // Add new category to the newCategories List
+        newcategories.push(newCategory);
+        // Add category to the state
+        categoryList.push(newCategory);
+        // Update components state
+        this.setState({
+            categoryList: categoryList,
+            newCategories: newcategories,
+            newCategoryName:  '',
+            newCategoryParentId: '',
+        });
+
         console.log('We should handle create new category submit form.')
     }
 
@@ -109,9 +129,9 @@ export default class AccountCategories extends Component {
     }
     handleRemoveCategoryBtn(e) {
         let categoryToRemoveId = e.currentTarget.parentElement.dataset.id;
+        let categoriesToRemove = this.state.categoriesToRemove;
         let updatedCategoryList = this.state.categoryList;
         let categoryToRemoveIndex = updatedCategoryList.findIndex(cat => cat.id == Number(categoryToRemoveId));
-        let categoriesToRemove = this.state.categoriesToRemove;
 
         // Extend array of category ids to remove
         categoriesToRemove.push(Number(categoryToRemoveId));
@@ -125,7 +145,6 @@ export default class AccountCategories extends Component {
         updatedCategoryList.splice(categoryToRemoveIndex, 1);
         // Update state to rerender view for user
         this.setState({
-            categoryListTree: CategoryList.recreateCategoryListTree(updatedCategoryList),
             categoryList: updatedCategoryList,
             categoriesToRemove: categoriesToRemove
         });
@@ -135,9 +154,10 @@ export default class AccountCategories extends Component {
 
     renderCategoryTree() {
         if (this.state.categoryList.length > 0) {
+            let rootCategoryChildren = this.state.categoryList.filter(category => category.parentId == null);
             return (
                 <ListGroup id="categoryList">
-                    {this.state.categoryListTree.map(category => this.renderCategoryChild(category))}                       
+                    {rootCategoryChildren.map(category => this.renderCategoryChild(category))}                       
                 </ListGroup>
             )
         }
@@ -146,11 +166,12 @@ export default class AccountCategories extends Component {
         }
     }
     renderCategoryChild(category) {
-        let childCategories = null;
+        let categoryChildrenComponents = null;
+        let categoryChildrenData = this.state.categoryList.filter(child => child.parentId == category.id)
 
-        if (category.nodes) {
-            childCategories = <ListGroup>
-                {category.nodes.map(child => this.renderCategoryChild(child))}
+        if (categoryChildrenData.length > 0) {
+            categoryChildrenComponents = <ListGroup>
+                {categoryChildrenData.map(child => this.renderCategoryChild(child))}
             </ListGroup>;
         }
 
@@ -178,7 +199,7 @@ export default class AccountCategories extends Component {
                         <span className="glyphicon glyphicon-remove"></span>
                     </Button>
                 </ListGroupItem>
-                {childCategories}
+                {categoryChildrenComponents}
             </React.Fragment>
         );
     }
@@ -233,11 +254,11 @@ export default class AccountCategories extends Component {
                                 <Col md={6}>
                                     <FormControl
                                         componentClass='select'
-                                        name='newCategoryParent'
-                                        value={this.state.themeColor}
+                                        name='newCategoryParentId'
+                                        value={this.state.newCategoryParentId}
                                         onChange={this.handleUserInput.bind(this)}
                                     >
-                                        <option key="-1" value="0">None</option>
+                                        <option key="-1" value="">None</option>
                                         {this.state.categoryList.map((option, index) => {
                                             return (<option key={index} value={option.id}>{option.name}</option>);
                                         })}
@@ -249,10 +270,9 @@ export default class AccountCategories extends Component {
 
                             <Button
                                 bsStyle='success'
-                                className="right"
+                                className="centered_flex"
                                 type='submit'
                             >Create</Button>
-                            <div className="clear"></div>
                         </Form>
                     </CustomModal>
                 </PortalRenderer>

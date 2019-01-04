@@ -101,7 +101,7 @@ function checkTaskStarted() {
 
 // Define User object for JS manipulation
 function getUserForJS($user) {
-    $result = [];
+    $result = array();
 
     $result['Id']          = $user['Id'];
     $result['UserName']    = $user['UserName'];
@@ -123,27 +123,53 @@ function getUserCategories($userId) {
     return $result;
 }
 
-function createCategory() {
-    // Check if all inputs were entered
-    if (!isset($_POST['categoryName']) || empty($_POST['categoryName'])) { 
-        return WTCError::Input;
-    }
+function createCategories($categoriesToCreate, &$response) {
     // Get current user
     $user = checkLogin();
     if (!$user) { return WTCError::Login; }
 
-    // Define data for insert query
-    $data = array();
-    $data['Name']   = trim($_POST['categoryName']);
-    $data['UserId'] = $user['Id'];
-    if (isset($_POST['parentId']) && !empty($_POST['parentId'])) {
-        $data['ParentId'] = $_POST['parentId'];
+    // Get new categories with existing parent
+    $newCatsWithExistingParent = array_filter($categoriesToCreate, 'parentCategoryExists');
+    for ($i=0; $i < count($newCatsWithExistingParent); $i++) {
+        $currentCat = $newCatsWithExistingParent[$i];
+        // Insert new category
+        $newCatResult = Db::queryOne('
+            INSERT INTO category (Name, ParentId, UserId)
+            VALUES (?, ?, ?)
+        ', $currentCat->name, $currentCat->parentId, $user['Id']);
+        // Get new created category Id
+        $newCategoryId = Db::getLastId();
+
+        // Get current new category children
+        $currentCatChildren = array_filter($categoriesToCreate, function ($child) use ($currentCat) {
+            return $child->parentId == $currentCat->id;
+        });
+        // Loop through potential children
+        foreach ($currentCatChildren as $childCat) {
+            // Set new category Id to children parentIds
+            $childCat->parentId = $newCategoryId;
+            // Add fixed child to $newCatsWithExistingParent array
+            array_push($newCatsWithExistingParent, $childCat);
+        }
+
+        // Set result to response
+        $result = Db::queryOne('SELECT * From category WHERE Id = ?', $newCategoryId);
+        array_push($response["results"]["new"], $result);
     }
-
-    $newCategory = Db::insert('category', $data);
-
-    return $newCategory;
 }
+function parentCategoryExists($category) {
+    if ($category->parentId == null) return true;
+
+    $user = checkLogin();
+    $result = Db::querySingle('
+        SELECT COUNT(*)
+        FROM category
+        WHERE Id = ? AND UserId = ?
+    ', $category->parentId, $user["Id"]);
+
+    return $result > 0 ? true : false;
+}
+
 function updateCategory() {
     // Check if all inputs were entered
     if (!isset($_POST['categoryId']) || empty($_POST['categoryId'])
@@ -165,6 +191,7 @@ function updateCategory() {
 	return $result;
 }
 function deleteCategories($categoriesToRemove, &$response) {
+    // Prepare string of category ids for delete SQL query 
     $categoryIdsToRemove = '(';
     foreach ($categoriesToRemove as $categoryId) {
         if (!is_int($categoryId)) {
@@ -172,20 +199,27 @@ function deleteCategories($categoriesToRemove, &$response) {
             array_push($response["errors"], 'Category Id is not a integer: ' . $categoryId);
         }
         else {
-            $categoryIdsToRemove += $categoryId . ', ';
+            $categoryIdsToRemove .= $categoryId . ', ';
         }
     }
     $categoryIdsToRemove = substr($categoryIdsToRemove, 0, -2) . ')';
 
-    // TODO: check if deleted category is parent/has children, if yes, get its parent id (may be null) and put it to its children parentIds
+    // Check if deleted category is parent/has children, if yes, get its parent id (may be null) and put it to its children parentIds
+    Db::queryAll('
+        UPDATE category child
+        INNER JOIN category parent 
+            ON parent.Id = child.ParentId 
+        SET child.ParentId = parent.ParentId
+        WHERE parent.Id IN 
+    ' . $categoryIdsToRemove);
     
     $result = Db::queryOne('
                 DELETE FROM category
-                WHERE Id IN ?
-            ', $categoryIdsToRemove);
+                WHERE Id IN 
+            ' . $categoryIdsToRemove);
     
     // Add result to response
-    array_push($response["results"]["delete"][$categoryId], $result);
+    $response["results"]["delete"][$categoryId] = $result;
 }
 function updateCategories() {
     $response = array(
@@ -198,11 +232,14 @@ function updateCategories() {
     );
 
     // Create new categories
-    if (isset($_POST['newCategories']) && is_array($_POST['newCategories'])) {
-
-    }
-    else {
-
+    if (isset($_POST['newCategories'])) {
+        $decodedValue = json_decode($_POST['newCategories']);
+        if (is_array($decodedValue)) {
+            if (count($decodedValue) > 0) createCategories($decodedValue, $response);
+        }
+        else {
+            array_push($response["errors"], 'We could not decode array from newCategories variable.');
+        }
     }
 
     // Edit edited categories
@@ -211,8 +248,14 @@ function updateCategories() {
     }
 
     // Remove deleted categories
-    if (isset($_POST['categoriesToRemove']) && is_array($_POST['categoriesToRemove'])) {
-        deleteCategories($_POST['categoriesToRemove'], $response);
+    if (isset($_POST['categoriesToRemove'])) {
+        $decodedValue = json_decode($_POST['categoriesToRemove']);
+        if (is_array($decodedValue)) {
+            if (count($decodedValue) > 0) deleteCategories($decodedValue, $response);
+        }
+        else {
+            array_push($response["errors"], 'We could not decode array from categoriesToRemove variable.');
+        }
     }
 
     return $response;
@@ -241,21 +284,12 @@ function register() {
 
     if ($registered) { return WTCError::Registered; }
 
-    // $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
-    // $app_settings = json_encode(unserialize(DEFAULT_APP_SETTINGS));
-    // $new_user = Db::query('
-    //                 INSERT INTO user (UserName, Password, Email, AppSettings)
-    //                 VALUES (?, ?, ?, ?)
-    //             ', trim($_POST['userName']), $password, trim($_POST['email']), $app_settings);
-
-    // Define data for insert query
-    $data = array();
-    $data['UserName']    = trim($_POST['userName']);
-    $data['Password']    = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
-    $data['Email']       = trim($_POST['email']);
-    $data['AppSettings'] = json_encode(unserialize(DEFAULT_APP_SETTINGS));
-
-    $newUser = Db::insert('user', $data);
+    $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
+    $app_settings = json_encode(unserialize(DEFAULT_APP_SETTINGS));
+    $newUser = Db::query('
+                    INSERT INTO user (UserName, Password, Email, AppSettings)
+                    VALUES (?, ?, ?, ?)
+                ', trim($_POST['userName']), $password, trim($_POST['email']), $app_settings);
 
     return $newUser;
 }
@@ -458,6 +492,7 @@ function createTask() {
         return WTCError::TaskDateCreated;
     }
 
+    // TODO: refactor to explicit INSERT statement to get inserted task as result of the query, when user can have more tasks with the same name later
     // Define data for insert query
     $data = array();
     $data['Name']        = trim($_POST['new_name']);
