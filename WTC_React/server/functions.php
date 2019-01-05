@@ -160,12 +160,11 @@ function createCategories($categoriesToCreate, &$response) {
 function parentCategoryExists($category) {
     if ($category->parentId == null) return true;
 
-    $user = checkLogin();
     $result = Db::querySingle('
         SELECT COUNT(*)
         FROM category
         WHERE Id = ? AND UserId = ?
-    ', $category->parentId, $user["Id"]);
+    ', $category->parentId, $_SESSION['user_id']);
 
     return $result > 0 ? true : false;
 }
@@ -492,7 +491,7 @@ function createTask() {
         return WTCError::TaskDateCreated;
     }
 
-    // TODO: refactor to explicit INSERT statement to get inserted task as result of the query, when user can have more tasks with the same name later
+    // TODO: refactor to explicit INSERT statement to get inserted task as result of the query (as in createCategories), when user can have more tasks with the same name later
     // Define data for insert query
     $data = array();
     $data['Name']        = trim($_POST['new_name']);

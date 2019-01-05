@@ -129,8 +129,6 @@ export default class AccountCategories extends Component {
             previousEditedCategory.isEdited = false;
             // Save its changes
             previousEditedCategory.name = this.state.newEditedCategoryName;
-            // TODO: there has to be at least one root category, that has parentId null
-            // TODO: check if parentId references create loop => memory leak
             previousEditedCategory.parentId = this.state.newEditedCategoryParentId == "" ? null : Number(this.state.newEditedCategoryParentId);
 
             // Add/Edit record of edited category in correct array
@@ -244,20 +242,7 @@ export default class AccountCategories extends Component {
                         <FormGroup controlId='newEditedCategoryParent'>
                             <Col componentClass={ControlLabel} md={4}>Category parent</Col>
                             <Col md={6}>
-                                <FormControl
-                                    componentClass='select'
-                                    name='newEditedCategoryParentId'
-                                    value={this.state.newEditedCategoryParentId}
-                                    onChange={this.handleUserInput.bind(this)}
-                                >
-                                    <option key="-1" value="">None</option>
-                                    {this.state.categoryList.map((option, index) => {
-                                        if (option.parentId != null && this.state.newEditedCategoryParentId == option.parentId) {
-                                            return (<option key={index} value={option.id} selected>{option.name}</option>);
-                                        }
-                                        return (<option key={index} value={option.id}>{option.name}</option>);
-                                    })}
-                                </FormControl>
+                                {this.renderParentSelectBoxForEditedCategory(category.id)}
                             </Col>
                         </FormGroup>
                     </Form>
@@ -270,18 +255,11 @@ export default class AccountCategories extends Component {
                 >
                     <span className="categoryName">{category.name}</span>
                     <Button
-                        className="addCategory"
-                        bsStyle="success"
-                        onClick={this.handleAddCategoryBtn.bind(this)}
-                    >
-                        <span className="glyphicon glyphicon-plus"></span>
-                    </Button>
-                    <Button
                         className="removeCategory"
                         bsStyle="danger"
                         onClick={this.handleRemoveCategoryBtn.bind(this)}
                     >
-                        <span className="glyphicon glyphicon-remove"></span>
+                        <span className="glyphicon glyphicon-trash"></span>
                     </Button>
                 </ListGroupItem>;
         }
@@ -294,6 +272,58 @@ export default class AccountCategories extends Component {
                 {categoryChildrenComponents}
             </React.Fragment>
         );
+    }
+    renderParentSelectBoxForEditedCategory(parentId) {
+        let optionCategories = JSON.parse(JSON.stringify(this.state.categoryList));
+        // Remove current category from list
+        optionCategories.splice(optionCategories.findIndex(cat => cat.id == parentId), 1);
+        // Remove children from categoryList
+        optionCategories = this._removeChildren(optionCategories, parentId);
+
+        return <FormControl
+            componentClass='select'
+            name='newEditedCategoryParentId'
+            value={this.state.newEditedCategoryParentId || ""}
+            onChange={this.handleUserInput.bind(this)}
+        >
+            <option key="-1" value="">None</option>
+            {optionCategories.map((option, index, possibleParents) => {
+                let optionName = option.name;
+                if (possibleParents.find(cat => cat.name == option.name && cat.id != option.id)) {
+                    // There is category name duplicate => extend its name to be clear which category it is
+                    optionName += this._getParentName(possibleParents, option.parentId);
+                }
+                return <option key={index} value={option.id}>{optionName}</option>;
+            })}
+        </FormControl>;
+    }
+    _getParentName(possibleParents, parentId) {
+        let parentCategory = possibleParents.find(cat => cat.id == parentId);
+        if (parentCategory != undefined) {
+            return ' -> ' + parentCategory.name + this._getParentName(possibleParents, parentCategory.parentId);
+        }
+        else return '';
+    }
+    _removeChildren(possibleChildren, parentId) {
+        let childrenIds = [];
+        // Loop throught all possible children and remove first layer of children
+        for (let i = 0, arrayLength = possibleChildren.length; i < arrayLength; i++) {
+            if (possibleChildren[i].parentId == parentId) {
+                // Save its Id to check its children
+                childrenIds.push(possibleChildren[i].id);
+                // Remove child from the array
+                possibleChildren.splice(i, 1);
+                // Adjust for loop aruments after splice
+                arrayLength--; i--;                   
+            }
+        }
+        //Remove deeper layer of children -> recursive
+        if (childrenIds.length > 0) {
+            childrenIds.forEach(child => {
+                possibleChildren = this._removeChildren(possibleChildren, child);
+            });
+        }
+        return possibleChildren;
     }
 
     render() {
@@ -350,9 +380,7 @@ export default class AccountCategories extends Component {
                                         onChange={this.handleUserInput.bind(this)}
                                     >
                                         <option key="-1" value="">None</option>
-                                        {this.state.categoryList.map((option, index) => {
-                                            return (<option key={index} value={option.id}>{option.name}</option>);
-                                        })}
+                                        {this.state.categoryList.map((option, index) => <option key={index} value={option.id}>{option.name}</option>)}
                                     </FormControl>
                                 </Col>
                             </FormGroup>
