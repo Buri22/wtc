@@ -3,6 +3,7 @@ import { MenuItem, Button, Form, FormGroup, FormControl, ControlLabel, ListGroup
 import { MODAL_CONTAINER } from '../../constants';
 import PortalRenderer from '../../services/PortalRenderer';
 import CustomModal from '../../components/CustomModal';
+import CategorySelectBox from '../../components/CategorySelectBox';
 
 import UserService from '../../services/UserService';
 import CategoryList from '../../model/category';
@@ -68,6 +69,9 @@ export default class AccountCategories extends Component {
         let value = e.target.value;
         this.setState({ [name]: value });
     }
+    handleNewEditedCategoryParentId(e) {
+        this.setState({ newEditedCategoryParentId: e.target.value })
+    }
     handleSaveCategoriesBtn(e) {
         e.preventDefault();
 
@@ -129,16 +133,25 @@ export default class AccountCategories extends Component {
             previousEditedCategory.isEdited = false;
             // Save its changes
             previousEditedCategory.name = this.state.newEditedCategoryName;
-            previousEditedCategory.parentId = this.state.newEditedCategoryParentId == "" ? null : Number(this.state.newEditedCategoryParentId);
+            previousEditedCategory.parentId = this._getUserInputParentId(this.state.newEditedCategoryParentId);
 
             // Add/Edit record of edited category in correct array
             let newEditedCategory = this.state.newCategories.find(category => category.id == previousEditedCategory.id);
             let recordedEditedCategory = this.state.categoriesToEdit.find(category => category.id == previousEditedCategory.id);
-            // Edited category is not recorded yet, add record to categoriesToEdit
             if (newEditedCategory == undefined && recordedEditedCategory == undefined) { 
+                // Edited category is not recorded yet, add record to categoriesToEdit
                 this.state.categoriesToEdit.push(previousEditedCategory); 
             }
+            else if (recordedEditedCategory != undefined && !CategoryList.isCategoryChanged(recordedEditedCategory)) {
+                // Category is not changed and is recorded => remove it from records
+                this.state.categoriesToEdit.splice(this.state.categoriesToEdit.findIndex(cat => cat.id == recordedEditedCategory.id), 1);
+            }
         }
+    }
+    _getUserInputParentId(userInputParentId) {
+        if (userInputParentId == "") return null;                               // Empty string convert to null
+        else if (userInputParentId != null) return Number(userInputParentId);   // It is not empty string nor null, so convert to number
+        else return userInputParentId;                                          // ParentId is null, so leave it as it is
     }
 
     handleCategoryTileClick(e) {
@@ -168,9 +181,9 @@ export default class AccountCategories extends Component {
             }
         }
     }
-    handleAddCategoryBtn() {
-        console.log('We should handle click on AddChildCategoryBtn.');
-    }
+    // handleAddCategoryBtn() {
+    //     console.log('We should handle click on AddChildCategoryBtn.');
+    // }
     handleRemoveCategoryBtn(e) {
         let updatedCategoryList = this.state.categoryList;
         let categoriesToRemove = this.state.categoriesToRemove;
@@ -280,29 +293,11 @@ export default class AccountCategories extends Component {
         // Remove children from categoryList
         optionCategories = this._removeChildren(optionCategories, parentId);
 
-        return <FormControl
-            componentClass='select'
-            name='newEditedCategoryParentId'
-            value={this.state.newEditedCategoryParentId || ""}
-            onChange={this.handleUserInput.bind(this)}
-        >
-            <option key="-1" value="">None</option>
-            {optionCategories.map((option, index, possibleParents) => {
-                let optionName = option.name;
-                if (possibleParents.find(cat => cat.name == option.name && cat.id != option.id)) {
-                    // There is category name duplicate => extend its name to be clear which category it is
-                    optionName += this._getParentName(possibleParents, option.parentId);
-                }
-                return <option key={index} value={option.id}>{optionName}</option>;
-            })}
-        </FormControl>;
-    }
-    _getParentName(possibleParents, parentId) {
-        let parentCategory = possibleParents.find(cat => cat.id == parentId);
-        if (parentCategory != undefined) {
-            return ' -> ' + parentCategory.name + this._getParentName(possibleParents, parentCategory.parentId);
-        }
-        else return '';
+        return <CategorySelectBox 
+            initialValue={this.state.newEditedCategoryParentId}
+            optionCategories={optionCategories}
+            handleNewEditedCategoryParentId={this.handleNewEditedCategoryParentId.bind(this)}
+        />;
     }
     _removeChildren(possibleChildren, parentId) {
         let childrenIds = [];

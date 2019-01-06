@@ -61,6 +61,15 @@ class CategoryListWrapper {
         catData.Id = this.maxTmpId;
         return new Category(catData);
     }
+    isCategoryChanged(category) {
+        let originalCategory = this.catList.find(cat => cat.id == category.id);
+        if (originalCategory.name == category.name
+            && originalCategory.parentId == category.parentId
+        ) {
+            return false;
+        }
+        else return true;
+    }
     getCategoryList() {
         return this.catList;
     }
@@ -69,6 +78,13 @@ class CategoryListWrapper {
     // }
     getLength() {
         return this.catList.length;
+    }
+    getParentName(possibleParents, parentId) {
+        let parentCategory = possibleParents.find(cat => cat.id == parentId);
+        if (parentCategory != undefined) {
+            return ' -> ' + parentCategory.name + this.getParentName(possibleParents, parentCategory.parentId);
+        }
+        else return '';
     }
 }
 
@@ -80,9 +96,11 @@ const CategoryList = {
     recreateCategoryListTree: CLWrapper.recreateCategoryListTree.bind(CLWrapper),
     clearCategoryList:        CLWrapper.clearCategoryList.bind(CLWrapper),
     createCategory:           CLWrapper.createCategory.bind(CLWrapper),
+    isCategoryChanged:        CLWrapper.isCategoryChanged.bind(CLWrapper),
     getCategoryList:          CLWrapper.getCategoryList.bind(CLWrapper),
     //getCategoryListTree:      CLWrapper.getCategoryListTree.bind(CLWrapper),
-    getLength:                CLWrapper.getLength.bind(CLWrapper)
+    getLength:                CLWrapper.getLength.bind(CLWrapper),
+    getParentName:            CLWrapper.getParentName.bind(CLWrapper)
 }
 
 export default CategoryList;
