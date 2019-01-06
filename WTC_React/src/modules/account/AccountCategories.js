@@ -30,20 +30,15 @@ export default class AccountCategories extends Component {
             newEditedCategoryParentId: ''
         };
 
-        this.initialFormState = {};
+        //this.initialFormState = {};
         this.modalTitle = 'Task Categories';
         this.modalSubmitBtn;
     }
 
-    setInitialFormState() {
-        this.initialFormState = {
-            newCategoryName: this.state.newCategoryName,
-            newCategoryParentId:    this.state.newCategoryParentId
-        }
-    }
-    editEnabled() {
-        if (this.state.newCategoryName !== this.initialFormState.newCategoryName
-            || this.state.newCategoryParentId !== this.initialFormState.newCategoryParentId) {
+    saveEnabled() {
+        if (this.state.newCategories.length > 0
+            || this.state.categoriesToEdit.length > 0
+            || this.state.categoriesToRemove.length > 0) {
             return true;
         }
 
@@ -56,7 +51,7 @@ export default class AccountCategories extends Component {
             categoryList: JSON.parse(JSON.stringify(CategoryList.getCategoryList())),
             categoriesToRemove: [],
             categoriesToEdit: [],
-            newCategories: [],
+            newCategories: []
         });
         document.addEventListener('mousedown', this.handleClickOutsideCategoryTree.bind(this));
     }
@@ -133,7 +128,7 @@ export default class AccountCategories extends Component {
             previousEditedCategory.isEdited = false;
             // Save its changes
             previousEditedCategory.name = this.state.newEditedCategoryName;
-            previousEditedCategory.parentId = this._getUserInputParentId(this.state.newEditedCategoryParentId);
+            previousEditedCategory.parentId = this.getUserInputParentId(this.state.newEditedCategoryParentId);
 
             // Add/Edit record of edited category in correct array
             let newEditedCategory = this.state.newCategories.find(category => category.id == previousEditedCategory.id);
@@ -148,7 +143,7 @@ export default class AccountCategories extends Component {
             }
         }
     }
-    _getUserInputParentId(userInputParentId) {
+    getUserInputParentId(userInputParentId) {
         if (userInputParentId == "") return null;                               // Empty string convert to null
         else if (userInputParentId != null) return Number(userInputParentId);   // It is not empty string nor null, so convert to number
         else return userInputParentId;                                          // ParentId is null, so leave it as it is
@@ -181,17 +176,26 @@ export default class AccountCategories extends Component {
             }
         }
     }
-    // handleAddCategoryBtn() {
-    //     console.log('We should handle click on AddChildCategoryBtn.');
-    // }
     handleRemoveCategoryBtn(e) {
         let updatedCategoryList = this.state.categoryList;
         let categoriesToRemove = this.state.categoriesToRemove;
         let categoryToRemoveId = e.currentTarget.parentElement.dataset.id;
         let categoryToRemoveIndex = updatedCategoryList.findIndex(cat => cat.id == Number(categoryToRemoveId));
 
-        // Extend array of category ids to remove
-        categoriesToRemove.push(Number(categoryToRemoveId));
+        // Check if category was new
+        let newCategoryToRemoveIndex = this.state.newCategories.findIndex(cat => cat.id == categoryToRemoveId);
+        if (newCategoryToRemoveIndex != -1) {
+            this.state.newCategories.splice(newCategoryToRemoveIndex, 1);
+        }
+        else {
+            // Extend array of category ids to remove
+            categoriesToRemove.push(Number(categoryToRemoveId));
+        }
+        // Check if category was edited
+        let editedCategoryToRemoveIndex = this.state.categoriesToEdit.findIndex(cat => cat.id == categoryToRemoveId);
+        if (editedCategoryToRemoveIndex != -1) {
+            this.state.categoriesToEdit.splice(editedCategoryToRemoveIndex, 1);
+        }
         // Check category children and alter their parentId
         updatedCategoryList.forEach(category => {
             if (category.parentId == categoryToRemoveId) {
@@ -291,7 +295,7 @@ export default class AccountCategories extends Component {
         // Remove current category from list
         optionCategories.splice(optionCategories.findIndex(cat => cat.id == parentId), 1);
         // Remove children from categoryList
-        optionCategories = this._removeChildren(optionCategories, parentId);
+        optionCategories = this.removeChildren(optionCategories, parentId);
 
         return <CategorySelectBox 
             initialValue={this.state.newEditedCategoryParentId}
@@ -299,7 +303,7 @@ export default class AccountCategories extends Component {
             handleNewEditedCategoryParentId={this.handleNewEditedCategoryParentId.bind(this)}
         />;
     }
-    _removeChildren(possibleChildren, parentId) {
+    removeChildren(possibleChildren, parentId) {
         let childrenIds = [];
         // Loop throught all possible children and remove first layer of children
         for (let i = 0, arrayLength = possibleChildren.length; i < arrayLength; i++) {
@@ -315,7 +319,7 @@ export default class AccountCategories extends Component {
         //Remove deeper layer of children -> recursive
         if (childrenIds.length > 0) {
             childrenIds.forEach(child => {
-                possibleChildren = this._removeChildren(possibleChildren, child);
+                possibleChildren = this.removeChildren(possibleChildren, child);
             });
         }
         return possibleChildren;
@@ -326,7 +330,7 @@ export default class AccountCategories extends Component {
             this.modalSubmitBtn = <Button
                     bsStyle='primary'
                     onClick={this.handleSaveCategoriesBtn.bind(this)}
-                    disabled={!this.editEnabled()}
+                    disabled={!this.saveEnabled()}
                 >Save</Button>;
         }
         return <React.Fragment>
@@ -368,15 +372,11 @@ export default class AccountCategories extends Component {
                             <FormGroup controlId='newCategoryParent'>
                                 <Col componentClass={ControlLabel} md={4}>Category parent</Col>
                                 <Col md={6}>
-                                    <FormControl
-                                        componentClass='select'
-                                        name='newCategoryParentId'
-                                        value={this.state.newCategoryParentId}
-                                        onChange={this.handleUserInput.bind(this)}
-                                    >
-                                        <option key="-1" value="">None</option>
-                                        {this.state.categoryList.map((option, index) => <option key={index} value={option.id}>{option.name}</option>)}
-                                    </FormControl>
+                                    <CategorySelectBox 
+                                        initialValue=""
+                                        optionCategories={this.state.categoryList}
+                                        handleNewEditedCategoryParentId={this.handleNewEditedCategoryParentId.bind(this)}
+                                    />
                                 </Col>
                             </FormGroup>
 
