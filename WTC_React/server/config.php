@@ -67,4 +67,13 @@ define("DEFAULT_APP_SETTINGS", serialize(
     )
 ));
 
-
+/**
+ * Custom categories edit functions
+ * key - array name that contains data for function
+ * value - function name
+ */
+define("CUSTOM_CATEGORIES_EDIT_FUNCTIONS", serialize(array(
+    'newCategories' => 'createCategories',
+    'categoriesToEdit' => 'editCategories',
+    'categoriesToRemove' => 'deleteCategories'
+)));

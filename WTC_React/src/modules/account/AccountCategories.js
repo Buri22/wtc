@@ -46,7 +46,7 @@ export default class AccountCategories extends Component {
     }
 
     handleShowModal() {
-        this.setState({ 
+        this.setState({
             showModal: true,
             categoryList: JSON.parse(JSON.stringify(CategoryList.getCategoryList())),
             categoriesToRemove: [],
@@ -60,9 +60,10 @@ export default class AccountCategories extends Component {
         document.removeEventListener('mousedown', this.handleClickOutsideCategoryTree.bind(this));
     }
     handleUserInput (e) {
-        let name = e.target.name;
-        let value = e.target.value;
-        this.setState({ [name]: value });
+        this.setState({ [e.target.name]: e.target.value });
+    }
+    handleNewCategoryParentId(e) {
+        this.setState({ newCategoryParentId: e.target.value })
     }
     handleNewEditedCategoryParentId(e) {
         this.setState({ newEditedCategoryParentId: e.target.value })
@@ -74,29 +75,12 @@ export default class AccountCategories extends Component {
             newCategories: this.state.newCategories,
             categoriesToEdit: this.state.categoriesToEdit,
             categoriesToRemove: this.state.categoriesToRemove
+        }).then((response) => {
+            CategoryList.setCategoryList(response.updatedCategories)
+            this.setState({
+                showModal: false
+            });
         });
-        // TODO: handle response
-
-        // UserService.editAccountData({
-        //         newCategoryName: this.state.newCategoryName,
-        //         newCategoryParentId:    this.state.newCategoryParentId
-        //     })
-        //     .then((response) => {
-        //         if (response.success) {
-        //             this.setInitialFormState();
-        //             // hide modal window + set initial form values
-        //             this.setState({
-        //                 showModal:          false
-        //             });
-        //             // TODO: set result message with mediator into some general result message box
-        //         }
-        //         else if (response.success === false) {
-        //             this.props.logout(response.msg);
-        //         }
-        //         else if (response.msg) {
-        //             this.setState({ msg: response.msg });
-        //         }
-        //     });
     }
     handleCreateCategoryFormSubmit(e) {
         e.preventDefault();
@@ -133,7 +117,7 @@ export default class AccountCategories extends Component {
             // Add/Edit record of edited category in correct array
             let newEditedCategory = this.state.newCategories.find(category => category.id == previousEditedCategory.id);
             let recordedEditedCategory = this.state.categoriesToEdit.find(category => category.id == previousEditedCategory.id);
-            if (newEditedCategory == undefined && recordedEditedCategory == undefined) { 
+            if (newEditedCategory == undefined && recordedEditedCategory == undefined && CategoryList.isCategoryChanged(previousEditedCategory)) { 
                 // Edited category is not recorded yet, add record to categoriesToEdit
                 this.state.categoriesToEdit.push(previousEditedCategory); 
             }
@@ -300,7 +284,7 @@ export default class AccountCategories extends Component {
         return <CategorySelectBox 
             initialValue={this.state.newEditedCategoryParentId}
             optionCategories={optionCategories}
-            handleNewEditedCategoryParentId={this.handleNewEditedCategoryParentId.bind(this)}
+            handleCategoryParentIdChange={this.handleNewEditedCategoryParentId.bind(this)}
         />;
     }
     removeChildren(possibleChildren, parentId) {
@@ -373,9 +357,9 @@ export default class AccountCategories extends Component {
                                 <Col componentClass={ControlLabel} md={4}>Category parent</Col>
                                 <Col md={6}>
                                     <CategorySelectBox 
-                                        initialValue=""
+                                        initialValue={this.state.newCategoryParentId}
                                         optionCategories={this.state.categoryList}
-                                        handleNewEditedCategoryParentId={this.handleNewEditedCategoryParentId.bind(this)}
+                                        handleCategoryParentIdChange={this.handleNewCategoryParentId.bind(this)}
                                     />
                                 </Col>
                             </FormGroup>

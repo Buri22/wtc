@@ -9,7 +9,7 @@ export default class CategorySelectBox extends React.Component {
         return <FormControl
             componentClass='select'
             value={this.props.initialValue || ""}
-            onChange={this.props.handleNewEditedCategoryParentId}
+            onChange={this.props.handleCategoryParentIdChange}
         >
             <option key="-1" value="">None</option>
             {this.props.optionCategories.map((option, index, possibleParents) => {

@@ -128,6 +128,10 @@ function createCategories($categoriesToCreate, &$response) {
     $user = checkLogin();
     if (!$user) { return WTCError::Login; }
 
+    // Get current new category edited children
+    $currentCatOriginalEditedChildren = json_decode($_POST["categoriesToEdit"]);
+    $currentCatEditedChildren = json_decode($_POST["categoriesToEdit"]);
+
     // Get new categories with existing parent
     $newCatsWithExistingParent = array_filter($categoriesToCreate, 'parentCategoryExists');
     for ($i=0; $i < count($newCatsWithExistingParent); $i++) {
@@ -140,22 +144,33 @@ function createCategories($categoriesToCreate, &$response) {
         // Get new created category Id
         $newCategoryId = Db::getLastId();
 
-        // Get current new category children
-        $currentCatChildren = array_filter($categoriesToCreate, function ($child) use ($currentCat) {
+        // Get current new category new children
+        $currentCatNewChildren = array_filter($categoriesToCreate, function ($child) use ($currentCat) {
             return $child->parentId == $currentCat->id;
         });
-        // Loop through potential children
-        foreach ($currentCatChildren as $childCat) {
+        // Loop through potential new children
+        foreach ($currentCatNewChildren as $childCat) {
             // Set new category Id to children parentIds
             $childCat->parentId = $newCategoryId;
             // Add fixed child to $newCatsWithExistingParent array
             array_push($newCatsWithExistingParent, $childCat);
         }
 
+        // Loop through potential edited children
+        foreach ($currentCatOriginalEditedChildren as $key => $childCat) {
+            // Set new category Id to edited children parentIds
+            if ($childCat->parentId == $currentCat->id) {
+                $currentCatEditedChildren[$key]->parentId = $newCategoryId;   
+            }
+        }
+
         // Set result to response
         $result = Db::queryOne('SELECT * From category WHERE Id = ?', $newCategoryId);
         array_push($response["results"]["new"], $result);
     }
+
+    // Save changes to edited categories
+    $_POST["categoriesToEdit"] = json_encode($currentCatEditedChildren);
 }
 function parentCategoryExists($category) {
     if ($category->parentId == null) return true;
@@ -164,30 +179,31 @@ function parentCategoryExists($category) {
         SELECT COUNT(*)
         FROM category
         WHERE Id = ? AND UserId = ?
-    ', $category->parentId, $_SESSION['user_id']);
+    ', $category->parentId, getUserId());
 
     return $result > 0 ? true : false;
 }
 
-function updateCategory() {
-    // Check if all inputs were entered
-    if (!isset($_POST['categoryId']) || empty($_POST['categoryId'])
-        || !isset($_POST['categoryName']) || empty($_POST['categoryName'])) {
-        return WTCError::Input;
+function editCategories($categoriesToEdit, &$response) {
+    //$query = '';
+    // Loop throught all edited categories to create single SQL query with multiple UPDATE statements
+    foreach ($categoriesToEdit as $category) {
+        $data = array(
+            "Name" => trim($category->name),
+            "ParentId" => $category->parentId
+        );
+        $result = Db::update('category', array(
+            "Name" => trim($category->name),
+            "ParentId" => $category->parentId
+        ), 'WHERE Id = ' . $category->id);
+
+        array_push($response["results"]["edit"], $result);
+
+        //$query .= 'UPDATE category SET Name = "' . $category->name . '", ParentId = ' . $category->parentId . ' WHERE Id = ' . $category->id . ";\r\n";
     }
 
-    // Define data for update query
-    $data = array(
-        'Name' => trim($_POST['categoryName'])
-    );
-    if (isset($_POST['parentId']) && !empty($_POST['parentId'])) {
-        $data['ParentId'] = $_POST['parentId'];
-    }
-    $condition = 'WHERE Id = ' . $_POST['categoryId'];
+    //$result = Db::queryAll($query);
 
-    $result = Db::update('category', $data, $condition);
-	
-	return $result;
 }
 function deleteCategories($categoriesToRemove, &$response) {
     // Prepare string of category ids for delete SQL query 
@@ -230,34 +246,31 @@ function updateCategories() {
         "errors" => array()
     );
 
-    // Create new categories
-    if (isset($_POST['newCategories'])) {
-        $decodedValue = json_decode($_POST['newCategories']);
-        if (is_array($decodedValue)) {
-            if (count($decodedValue) > 0) createCategories($decodedValue, $response);
-        }
-        else {
-            array_push($response["errors"], 'We could not decode array from newCategories variable.');
+    foreach (unserialize(CUSTOM_CATEGORIES_EDIT_FUNCTIONS) as $key => $value) {
+        if (isset($_POST[$key])) {
+            $decodedValue = json_decode($_POST[$key]);
+            if (is_array($decodedValue)) {
+                if (count($decodedValue) > 0) {
+                    call_user_func_array($value, array($decodedValue, &$response));
+                }
+            }
+            else {
+                array_push($response["errors"], 'We could not decode array from ' . $key . ' variable.');
+            }
         }
     }
 
-    // Edit edited categories
-    if (isset($_POST['categoriesToEdit']) && is_array($_POST['categoriesToEdit'])) {
-        
-    }
-
-    // Remove deleted categories
-    if (isset($_POST['categoriesToRemove'])) {
-        $decodedValue = json_decode($_POST['categoriesToRemove']);
-        if (is_array($decodedValue)) {
-            if (count($decodedValue) > 0) deleteCategories($decodedValue, $response);
-        }
-        else {
-            array_push($response["errors"], 'We could not decode array from categoriesToRemove variable.');
-        }
-    }
+    $response["updatedCategories"] = getUserCategories(getUserId());
 
     return $response;
+}
+
+function getUserId() {
+    if (!isset($_SESSION['user_id'])) {
+        $user = checkLogin();
+        $_SESSION['user_id'] = $user["Id"];
+    }
+    return $_SESSION['user_id'];
 }
 
 function register() {
