@@ -84,19 +84,13 @@ function checkLogin() {
 
 // Check if some task started
 function checkTaskStarted() {
-    $user = checkLogin();
+    $task = Db::queryOne('
+        SELECT *
+        FROM task
+        WHERE TaskStarted = 1 AND UserId = ?
+    ', getUserId());
 
-    if ($user) {
-        $task = Db::queryOne('
-                  SELECT *
-                  FROM task
-                  WHERE TaskStarted = 1 AND UserId = ?
-                ', $user['Id']);
-        return $task;   // returns task that started or false
-    }
-    else {
-        return WTCError::Logout;
-    }
+    return $task;   // returns task that started or false
 }
 
 // Define User object for JS manipulation
@@ -124,10 +118,6 @@ function getUserCategories($userId) {
 }
 
 function createCategories($categoriesToCreate, &$response) {
-    // Get current user
-    $user = checkLogin();
-    if (!$user) { return WTCError::Login; }
-
     // Get current new category edited children
     $currentCatOriginalEditedChildren = json_decode($_POST["categoriesToEdit"]);
     $currentCatEditedChildren = json_decode($_POST["categoriesToEdit"]);
@@ -140,7 +130,7 @@ function createCategories($categoriesToCreate, &$response) {
         $newCatResult = Db::queryOne('
             INSERT INTO category (Name, ParentId, UserId)
             VALUES (?, ?, ?)
-        ', $currentCat->name, $currentCat->parentId, $user['Id']);
+        ', $currentCat->name, $currentCat->parentId, getUserId());
         // Get new created category Id
         $newCategoryId = Db::getLastId();
 
@@ -268,6 +258,7 @@ function updateCategories() {
 function getUserId() {
     if (!isset($_SESSION['user_id'])) {
         $user = checkLogin();
+        if (!$user) return WTCError::Login;   // User is not logged in
         $_SESSION['user_id'] = $user["Id"];
     }
     return $_SESSION['user_id'];
@@ -376,10 +367,7 @@ function editAccount() {
         return WTCError::Input;
     }
 
-    $user = checkLogin();
-    if (!$user) {
-        return WTCError::Login;   // User is not logged in
-    }
+    $userId = getUserId();
 
     // Email validation
     if (!isValidEmail(trim($_POST['email']))) {
@@ -391,7 +379,7 @@ function editAccount() {
                           FROM user
                           WHERE Email = ?
                     ', $_POST['email']);
-    if ($registered && $registered['Id'] != $user['Id']) {
+    if ($registered && $registered['Id'] != $userId) {
         return WTCError::Registered;
     }
 
@@ -404,7 +392,7 @@ function editAccount() {
 
     // User wants to change his password
     if ($_POST['changePassword'] == "true") {
-        $loggedIn_user = Db::queryOne('SELECT * FROM user WHERE Id = ?', $user['Id']);
+        $loggedIn_user = Db::queryOne('SELECT * FROM user WHERE Id = ?', $userId);
         if ($loggedIn_user) {
             // Check passwords
             if (!password_verify($_POST['passwordCurrent'], $loggedIn_user['Password'])) { return WTCError::Password; }
@@ -419,7 +407,7 @@ function editAccount() {
         }
     }
 
-    $condition = 'WHERE Id = ' . $user['Id'];
+    $condition = 'WHERE Id = ' . $userId;
     $result = Db::update('user', $data, $condition);
 
     return $result;
@@ -429,16 +417,11 @@ function editAppSettings() {
     if (!isset($_POST['app_settings']) || empty($_POST['app_settings'])) {
         return WTCError::Input;
     }
-	
-    $user = checkLogin();
-    if (!$user) {
-        return WTCError::Login;   // User is not logged in
-    }
 
 	$data = array(
 		'AppSettings' => $_POST['app_settings']
 	);
-    $condition = 'WHERE Id = ' . $user['Id'];
+    $condition = 'WHERE Id = ' . getUserId();
     $result = Db::update('user', $data, $condition);
 	
 	return $result;
@@ -459,40 +442,36 @@ function getTask() {
 
 // Get list of tasks
 function getTaskList() {
-    $user = checkLogin();
-    if ($user) {
-        $result = Db::queryAll('
-                        SELECT *
-                        FROM task
-                        WHERE UserId = ?
-                        ORDER BY Id DESC
-                    ', $user['Id']);
+    $result = Db::queryAll('
+        SELECT *
+        FROM task
+        WHERE UserId = ?
+        ORDER BY Id DESC
+    ', getUserId());
 
-        return $result;
-    }
-    else return $user;
+    return $result;
 }
 
 function createTask() {
     if (!isset($_POST['new_name']) || empty($_POST['new_name'])
         || !isset($_POST['new_spent_time']) || empty($_POST['new_spent_time'])
-        || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])) {
+        || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])
+        || !isset($_POST['new_category_id']) || empty($_POST['new_category_id'])) {
         return WTCError::Input;
     }
-    $user = checkLogin();
-    if (!$user) { return WTCError::Login; }
+    $userId = getUserId();
 
-    // Check if task name already exists
-    $result = Db::queryOne('
-                    SELECT *
-                    FROM task
-                    WHERE UserId = ? AND Name = ?
-                ', $user['Id'], $_POST['new_name']);
+    // // Check if task name already exists
+    // $result = Db::queryOne('
+    //                 SELECT *
+    //                 FROM task
+    //                 WHERE UserId = ? AND Name = ?
+    //             ', $userId, $_POST['new_name']);
 
-    // New task name is already used by another task
-    if ($result) {
-        return WTCError::TaskName;
-    }
+    // // New task name is already used by another task
+    // if ($result) {
+    //     return WTCError::TaskName;
+    // }
 
     // Validate task spent time format
     if (!validateSpentTime($_POST['new_spent_time'])) {
@@ -510,7 +489,7 @@ function createTask() {
     $data['Name']        = trim($_POST['new_name']);
     $data['SpentTime']   = hmsToSeconds($_POST['new_spent_time']);
     $data['DateCreated'] = date_create($date[2] . "-" . $date[1] . "-" . $date[0])->format('Y-m-d');
-    $data['UserId']      = $user['Id'];
+    $data['UserId']      = $userId;
 
     $newTask = Db::insert('task', $data);
 
@@ -519,7 +498,7 @@ function createTask() {
                     SELECT *
                     FROM task
                     WHERE UserId = ? AND Name = ?
-                ', $user['Id'], $_POST['new_name']);
+                ', $userId, $_POST['new_name']);
         return $insertedTask;
     }
     return $newTask;
@@ -533,15 +512,13 @@ function editTask() {
         || !isset($_POST['item_id']) || empty($_POST['item_id'])) {
         return WTCError::Input;
     }
-    $user = checkLogin();
-    if (!$user) { return WTCError::Login; }
 
     // Check if task name already exists
     $result = Db::queryOne('
                     SELECT *
                     FROM task
                     WHERE Name = ? AND UserId = ?
-                ', trim($_POST['new_name']), $user['Id']);
+                ', trim($_POST['new_name']), getUserId());
 
     // New task name is already used by another task
     if ($result && $result['Id'] != $_POST['item_id']) {

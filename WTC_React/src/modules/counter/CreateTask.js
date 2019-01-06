@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import CustomModal from '../../components/CustomModal';
+import CategorySelectBox from '../../components/CategorySelectBox';
 
 import DateTimeHelper from '../../services/DateTimeHelper';
 import TaskService from '../../services/TaskService';
+import CategoryList from '../../model/category';
 
 // TODO: Implement Date picker and Time picker
 
@@ -24,15 +26,17 @@ export default class CreateTask extends Component {
             taskName:    '',
             spentTime:   '00:00:00',
             dateCreated: DateTimeHelper.getFormatedDate(),
+            categoryId: '',
             msg:         ''
         }
 
     }
 
     handleUserInput (e) {
-        let name = e.target.name;
-        let value = e.target.value;
-        this.setState({ [name]: value });
+        this.setState({ [e.target.name]: e.target.value });
+    }
+    handleCategoryIdChange(e) {
+        this.setState({ categoryId: e.target.value == "" ? null : e.target.value })
     }
     handleSubmit(e) {
         e.preventDefault();
@@ -40,7 +44,8 @@ export default class CreateTask extends Component {
         TaskService.createTask({
             new_name:         this.state.taskName,
             new_spent_time:   this.state.spentTime,
-            new_date_created: this.state.dateCreated
+            new_date_created: this.state.dateCreated,
+            new_category_id:  this.state.categoryId
         })
         .then((response) => {
             if (response.success || response.modalHide) {
@@ -110,6 +115,26 @@ export default class CreateTask extends Component {
                             />
                         </Col>
                     </FormGroup>
+
+                    <FormGroup controlId='dateCreated'>
+                        <Col componentClass={ControlLabel} md={4}>Task Category</Col>
+                        <Col md={6}>
+                            <FormControl
+                                type='text'
+                                name='dateCreated'
+                                value={this.state.dateCreated}
+                                onChange={this.handleUserInput.bind(this)}
+                                placeholder='Allowed format is...'
+                                required='required'
+                            />
+                            <CategorySelectBox 
+                                initialValue={this.state.categoryId}
+                                optionCategories={CategoryList.getCategoryList()}
+                                handleCategoryParentIdChange={this.handleCategoryIdChange.bind(this)}
+                            />
+                        </Col>
+                    </FormGroup>
+
                 </Form>
                 {this.state.msg && <span className='modalErrorMsg red'>{this.state.msg}</span>}
             </CustomModal>

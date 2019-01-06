@@ -30,7 +30,6 @@ export default class AccountCategories extends Component {
             newEditedCategoryParentId: ''
         };
 
-        //this.initialFormState = {};
         this.modalTitle = 'Task Categories';
         this.modalSubmitBtn;
     }
