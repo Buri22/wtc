@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { Tabs, Tab, Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
 import CustomModal from '../../components/CustomModal';
+import CategorySelectBox from '../../components/CategorySelectBox';
 
 import { TaskList } from '../../model/task';
 import DateTimeHelper from '../../services/DateTimeHelper';
 import TaskService from '../../services/TaskService';
+import CategoryList from '../../model/category';
 
 // TODO: Implement Date picker and Time picker
 
@@ -35,6 +37,7 @@ export default class EditDeleteTask extends Component {
             taskName:       this.originalTask.name,
             spentTime:      this.originalTask.spentTimeInHms(),
             dateCreated:    DateTimeHelper.getFormatedDate(this.originalTask.dateCreated),
+            categoryId:     this.originalTask.categoryId,
             password:       '',
             msg:            ''
         }
@@ -49,10 +52,11 @@ export default class EditDeleteTask extends Component {
         });
     }
 
-    handleUserInput (e) {
-        let name = e.target.name;
-        let value = e.target.value;
-        this.setState({ [name]: value });
+    handleUserInput(e) {
+        this.setState({ [e.target.name]: e.target.value });
+    }
+    handleCategoryIdChange(e) {
+        this.setState({ categoryId: e.target.value == "" ? null : e.target.value })
     }
     handleSubmit(e) {
         e.preventDefault();
@@ -62,7 +66,8 @@ export default class EditDeleteTask extends Component {
                 item_id:          this.originalTask.id,
                 new_name:         this.state.taskName,
                 new_spent_time:   this.state.spentTime,
-                new_date_created: this.state.dateCreated
+                new_date_created: this.state.dateCreated,
+                new_category_id:  this.state.categoryId
             })
             .then((response) => {
                 if (response.success || response.modalHide) {
@@ -158,6 +163,18 @@ export default class EditDeleteTask extends Component {
                                     />
                                 </Col>
                             </FormGroup>
+
+                            <FormGroup controlId='taskCategory'>
+                                <Col componentClass={ControlLabel} md={4}>Task Category</Col>
+                                <Col md={6}>
+                                    <CategorySelectBox 
+                                        initialValue={this.state.categoryId}
+                                        optionCategories={CategoryList.getCategoryList()}
+                                        handleCategoryParentIdChange={this.handleCategoryIdChange.bind(this)}
+                                    />
+                                </Col>
+                            </FormGroup>
+
                         </Form>
                     </Tab>
 

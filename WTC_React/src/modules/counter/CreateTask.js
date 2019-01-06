@@ -116,17 +116,9 @@ export default class CreateTask extends Component {
                         </Col>
                     </FormGroup>
 
-                    <FormGroup controlId='dateCreated'>
+                    <FormGroup controlId='taskCategory'>
                         <Col componentClass={ControlLabel} md={4}>Task Category</Col>
                         <Col md={6}>
-                            <FormControl
-                                type='text'
-                                name='dateCreated'
-                                value={this.state.dateCreated}
-                                onChange={this.handleUserInput.bind(this)}
-                                placeholder='Allowed format is...'
-                                required='required'
-                            />
                             <CategorySelectBox 
                                 initialValue={this.state.categoryId}
                                 optionCategories={CategoryList.getCategoryList()}

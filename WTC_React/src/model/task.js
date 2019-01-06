@@ -12,6 +12,7 @@ class Task {
         this.spentTime   = taskData.SpentTime;
         this.taskStarted = taskData.TaskStarted;
         this.dateCreated = taskData.DateCreated;
+        this.categoryId  = taskData.CategoryId;
     }
 
     spentTimeInHms() {

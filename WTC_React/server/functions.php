@@ -131,6 +131,12 @@ function createCategories($categoriesToCreate, &$response) {
             INSERT INTO category (Name, ParentId, UserId)
             VALUES (?, ?, ?)
         ', $currentCat->name, $currentCat->parentId, getUserId());
+        // TODO: fix check in case insertion failed, refactor also createTask()
+        // if ($newCatResult == false) {
+        //     array_push($response["results"]["new"], 'Insertion failed - category: ' . $currentCat->name);
+        // }
+        // else {
+        // }
         // Get new created category Id
         $newCategoryId = Db::getLastId();
 
@@ -483,25 +489,46 @@ function createTask() {
         return WTCError::TaskDateCreated;
     }
 
-    // TODO: refactor to explicit INSERT statement to get inserted task as result of the query (as in createCategories), when user can have more tasks with the same name later
-    // Define data for insert query
-    $data = array();
-    $data['Name']        = trim($_POST['new_name']);
-    $data['SpentTime']   = hmsToSeconds($_POST['new_spent_time']);
-    $data['DateCreated'] = date_create($date[2] . "-" . $date[1] . "-" . $date[0])->format('Y-m-d');
-    $data['UserId']      = $userId;
+    // Insert new task
+    $newTaskResult = Db::queryOne('
+        INSERT INTO task (Name, SpentTime, DateCreated, CategoryId, UserId)
+        VALUES (?, ?, ?, ?, ?)
+        ', trim($_POST['new_name'])
+        , hmsToSeconds($_POST['new_spent_time'])
+        , date_create($date[2] . "-" . $date[1] . "-" . $date[0])->format('Y-m-d')
+        , intval($_POST['new_category_id'])
+        , getUserId()
+    );
+    // TODO: implement check whether insertion failed as in createCategories()
+    // Get new Task Id
+    $newTaskId = Db::getLastId();
 
-    $newTask = Db::insert('task', $data);
+    $insertedTask = Db::queryOne('
+                SELECT *
+                FROM task
+                WHERE Id = ?
+            ', $newTaskId);
 
-    if ($newTask == 1) {
-        $insertedTask = Db::queryOne('
-                    SELECT *
-                    FROM task
-                    WHERE UserId = ? AND Name = ?
-                ', $userId, $_POST['new_name']);
-        return $insertedTask;
-    }
-    return $newTask;
+    return $insertedTask;
+
+    // // Define data for insert query
+    // $data = array();
+    // $data['Name']        = trim($_POST['new_name']);
+    // $data['SpentTime']   = hmsToSeconds($_POST['new_spent_time']);
+    // $data['DateCreated'] = date_create($date[2] . "-" . $date[1] . "-" . $date[0])->format('Y-m-d');
+    // $data['UserId']      = $userId;
+
+    // $newTask = Db::insert('task', $data);
+
+    // if ($newTask == 1) {
+    //     $insertedTask = Db::queryOne('
+    //                 SELECT *
+    //                 FROM task
+    //                 WHERE UserId = ? AND Name = ?
+    //             ', $userId, $_POST['new_name']);
+    //     return $insertedTask;
+    // }
+    // return $newTask;
 }
 
 function editTask() {
@@ -509,21 +536,22 @@ function editTask() {
     if (!isset($_POST['new_name']) || empty($_POST['new_name'])
         || !isset($_POST['new_spent_time']) || empty($_POST['new_spent_time'])
         || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])
-        || !isset($_POST['item_id']) || empty($_POST['item_id'])) {
+        || !isset($_POST['item_id']) || empty($_POST['item_id'])
+        || !isset($_POST['new_category_id']) || empty($_POST['new_category_id'])) {
         return WTCError::Input;
     }
 
-    // Check if task name already exists
-    $result = Db::queryOne('
-                    SELECT *
-                    FROM task
-                    WHERE Name = ? AND UserId = ?
-                ', trim($_POST['new_name']), getUserId());
+    // // Check if task name already exists
+    // $result = Db::queryOne('
+    //                 SELECT *
+    //                 FROM task
+    //                 WHERE Name = ? AND UserId = ?
+    //             ', trim($_POST['new_name']), getUserId());
 
-    // New task name is already used by another task
-    if ($result && $result['Id'] != $_POST['item_id']) {
-        return WTCError::TaskName;
-    }
+    // // New task name is already used by another task
+    // if ($result && $result['Id'] != $_POST['item_id']) {
+    //     return WTCError::TaskName;
+    // }
 
     // Validate task spent time format
     if (!validateSpentTime($_POST['new_spent_time'])) {
@@ -540,6 +568,7 @@ function editTask() {
     $data['Name'] = trim($_POST['new_name']);
     $data['SpentTime'] = hmsToSeconds($_POST['new_spent_time']);
     $data['DateCreated'] = date_create($date[2] . "-" . $date[1] . "-" . $date[0])->format('Y-m-d');
+    $data['CategoryId'] = intval($_POST['new_category_id']);
 
     $condition = 'WHERE Id = ' . intval($_POST['item_id']);
 
