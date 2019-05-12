@@ -38,7 +38,7 @@ module.exports = {
       {
         test: /\.png$/,
         use: [{
-          loader: "url-loader?limit=100000"
+          loader: "url-loader?limit=100000&outputPath=./dist"
         }]
       },
       {
@@ -50,13 +50,13 @@ module.exports = {
       {
         test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
         use: [{
-          loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+          loader: 'url-loader?limit=10000&mimetype=application/font-woff&outputPath=./dist'
         }]
       },
       {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
         use: [{
-          loader: 'url-loader?limit=10000&mimetype=application/octet-stream'
+          loader: 'url-loader?limit=10000&mimetype=application/octet-stream&outputPath=./dist'
         }]
       },
       {
@@ -68,7 +68,7 @@ module.exports = {
       {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
         use: [{
-          loader: 'url-loader?limit=10000&mimetype=image/svg+xml'
+          loader: 'url-loader?limit=10000&mimetype=image/svg+xml&outputPath=./dist'
         }]
       },
       /*  Webpack 2.0+ has native JSON support
