@@ -38,7 +38,7 @@ export default class TaskService {
                     return { msg: 'Please input some creative task name.' };
                 }
                 else if (response == ERROR.Login) {
-                    return { msg: 'Please input some creative task name.', logout: true };
+                    return { msg: 'You were unexpectedly logged out.', logout: true };
                 }
                 else if (response == ERROR.TaskName) {
                     return { msg: 'This task name already exists, try something different.' };
@@ -64,6 +64,7 @@ export default class TaskService {
                     updatedTask.name        = response.Name;
                     updatedTask.spentTime   = response.SpentTime;
                     updatedTask.dateCreated = response.DateCreated;
+                    updatedTask.categoryId  = response.CategoryId;
                     TaskList.setTask(updatedTask);
 
                     return { success: true, msg: 'Task was successfully edited!' };

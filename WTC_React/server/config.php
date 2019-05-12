@@ -1,6 +1,9 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);   
+
 /**
- * These are the database login details
+ * These are the database login params
  */
 if ($_SERVER['SERVER_NAME'] == 'localhost') {
     // Development
@@ -17,6 +20,8 @@ else {
     define("DATABASE", "buridevelopmentcz3");   // The database name.
     define("USER", "buridevelo1");              // The database username.
     define("PASSWORD", "Kerolajn89");           // The database password.
+
+    define("SECURE", TRUE);                    
 }
  
 

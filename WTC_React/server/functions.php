@@ -84,11 +84,15 @@ function checkLogin() {
 
 // Check if some task started
 function checkTaskStarted() {
+    $userId = getUserId();
+    if ($userId == NULL) {
+        return false;
+    }
     $task = Db::queryOne('
         SELECT *
         FROM task
         WHERE TaskStarted = 1 AND UserId = ?
-    ', getUserId());
+    ', $userId);
 
     return $task;   // returns task that started or false
 }
@@ -118,6 +122,12 @@ function getUserCategories($userId) {
 }
 
 function createCategories($categoriesToCreate, &$response) {
+    // Get userId
+    $userId = getUserId();
+    if ($userId == NULL) {
+        return;
+    }
+
     // Get current new category edited children
     $currentCatOriginalEditedChildren = json_decode($_POST["categoriesToEdit"]);
     $currentCatEditedChildren = json_decode($_POST["categoriesToEdit"]);
@@ -130,7 +140,7 @@ function createCategories($categoriesToCreate, &$response) {
         $newCatResult = Db::queryOne('
             INSERT INTO category (Name, ParentId, UserId)
             VALUES (?, ?, ?)
-        ', $currentCat->name, $currentCat->parentId, getUserId());
+        ', $currentCat->name, $currentCat->parentId, $userId);
         // TODO: fix check in case insertion failed, refactor also createTask()
         // if ($newCatResult == false) {
         //     array_push($response["results"]["new"], 'Insertion failed - category: ' . $currentCat->name);
@@ -171,11 +181,16 @@ function createCategories($categoriesToCreate, &$response) {
 function parentCategoryExists($category) {
     if ($category->parentId == null) return true;
 
+    $userId = getUserId();
+    if ($userId == NULL) {
+        return false;
+    }
+
     $result = Db::querySingle('
         SELECT COUNT(*)
         FROM category
         WHERE Id = ? AND UserId = ?
-    ', $category->parentId, getUserId());
+    ', $category->parentId, $userId);
 
     return $result > 0 ? true : false;
 }
@@ -242,21 +257,29 @@ function updateCategories() {
         "errors" => array()
     );
 
-    foreach (unserialize(CUSTOM_CATEGORIES_EDIT_FUNCTIONS) as $key => $value) {
-        if (isset($_POST[$key])) {
-            $decodedValue = json_decode($_POST[$key]);
-            if (is_array($decodedValue)) {
-                if (count($decodedValue) > 0) {
-                    call_user_func_array($value, array($decodedValue, &$response));
+    // Get userId
+    $userId = getUserId();
+
+    if ($userId != NULL) {
+        foreach (unserialize(CUSTOM_CATEGORIES_EDIT_FUNCTIONS) as $key => $value) {
+            if (isset($_POST[$key])) {
+                $decodedValue = json_decode($_POST[$key]);
+                if (is_array($decodedValue)) {
+                    if (count($decodedValue) > 0) {
+                        call_user_func_array($value, array($decodedValue, &$response));
+                    }
+                }
+                else {
+                    array_push($response["errors"], 'We could not decode array from ' . $key . ' variable.');
                 }
             }
-            else {
-                array_push($response["errors"], 'We could not decode array from ' . $key . ' variable.');
-            }
         }
+    
+        $response["updatedCategories"] = getUserCategories($userId);
     }
-
-    $response["updatedCategories"] = getUserCategories(getUserId());
+    else {
+        array_push($response["errors"], 'User login session expired.');
+    }
 
     return $response;
 }
@@ -264,7 +287,11 @@ function updateCategories() {
 function getUserId() {
     if (!isset($_SESSION['user_id'])) {
         $user = checkLogin();
-        if (!$user) return WTCError::Login;   // User is not logged in
+
+        if (!$user) { // User is not logged in
+            return NULL;
+        }
+
         $_SESSION['user_id'] = $user["Id"];
     }
     return $_SESSION['user_id'];
@@ -374,6 +401,9 @@ function editAccount() {
     }
 
     $userId = getUserId();
+    if ($userId == NULL) {
+        return WTCError::Login;
+    }
 
     // Email validation
     if (!isValidEmail(trim($_POST['email']))) {
@@ -423,11 +453,16 @@ function editAppSettings() {
     if (!isset($_POST['app_settings']) || empty($_POST['app_settings'])) {
         return WTCError::Input;
     }
+    
+    $userId = getUserId();
+    if ($userId == NULL) {
+        return WTCError::Login;
+    }
 
 	$data = array(
 		'AppSettings' => $_POST['app_settings']
 	);
-    $condition = 'WHERE Id = ' . getUserId();
+    $condition = 'WHERE Id = ' . $userId;
     $result = Db::update('user', $data, $condition);
 	
 	return $result;
@@ -448,36 +483,46 @@ function getTask() {
 
 // Get list of tasks
 function getTaskList() {
+    $userId = getUserId();
+    if ($userId == NULL) {
+        return WTCError::Login;
+    }
+
     $result = Db::queryAll('
         SELECT *
         FROM task
         WHERE UserId = ?
         ORDER BY Id DESC
-    ', getUserId());
+    ', $userId);
 
     return $result;
+
+    // $user = checkLogin();
+    // return $user;
+    // if ($user) {
+    //     $result = Db::queryAll('
+    //                     SELECT *
+    //                     FROM task
+    //                     WHERE UserId = ?
+    //                     ORDER BY Id DESC
+    //                 ', $user['Id']);
+
+    //     return $result;
+    // }
+    // else return $user;
 }
 
 function createTask() {
     if (!isset($_POST['new_name']) || empty($_POST['new_name'])
         || !isset($_POST['new_spent_time']) || empty($_POST['new_spent_time'])
         || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])
-        || !isset($_POST['new_category_id']) || empty($_POST['new_category_id'])) {
+        || !isset($_POST['new_category_id'])) {
         return WTCError::Input;
     }
     $userId = getUserId();
-
-    // // Check if task name already exists
-    // $result = Db::queryOne('
-    //                 SELECT *
-    //                 FROM task
-    //                 WHERE UserId = ? AND Name = ?
-    //             ', $userId, $_POST['new_name']);
-
-    // // New task name is already used by another task
-    // if ($result) {
-    //     return WTCError::TaskName;
-    // }
+    if ($userId == NULL) {
+        return WTCError::Login;
+    }
 
     // Validate task spent time format
     if (!validateSpentTime($_POST['new_spent_time'])) {
@@ -496,8 +541,8 @@ function createTask() {
         ', trim($_POST['new_name'])
         , hmsToSeconds($_POST['new_spent_time'])
         , date_create($date[2] . "-" . $date[1] . "-" . $date[0])->format('Y-m-d')
-        , intval($_POST['new_category_id'])
-        , getUserId()
+        , $_POST['new_category_id'] == "" ? NULL : intval($_POST['new_category_id'])
+        , $userId
     );
     // TODO: implement check whether insertion failed as in createCategories()
     // Get new Task Id
@@ -537,21 +582,9 @@ function editTask() {
         || !isset($_POST['new_spent_time']) || empty($_POST['new_spent_time'])
         || !isset($_POST['new_date_created']) || empty($_POST['new_date_created'])
         || !isset($_POST['item_id']) || empty($_POST['item_id'])
-        || !isset($_POST['new_category_id']) || empty($_POST['new_category_id'])) {
+        || !isset($_POST['new_category_id'])) {
         return WTCError::Input;
     }
-
-    // // Check if task name already exists
-    // $result = Db::queryOne('
-    //                 SELECT *
-    //                 FROM task
-    //                 WHERE Name = ? AND UserId = ?
-    //             ', trim($_POST['new_name']), getUserId());
-
-    // // New task name is already used by another task
-    // if ($result && $result['Id'] != $_POST['item_id']) {
-    //     return WTCError::TaskName;
-    // }
 
     // Validate task spent time format
     if (!validateSpentTime($_POST['new_spent_time'])) {
