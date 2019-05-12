@@ -179,18 +179,14 @@ function createCategories($categoriesToCreate, &$response) {
     $_POST["categoriesToEdit"] = json_encode($currentCatEditedChildren);
 }
 function parentCategoryExists($category) {
+    // Categories with parentId = null -> are root categories
     if ($category->parentId == null) return true;
-
-    $userId = getUserId();
-    if ($userId == NULL) {
-        return false;
-    }
 
     $result = Db::querySingle('
         SELECT COUNT(*)
         FROM category
-        WHERE Id = ? AND UserId = ?
-    ', $category->parentId, $userId);
+        WHERE Id = ?
+    ', $category->parentId);
 
     return $result > 0 ? true : false;
 }
@@ -226,6 +222,8 @@ function deleteCategories($categoriesToRemove, &$response) {
         }
         else {
             $categoryIdsToRemove .= $categoryId . ', ';
+            // Add result to response
+            array_push($response["results"]["delete"], $categoryId);
         }
     }
     $categoryIdsToRemove = substr($categoryIdsToRemove, 0, -2) . ')';
@@ -243,9 +241,6 @@ function deleteCategories($categoriesToRemove, &$response) {
                 DELETE FROM category
                 WHERE Id IN 
             ' . $categoryIdsToRemove);
-    
-    // Add result to response
-    $response["results"]["delete"][$categoryId] = $result;
 }
 function updateCategories() {
     $response = array(

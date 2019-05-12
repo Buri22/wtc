@@ -12,6 +12,7 @@ import { TaskList } from '../../model/task';
 import TaskService from '../../services/TaskService';
 import TickingManager from './TickingManager';
 import { MODAL_CONTAINER } from '../../constants';
+import Mediator from '../../services/Mediator';
 
 export default class Counter extends Component {
 
@@ -27,6 +28,8 @@ export default class Counter extends Component {
             showModal:          false
         };
         this.modalContent = null;
+        
+        Mediator.subscribe('SetMessage', this.setMessage.bind(this));
     }
 
     componentWillMount() {
@@ -48,6 +51,9 @@ export default class Counter extends Component {
         TickingManager.switchRenderTicking(false);
     }
 
+    setMessage(msg) {
+        this.setState({msg: msg});
+    }
     updateTaskSpentTime(task) {
         this.setState({ tickingTime: task.spentTime });
     }

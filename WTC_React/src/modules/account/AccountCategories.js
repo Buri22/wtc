@@ -7,6 +7,7 @@ import CategorySelectBox from '../../components/CategorySelectBox';
 
 import UserService from '../../services/UserService';
 import CategoryList from '../../model/category';
+import Mediator from '../../services/Mediator';
 
 /**
  * Renders AccountCategories menu item and modal window with CRUD capabilities
@@ -75,10 +76,26 @@ export default class AccountCategories extends Component {
             categoriesToEdit: this.state.categoriesToEdit,
             categoriesToRemove: this.state.categoriesToRemove
         }).then((response) => {
-            CategoryList.setCategoryList(response.updatedCategories)
-            this.setState({
-                showModal: false
-            });
+            // Join all error messages into one
+            let msg = response.errors.join("\n\r");
+
+            CategoryList.setCategoryList(response.updatedCategories);
+
+            if (msg == '') {
+                // Succesfull categories update
+                this.setState({
+                    showModal: false
+                });
+
+                Mediator.publish('SetMessage', 'Categories were updated successfuly!');
+            }
+            else {
+                // Show errors inside the modal window
+                this.setState({
+                    msg: msg,
+                    categoryList: JSON.parse(JSON.stringify(CategoryList.getCategoryList()))
+                });
+            }
         });
     }
     handleCreateCategoryFormSubmit(e) {

@@ -144,25 +144,5 @@ export default class UserService {
 
     static updateCategories(data) {
         return dataProvider.provide('updateCategories', data);
-            // .then(response => {
-            //     // TODO: handle categories custom response data
-            //     let msg = response.errors.join("\n\r");
-
-            //     if (response.results.delete.length > 0) {
-
-            //     }
-
-            //     console.log(response);
-                
-            //     // if (response == false) {
-            //     //     // Update model
-            //     //     TaskList.removeTask(data.task_id);
-
-            //     //     return { success: true, msg: 'Category was deleted successfully.' };
-            //     // }
-            //     // else if(response == ERROR.Input) {
-            //     //     return { msg: 'Some information is missing.' };
-            //     // }
-            // })
     }
 }
