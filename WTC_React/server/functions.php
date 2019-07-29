@@ -1,5 +1,53 @@
 <?php
 include_once 'config.php';
+include_once 'sales_force_api.php';
+
+function sendRequestToSalesForce() {
+    $user = checkLogin();
+    if ($user) {        
+        //$salesForceManager = new SalesForceAPI();
+        //return $_SESSION['sales_force_manager']->search($_POST['SFAction']);
+        return $_SESSION['sales_force_manager']->query($_POST['SFAction']);
+    }
+    else {
+        return "User checkLogin failed";
+    }
+}
+
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_query.htm
+// https://developer.salesforce.com/docs/atlas.en-us.220.0.soql_sosl.meta/soql_sosl/sforce_api_calls_sosl_examples.htm
+function sendChangeDataRequestToSalesForce() {
+    $user = checkLogin();
+    if ($user) {
+        // Create url to request data from SF
+        $url = $_SESSION['instance_url'].'/services/data/v46.0/sobjects/Lead/00Q2o000014fhIYEAY';
+        $data = array("FirstName" => "Bertha2");                                                                    
+        $data_string = json_encode($data);
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array( 
+            'Authorization: Bearer ' . $_SESSION['access_token'],
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($data_string)
+        ));
+    
+        // Execute post
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $response = json_decode($result);
+        //$this->query_url = $_SESSION['instance_url'].$response->query.'?q=';
+    
+        return $response;
+    }
+    else {
+        return "User checkLogin failed";
+    }
+}
 
 // Check if the request is an AJAX request
 function is_ajax($headers) {
@@ -141,6 +189,7 @@ function createCategories($categoriesToCreate, &$response) {
             INSERT INTO category (Name, ParentId, UserId)
             VALUES (?, ?, ?)
         ', $currentCat->name, $currentCat->parentId, $userId);
+
         // TODO: fix check in case insertion failed, refactor also createTask()
         // if ($newCatResult == false) {
         //     array_push($response["results"]["new"], 'Insertion failed - category: ' . $currentCat->name);
@@ -192,7 +241,6 @@ function parentCategoryExists($category) {
 }
 
 function editCategories($categoriesToEdit, &$response) {
-    //$query = '';
     // Loop throught all edited categories to create single SQL query with multiple UPDATE statements
     foreach ($categoriesToEdit as $category) {
         $data = array(
@@ -205,11 +253,7 @@ function editCategories($categoriesToEdit, &$response) {
         ), 'WHERE Id = ' . $category->id);
 
         array_push($response["results"]["edit"], $result);
-
-        //$query .= 'UPDATE category SET Name = "' . $category->name . '", ParentId = ' . $category->parentId . ' WHERE Id = ' . $category->id . ";\r\n";
     }
-
-    //$result = Db::queryAll($query);
 
 }
 function deleteCategories($categoriesToRemove, &$response) {
@@ -352,6 +396,15 @@ function login() {
     }
     else if (!password_verify($_POST['password'], $user['Password'])) {   // Check passwords
         return WTCError::Password;
+    }
+
+    if (USE_SF) {
+        // Create SalesForceManager instance and store it in the SESSION variable
+        $_SESSION['sales_force_manager'] = new SalesForceAPI();
+        $_SESSION['sales_force_manager']->connect(SF_APP_ID, SF_APP_SECRET, $_POST['email'], $_POST['password'] . $user['SFSecureKey']);
+        
+        // $_SESSION['instance_url'] = $sfConnection->instance_url;
+        // $_SESSION['access_token'] = $sfConnection->access_token;
     }
 
     $_SESSION['user_id'] = $user['Id'];

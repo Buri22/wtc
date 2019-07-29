@@ -9,7 +9,7 @@ require_once 'Db_connect.php';
 require_once 'functions.php';
 header('Access-Control-Allow-Origin: http://localhost:8080');
 header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token, Ajax-Action, X-Requested-With');
+header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token, Ajax-Action, X-Requested-With, Access-Control-Allow-Origin');
 header('Access-Control-Allow-Credentials: true');
 
 $headers = getallheaders();
@@ -17,6 +17,12 @@ $action = $headers["Ajax-Action"];
 
 if (is_ajax($headers) && $action != null) {
     switch ($action) {
+        case "sendRequestToSalesForce":
+            echo json_encode(sendRequestToSalesForce());
+            break;
+        case "sendChangeDataRequestToSalesForce":
+            echo json_encode(sendChangeDataRequestToSalesForce());
+            break;
         case "checkLogin":
             echo json_encode(checkLogin());
             // $user = checkLogin();

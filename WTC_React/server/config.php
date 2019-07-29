@@ -73,6 +73,13 @@ define("DEFAULT_APP_SETTINGS", serialize(
 ));
 
 /**
+ * SalesForce API constants
+ */
+define("USE_SF", true);
+define("SF_APP_ID", '3MVG9Ve.2wqUVx_b9M2AAZN7PdAdvR9TsRGJWEMh.UxCBdW.ST77fLadKpzvozsQq9ckixFQBwAjhbTt.ioBV');
+define("SF_APP_SECRET", '56F7D9A8A40A5B62AF4F021F0EF0685CA676CEBCE8C18728DFE071E5226616C4');
+
+/**
  * Custom categories edit functions
  * key - array name that contains data for function
  * value - function name
